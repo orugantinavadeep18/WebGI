@@ -11,6 +11,9 @@ export const apiCall = async (endpoint, options = {}) => {
 
   if (token) {
     headers.Authorization = `Bearer ${token}`;
+    console.log(`✓ Token added to request for ${endpoint}`);
+  } else {
+    console.warn(`⚠️ No token in localStorage for ${endpoint}`);
   }
 
   try {
