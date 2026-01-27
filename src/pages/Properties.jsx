@@ -25,7 +25,8 @@ import {
 const Properties = () => {
   const [searchParams] = useSearchParams();
   const { fetchProperties } = useProperties();
-  const [properties, setProperties] = useState([]);
+  const [allProperties, setAllProperties] = useState([]);
+  const [filteredProperties, setFilteredProperties] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [sortBy, setSortBy] = useState("popularity");
@@ -40,22 +41,16 @@ const Properties = () => {
   const city = searchParams.get("city");
   const budget = searchParams.get("budget");
 
-  // Fetch properties from database
+  // Fetch all properties ONCE when component mounts
   useEffect(() => {
-    const loadProperties = async () => {
+    const loadAllProperties = async () => {
       try {
         setLoading(true);
         setError(null);
         
-        const filterObj = {};
-        if (city) filterObj.city = city;
-        if (filters.propertyTypes.length > 0) filterObj.propertyType = filters.propertyTypes[0];
-        if (budget) filterObj.maxPrice = parseInt(budget);
-        if (filters.priceRange[0] > 0) filterObj.minPrice = filters.priceRange[0];
-        if (filters.priceRange[1] < 500000) filterObj.maxPrice = filters.priceRange[1];
-
-        const response = await fetchProperties(filterObj);
-        setProperties(response.properties || []);
+        // Fetch all properties without filters
+        const response = await fetchProperties({});
+        setAllProperties(response.properties || []);
       } catch (err) {
         setError(err.message);
         console.error("Error fetching properties:", err);
@@ -64,8 +59,61 @@ const Properties = () => {
       }
     };
 
-    loadProperties();
-  }, [city, budget, filters.propertyTypes, filters.priceRange, fetchProperties]);
+    loadAllProperties();
+  }, []); // Only run once on mount
+
+  // Apply client-side filtering whenever filters or data changes
+  useEffect(() => {
+    let filtered = [...allProperties];
+
+    // Filter by city (from URL)
+    if (city) {
+      filtered = filtered.filter((p) =>
+        p.city.toLowerCase().includes(city.toLowerCase())
+      );
+    }
+
+    // Filter by property type
+    if (filters.propertyTypes.length > 0) {
+      filtered = filtered.filter((p) =>
+        filters.propertyTypes.includes(p.propertyType)
+      );
+    }
+
+    // Filter by price range
+    if (filters.priceRange[0] > 0 || filters.priceRange[1] < 500000) {
+      filtered = filtered.filter(
+        (p) =>
+          p.price >= filters.priceRange[0] &&
+          p.price <= filters.priceRange[1]
+      );
+    }
+
+    // Filter by budget (from URL)
+    if (budget) {
+      filtered = filtered.filter(
+        (p) => p.price <= parseInt(budget)
+      );
+    }
+
+    // Filter by amenities
+    if (filters.amenities.length > 0) {
+      filtered = filtered.filter((p) =>
+        filters.amenities.some((a) =>
+          p.amenities?.some((pa) => pa.toLowerCase().includes(a.toLowerCase()))
+        )
+      );
+    }
+
+    // Sort
+    if (sortBy === "price_low") {
+      filtered.sort((a, b) => a.price - b.price);
+    } else if (sortBy === "price_high") {
+      filtered.sort((a, b) => b.price - a.price);
+    }
+
+    setFilteredProperties(filtered);
+  }, [allProperties, city, budget, filters, sortBy]);
 
   const clearFilters = () => {
     setFilters({
@@ -74,14 +122,6 @@ const Properties = () => {
       amenities: [],
     });
   };
-
-  // Sort properties
-  const sortedProperties = [...properties];
-  if (sortBy === "price_low") {
-    sortedProperties.sort((a, b) => a.price - b.price);
-  } else if (sortBy === "price_high") {
-    sortedProperties.sort((a, b) => b.price - a.price);
-  }
 
   return (
     <Layout>
@@ -100,7 +140,7 @@ const Properties = () => {
               {city ? `Properties in ${city}` : "All Properties"}
             </h1>
             <p className="text-muted-foreground text-sm">
-              {properties.length} properties found
+              {filteredProperties.length} properties found
             </p>
           </div>
 
@@ -161,7 +201,7 @@ const Properties = () => {
               <div className="flex items-center justify-center py-20">
                 <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
               </div>
-            ) : properties.length === 0 ? (
+            ) : filteredProperties.length === 0 ? (
               <div className="text-center py-20">
                 <p className="text-lg text-muted-foreground mb-4">
                   No properties found matching your criteria
@@ -172,7 +212,7 @@ const Properties = () => {
               </div>
             ) : (
               <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
-                {sortedProperties.map((property) => (
+                {filteredProperties.map((property) => (
                   <PropertyCard
                     key={property._id}
                     property={property}

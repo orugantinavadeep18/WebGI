@@ -44,8 +44,10 @@ export const useMessages = () => {
       if (!response.ok) {
         throw new Error(response.message || "Failed to fetch messages");
       }
-      setMessages(response.data);
-      return response.data;
+      // Handle both { messages: [...] } and [ ... ] response formats
+      const messagesData = response.data.messages || response.data || [];
+      setMessages(messagesData);
+      return messagesData;
     } catch (err) {
       setError(err.message);
       throw err;
@@ -64,8 +66,10 @@ export const useMessages = () => {
       if (!response.ok) {
         throw new Error(response.message || "Failed to fetch conversations");
       }
-      setConversations(response.data);
-      return response.data;
+      // Handle both { conversations: [...] } and [ ... ] response formats
+      const conversationsData = response.data.conversations || response.data || [];
+      setConversations(conversationsData);
+      return conversationsData;
     } catch (err) {
       setError(err.message);
       throw err;

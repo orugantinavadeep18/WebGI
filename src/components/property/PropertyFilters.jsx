@@ -13,10 +13,8 @@ import {
 const PropertyFilters = ({ filters, onFiltersChange, onClearFilters }) => {
   const [openSections, setOpenSections] = useState({
     propertyType: true,
-    gender: true,
     price: true,
     amenities: false,
-    trust: true,
   });
 
   const toggleSection = (section) => {
@@ -24,57 +22,44 @@ const PropertyFilters = ({ filters, onFiltersChange, onClearFilters }) => {
   };
 
   const propertyTypes = [
-    { value: "hostel", label: "Hostel" },
-    { value: "pg", label: "PG" },
-    { value: "rental_room", label: "Rental Room" },
-    { value: "flat", label: "Flat" },
-  ];
-
-  const genderOptions = [
-    { value: "male", label: "Boys Only" },
-    { value: "female", label: "Girls Only" },
-    { value: "any", label: "Co-ed" },
+    { value: "house", label: "House" },
+    { value: "apartment", label: "Apartment" },
+    { value: "condo", label: "Condo" },
+    { value: "villa", label: "Villa" },
+    { value: "studio", label: "Studio" },
   ];
 
   const amenityOptions = [
     "WiFi",
     "AC",
-    "Food",
-    "Laundry",
     "Parking",
     "Gym",
-    "Power Backup",
+    "Pool",
     "Security",
   ];
 
   const handlePropertyTypeChange = (type, checked) => {
     const updated = checked
-      ? [...filters.propertyTypes, type]
-      : filters.propertyTypes.filter((t) => t !== type);
+      ? [...(filters.propertyTypes || []), type]
+      : (filters.propertyTypes || []).filter((t) => t !== type);
     onFiltersChange({ ...filters, propertyTypes: updated });
-  };
-
-  const handleGenderChange = (gender, checked) => {
-    const updated = checked
-      ? [...filters.genderPreference, gender]
-      : filters.genderPreference.filter((g) => g !== gender);
-    onFiltersChange({ ...filters, genderPreference: updated });
   };
 
   const handleAmenityChange = (amenity, checked) => {
     const updated = checked
-      ? [...filters.amenities, amenity]
-      : filters.amenities.filter((a) => a !== amenity);
+      ? [...(filters.amenities || []), amenity]
+      : (filters.amenities || []).filter((a) => a !== amenity);
     onFiltersChange({ ...filters, amenities: updated });
   };
 
+  const handlePriceChange = (value) => {
+    onFiltersChange({ ...filters, priceRange: value });
+  };
+
   const hasActiveFilters =
-    filters.propertyTypes.length > 0 ||
-    filters.genderPreference.length > 0 ||
-    filters.amenities.length > 0 ||
-    filters.trustVerified ||
-    filters.priceRange[0] > 0 ||
-    filters.priceRange[1] < 50000;
+    (filters.propertyTypes && filters.propertyTypes.length > 0) ||
+    (filters.amenities && filters.amenities.length > 0) ||
+    (filters.priceRange && (filters.priceRange[0] > 0 || filters.priceRange[1] < 500000));
 
   return (
     <div className="bg-card rounded-xl border p-5 space-y-5">
@@ -97,32 +82,6 @@ const PropertyFilters = ({ filters, onFiltersChange, onClearFilters }) => {
         )}
       </div>
 
-      {/* Trust Verified */}
-      <Collapsible open={openSections.trust} onOpenChange={() => toggleSection("trust")}>
-        <CollapsibleTrigger className="flex items-center justify-between w-full py-2 border-t">
-          <span className="font-medium text-sm">Trust Verified</span>
-          {openSections.trust ? (
-            <ChevronUp className="h-4 w-4" />
-          ) : (
-            <ChevronDown className="h-4 w-4" />
-          )}
-        </CollapsibleTrigger>
-        <CollapsibleContent className="pt-3 space-y-2">
-          <div className="flex items-center space-x-2">
-            <Checkbox
-              id="trust-verified"
-              checked={filters.trustVerified}
-              onCheckedChange={(checked) =>
-                onFiltersChange({ ...filters, trustVerified: checked })
-              }
-            />
-            <Label htmlFor="trust-verified" className="text-sm cursor-pointer">
-              Show only verified properties
-            </Label>
-          </div>
-        </CollapsibleContent>
-      </Collapsible>
-
       {/* Property Type */}
       <Collapsible open={openSections.propertyType} onOpenChange={() => toggleSection("propertyType")}>
         <CollapsibleTrigger className="flex items-center justify-between w-full py-2 border-t">
@@ -138,41 +97,13 @@ const PropertyFilters = ({ filters, onFiltersChange, onClearFilters }) => {
             <div key={type.value} className="flex items-center space-x-2">
               <Checkbox
                 id={type.value}
-                checked={filters.propertyTypes.includes(type.value)}
+                checked={(filters.propertyTypes || []).includes(type.value)}
                 onCheckedChange={(checked) =>
                   handlePropertyTypeChange(type.value, checked)
                 }
               />
               <Label htmlFor={type.value} className="text-sm cursor-pointer">
                 {type.label}
-              </Label>
-            </div>
-          ))}
-        </CollapsibleContent>
-      </Collapsible>
-
-      {/* Gender Preference */}
-      <Collapsible open={openSections.gender} onOpenChange={() => toggleSection("gender")}>
-        <CollapsibleTrigger className="flex items-center justify-between w-full py-2 border-t">
-          <span className="font-medium text-sm">Gender</span>
-          {openSections.gender ? (
-            <ChevronUp className="h-4 w-4" />
-          ) : (
-            <ChevronDown className="h-4 w-4" />
-          )}
-        </CollapsibleTrigger>
-        <CollapsibleContent className="pt-3 space-y-2">
-          {genderOptions.map((option) => (
-            <div key={option.value} className="flex items-center space-x-2">
-              <Checkbox
-                id={option.value}
-                checked={filters.genderPreference.includes(option.value)}
-                onCheckedChange={(checked) =>
-                  handleGenderChange(option.value, checked)
-                }
-              />
-              <Label htmlFor={option.value} className="text-sm cursor-pointer">
-                {option.label}
               </Label>
             </div>
           ))}
@@ -191,16 +122,14 @@ const PropertyFilters = ({ filters, onFiltersChange, onClearFilters }) => {
         </CollapsibleTrigger>
         <CollapsibleContent className="pt-3 space-y-4">
           <div className="text-sm text-muted-foreground">
-            ₹{filters.priceRange[0].toLocaleString()} - ₹{filters.priceRange[1].toLocaleString()}
+            ₹{(filters.priceRange && filters.priceRange[0] ? filters.priceRange[0] : 0).toLocaleString()} - ₹{(filters.priceRange && filters.priceRange[1] ? filters.priceRange[1] : 500000).toLocaleString()}
           </div>
           <Slider
-            value={filters.priceRange}
-            onValueChange={(value) =>
-              onFiltersChange({ ...filters, priceRange: value })
-            }
+            value={filters.priceRange || [0, 500000]}
+            onValueChange={handlePriceChange}
             min={0}
-            max={50000}
-            step={1000}
+            max={500000}
+            step={10000}
             className="w-full"
           />
         </CollapsibleContent>
@@ -221,7 +150,7 @@ const PropertyFilters = ({ filters, onFiltersChange, onClearFilters }) => {
             <div key={amenity} className="flex items-center space-x-2">
               <Checkbox
                 id={amenity}
-                checked={filters.amenities.includes(amenity)}
+                checked={(filters.amenities || []).includes(amenity)}
                 onCheckedChange={(checked) =>
                   handleAmenityChange(amenity, checked)
                 }

@@ -1,4 +1,5 @@
 import Message from "../models/Message.js";
+import DirectMessage from "../models/DirectMessage.js";
 import Booking from "../models/Booking.js";
 
 // Send message
@@ -98,7 +99,7 @@ export const getUserConversations = async (req, res) => {
     // Get all bookings where user is involved
     const bookings = await Booking.find({
       $or: [{ propertyOwner: userId }, { renter: userId }],
-    });
+    }).populate("property", "title price bedrooms bathrooms address city");
 
     const conversations = await Promise.all(
       bookings.map(async (booking) => {
@@ -148,6 +149,71 @@ export const getUnreadCount = async (req, res) => {
     });
 
     res.json({ unreadCount });
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};
+
+// Send direct message (without booking)
+export const sendDirectMessage = async (req, res) => {
+  try {
+    const { receiverId, content, propertyId } = req.body;
+    const senderId = req.user.id;
+
+    // Validate
+    if (!receiverId || !content) {
+      return res
+        .status(400)
+        .json({ message: "Please provide all required fields" });
+    }
+
+    // Prevent self-messaging
+    if (senderId === receiverId) {
+      return res.status(400).json({ message: "Cannot message yourself" });
+    }
+
+    // Create direct message
+    const message = new DirectMessage({
+      sender: senderId,
+      receiver: receiverId,
+      content,
+      propertyId,
+      isRead: false,
+    });
+
+    await message.save();
+
+    res.status(201).json({
+      message: "Message sent",
+      data: message,
+    });
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};
+
+// Get direct messages between two users
+export const getDirectMessages = async (req, res) => {
+  try {
+    const { userId } = req.params;
+    const currentUserId = req.user.id;
+
+    // Get all direct messages between these two users
+    const messages = await DirectMessage.find({
+      $or: [
+        { sender: currentUserId, receiver: userId },
+        { sender: userId, receiver: currentUserId },
+      ],
+    })
+      .sort({ createdAt: 1 });
+
+    // Mark received messages as read
+    await DirectMessage.updateMany(
+      { sender: userId, receiver: currentUserId, isRead: false },
+      { isRead: true }
+    );
+
+    res.json({ messages });
   } catch (error) {
     res.status(500).json({ message: error.message });
   }

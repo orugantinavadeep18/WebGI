@@ -1,5 +1,5 @@
-import { useState } from "react";
-import { useParams, Link } from "react-router-dom";
+import { useState, useEffect } from "react";
+import { useParams, Link, useNavigate } from "react-router-dom";
 import {
   MapPin,
   Phone,
@@ -8,103 +8,110 @@ import {
   Share2,
   ChevronLeft,
   ChevronRight,
-  Wifi,
-  Wind,
-  Utensils,
-  Car,
-  Shield,
-  Dumbbell,
-  Zap,
-  Users,
-  CheckCircle,
+  MessageCircle,
+  BookOpen,
+  Loader2,
+  Star,
+  Check,
+  AlertCircle,
 } from "lucide-react";
 import Layout from "@/components/layout/Layout";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { TrustScore } from "@/components/trust/TrustBadge";
-import TrustBadge from "@/components/trust/TrustBadge";
-import BookingModal from "@/components/property/BookingModal";
+import { Card } from "@/components/ui/card";
 import { toast } from "sonner";
 import { useAuth } from "@/hooks/useAuth";
+import { useProperties } from "@/hooks/useProperties";
 
 // Import demo images
 import property1 from "@/assets/property-1.jpg";
 import property2 from "@/assets/property-2.jpg";
 import property3 from "@/assets/property-3.jpg";
 
-const amenityIcons = {
-  wifi: Wifi,
-  ac: Wind,
-  food: Utensils,
-  parking: Car,
-  security: Shield,
-  gym: Dumbbell,
-  "power backup": Zap,
-};
-
-// Demo property data
-const demoProperty = {
-  id: "demo-1",
-  name: "Sunrise Student Hostel",
-  property_type: "hostel",
-  description: `Welcome to Sunrise Student Hostel - your home away from home! Located in the heart of Koramangala, one of Bangalore's most vibrant neighborhoods, we offer the perfect blend of comfort, convenience, and community for students and young professionals.
-
-Our hostel features modern amenities, spacious rooms, and a welcoming atmosphere that makes it easy to focus on your studies while building lasting friendships. With 24/7 security, housekeeping services, and nutritious meals, you can concentrate on what matters most.
-
-Nearby landmarks include Forum Mall, Christ University, and several IT parks. Public transport options are abundant with metro stations and bus stops within walking distance.`,
-  city: "Bangalore",
-  state: "Karnataka",
-  address: "Koramangala 5th Block, Near Forum Mall",
-  pincode: "560095",
-  price_per_month: 8000,
-  security_deposit: 16000,
-  gender_preference: "male",
-  amenities: ["WiFi", "AC", "Food", "Laundry", "Parking", "Security", "Power Backup"],
-  rules: [
-    "No smoking inside the premises",
-    "Visitors allowed only in common areas",
-    "Gate closes at 11 PM",
-    "Maintain cleanliness in shared spaces",
-    "Prior notice required for late entry",
-  ],
-  images: [property1, property2, property3],
-  total_beds: 20,
-  available_beds: 5,
-};
-
-const demoVerification = {
-  document_verified: true,
-  document_verified_at: "2025-12-15",
-  owner_verified: true,
-  owner_verified_at: "2025-12-10",
-  property_inspected: true,
-  property_inspected_at: "2025-12-20",
-  safety_certified: false,
-  safety_certified_at: null,
-  trust_score: 80,
-  verification_notes: "All documents verified. Property inspection completed with satisfactory results.",
-};
-
 const PropertyDetail = () => {
   const { id } = useParams();
+  const navigate = useNavigate();
   const { user } = useAuth();
+  const { getPropertyById } = useProperties();
+  
+  const [property, setProperty] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const [isSaved, setIsSaved] = useState(false);
-  const [isBookingModalOpen, setIsBookingModalOpen] = useState(false);
+  const [showContactModal, setShowContactModal] = useState(false);
+  const [seller, setSeller] = useState(null);
 
-  const property = demoProperty;
-  const verification = demoVerification;
+  // Fetch property data
+  useEffect(() => {
+    const loadProperty = async () => {
+      try {
+        setLoading(true);
+        const data = await getPropertyById(id);
+        setProperty(data);
+        
+        // In a real app, fetch seller data from API
+        // For now, set placeholder seller info
+        setSeller({
+          id: data.seller,
+          name: "Property Owner",
+          email: "owner@example.com",
+          phone: "+91 XXXXX XXXXX",
+        });
+      } catch (err) {
+        setError(err.message);
+        console.error("Error loading property:", err);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    if (id) {
+      loadProperty();
+    }
+  }, [id]); // Only depend on id, not getPropertyById
+
+  if (loading) {
+    return (
+      <Layout>
+        <div className="flex items-center justify-center py-20">
+          <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
+        </div>
+      </Layout>
+    );
+  }
+
+  if (error || !property) {
+    return (
+      <Layout>
+        <div className="container mx-auto px-4 py-8">
+          <div className="text-center py-20">
+            <AlertCircle className="h-12 w-12 mx-auto text-destructive mb-4" />
+            <h1 className="text-2xl font-bold mb-2">Property Not Found</h1>
+            <p className="text-muted-foreground mb-6">{error || "This property could not be found"}</p>
+            <Button onClick={() => navigate("/properties")}>Back to Properties</Button>
+          </div>
+        </div>
+      </Layout>
+    );
+  }
+
+  const images = property.images && property.images.length > 0
+    ? property.images
+    : [property1, property2, property3];
+
+  const currentImage = images[currentImageIndex] || property1;
 
   const nextImage = () => {
     setCurrentImageIndex((prev) =>
-      prev === property.images.length - 1 ? 0 : prev + 1
+      prev === images.length - 1 ? 0 : prev + 1
     );
   };
 
   const prevImage = () => {
     setCurrentImageIndex((prev) =>
-      prev === 0 ? property.images.length - 1 : prev - 1
+      prev === 0 ? images.length - 1 : prev - 1
     );
   };
 
@@ -122,25 +129,29 @@ const PropertyDetail = () => {
     toast.success("Link copied to clipboard!");
   };
 
-  const handleBookNow = () => {
+  const handleContactSeller = () => {
     if (!user) {
-      toast.error("Please sign in to book");
+      toast.error("Please sign in to contact seller");
       return;
     }
-    setIsBookingModalOpen(true);
+    // Navigate to messaging/chat page
+    navigate(`/messages/${property.seller}`);
+  };
+
+  const handleInquiry = () => {
+    if (!user) {
+      toast.error("Please sign in to send inquiry");
+      return;
+    }
+    setShowContactModal(true);
   };
 
   const propertyTypeLabels = {
-    hostel: "Hostel",
-    pg: "PG",
-    rental_room: "Rental Room",
-    flat: "Flat",
-  };
-
-  const genderLabels = {
-    male: "Boys Only",
-    female: "Girls Only",
-    any: "Co-ed",
+    house: "House",
+    apartment: "Apartment",
+    condo: "Condo",
+    villa: "Villa",
+    studio: "Studio",
   };
 
   return (
@@ -148,38 +159,36 @@ const PropertyDetail = () => {
       <div className="container mx-auto px-4 py-8">
         {/* Breadcrumb */}
         <nav className="flex items-center gap-2 text-sm text-muted-foreground mb-6">
-          <Link to="/" className="hover:text-foreground">Home</Link>
+          <button onClick={() => navigate("/")} className="hover:text-foreground">Home</button>
           <span>/</span>
-          <Link to="/properties" className="hover:text-foreground">Properties</Link>
+          <button onClick={() => navigate("/properties")} className="hover:text-foreground">Properties</button>
           <span>/</span>
-          <span className="text-foreground">{property.name}</span>
+          <span className="text-foreground">{property.title}</span>
         </nav>
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
           {/* Main Content */}
           <div className="lg:col-span-2 space-y-8">
             {/* Image Gallery */}
-            <div className="relative rounded-2xl overflow-hidden aspect-video">
+            <div className="relative rounded-2xl overflow-hidden aspect-video bg-muted">
               <img
-                src={typeof property.images[currentImageIndex] === 'string' 
-                  ? property.images[currentImageIndex] 
-                  : property.images[currentImageIndex].url}
-                alt={property.name}
+                src={typeof currentImage === 'string' ? currentImage : currentImage.url || property1}
+                alt={property.title}
                 className="w-full h-full object-cover"
               />
 
               {/* Navigation */}
-              {property.images.length > 1 && (
+              {images.length > 1 && (
                 <>
                   <button
                     onClick={prevImage}
-                    className="absolute left-4 top-1/2 -translate-y-1/2 h-10 w-10 rounded-full bg-background/80 hover:bg-background flex items-center justify-center"
+                    className="absolute left-4 top-1/2 -translate-y-1/2 h-10 w-10 rounded-full bg-background/80 hover:bg-background flex items-center justify-center transition"
                   >
                     <ChevronLeft className="h-6 w-6" />
                   </button>
                   <button
                     onClick={nextImage}
-                    className="absolute right-4 top-1/2 -translate-y-1/2 h-10 w-10 rounded-full bg-background/80 hover:bg-background flex items-center justify-center"
+                    className="absolute right-4 top-1/2 -translate-y-1/2 h-10 w-10 rounded-full bg-background/80 hover:bg-background flex items-center justify-center transition"
                   >
                     <ChevronRight className="h-6 w-6" />
                   </button>
@@ -188,7 +197,7 @@ const PropertyDetail = () => {
 
               {/* Image indicators */}
               <div className="absolute bottom-4 left-1/2 -translate-x-1/2 flex gap-2">
-                {property.images.map((_, index) => (
+                {images.map((_, index) => (
                   <button
                     key={index}
                     onClick={() => setCurrentImageIndex(index)}
@@ -204,11 +213,13 @@ const PropertyDetail = () => {
               {/* Badges */}
               <div className="absolute top-4 left-4 flex gap-2">
                 <Badge className="bg-primary/90 text-primary-foreground">
-                  {propertyTypeLabels[property.property_type]}
+                  {propertyTypeLabels[property.propertyType] || property.propertyType}
                 </Badge>
-                <Badge variant="secondary">
-                  {genderLabels[property.gender_preference]}
-                </Badge>
+                {property.status && (
+                  <Badge variant="secondary" className="capitalize">
+                    {property.status}
+                  </Badge>
+                )}
               </div>
             </div>
 
@@ -216,13 +227,23 @@ const PropertyDetail = () => {
             <div className="space-y-4">
               <div className="flex items-start justify-between">
                 <div>
+                  <div className="flex items-center gap-2 mb-2">
+                    <Badge className="bg-primary/90 text-primary-foreground">
+                      {propertyTypeLabels[property.propertyType] || property.propertyType}
+                    </Badge>
+                    {property.status && (
+                      <Badge variant="outline" className="capitalize">
+                        {property.status}
+                      </Badge>
+                    )}
+                  </div>
                   <h1 className="font-heading text-3xl font-bold">
-                    {property.name}
+                    {property.title}
                   </h1>
                   <div className="flex items-center gap-2 text-muted-foreground mt-2">
                     <MapPin className="h-4 w-4" />
                     <span>
-                      {property.address}, {property.city}, {property.state} - {property.pincode}
+                      {property.address}, {property.city}
                     </span>
                   </div>
                 </div>
@@ -241,31 +262,24 @@ const PropertyDetail = () => {
                 </div>
               </div>
 
-              {/* Trust Badges */}
-              <div className="flex flex-wrap items-center gap-4">
-                <TrustScore score={verification.trust_score} size="lg" />
-                <div className="flex flex-wrap gap-2">
-                  <TrustBadge type="document" verified={verification.document_verified} size="md" />
-                  <TrustBadge type="owner" verified={verification.owner_verified} size="md" />
-                  <TrustBadge type="inspected" verified={verification.property_inspected} size="md" />
-                  <TrustBadge type="safety" verified={verification.safety_certified} size="md" />
-                </div>
+              {/* Price Info */}
+              <div className="text-lg font-semibold text-foreground">
+                ₹{property.price?.toLocaleString()}<span className="text-sm text-muted-foreground">/month</span>
               </div>
             </div>
 
             {/* Tabs */}
             <Tabs defaultValue="overview" className="space-y-6">
-              <TabsList className="grid w-full grid-cols-4">
+              <TabsList className="grid w-full grid-cols-3">
                 <TabsTrigger value="overview">Overview</TabsTrigger>
                 <TabsTrigger value="amenities">Amenities</TabsTrigger>
-                <TabsTrigger value="rules">Rules</TabsTrigger>
-                <TabsTrigger value="verification">Verification</TabsTrigger>
+                <TabsTrigger value="details">Details</TabsTrigger>
               </TabsList>
 
               <TabsContent value="overview" className="space-y-6">
                 <div>
                   <h3 className="font-heading font-semibold text-lg mb-3">About this property</h3>
-                  <p className="text-muted-foreground whitespace-pre-line">
+                  <p className="text-muted-foreground leading-relaxed">
                     {property.description}
                   </p>
                 </div>
@@ -273,147 +287,156 @@ const PropertyDetail = () => {
 
               <TabsContent value="amenities" className="space-y-6">
                 <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
-                  {property.amenities.map((amenity) => {
-                    const Icon = amenityIcons[amenity.toLowerCase()] || CheckCircle;
-                    return (
+                  {property.amenities && property.amenities.length > 0 ? (
+                    property.amenities.map((amenity, index) => (
                       <div
-                        key={amenity}
+                        key={index}
                         className="flex items-center gap-3 p-4 rounded-lg bg-secondary"
                       >
-                        <Icon className="h-5 w-5 text-accent" />
-                        <span className="font-medium">{amenity}</span>
+                        <Check className="h-5 w-5 text-accent" />
+                        <span className="font-medium capitalize">{amenity}</span>
                       </div>
-                    );
-                  })}
+                    ))
+                  ) : (
+                    <p className="text-muted-foreground col-span-full">No amenities listed</p>
+                  )}
                 </div>
               </TabsContent>
 
-              <TabsContent value="rules" className="space-y-6">
-                <ul className="space-y-3">
-                  {property.rules.map((rule, index) => (
-                    <li key={index} className="flex items-start gap-3">
-                      <div className="h-6 w-6 rounded-full bg-secondary flex items-center justify-center flex-shrink-0">
-                        <span className="text-xs font-medium">{index + 1}</span>
-                      </div>
-                      <span className="text-muted-foreground">{rule}</span>
-                    </li>
-                  ))}
-                </ul>
-              </TabsContent>
-
-              <TabsContent value="verification" className="space-y-6">
-                <div className="space-y-4">
-                  <p className="text-muted-foreground">
-                    This property has been verified through our comprehensive trust verification process.
-                  </p>
-
-                  <div className="space-y-3">
-                    {[
-                      { type: "document", verified: verification.document_verified, date: verification.document_verified_at },
-                      { type: "owner", verified: verification.owner_verified, date: verification.owner_verified_at },
-                      { type: "inspected", verified: verification.property_inspected, date: verification.property_inspected_at },
-                      { type: "safety", verified: verification.safety_certified, date: verification.safety_certified_at },
-                    ].map((item) => (
-                      <div
-                        key={item.type}
-                        className="flex items-center justify-between p-4 rounded-lg border"
-                      >
-                        <TrustBadge type={item.type} verified={item.verified} size="md" />
-                        <span className="text-sm text-muted-foreground">
-                          {item.verified && item.date
-                            ? `Verified on ${new Date(item.date).toLocaleDateString()}`
-                            : "Pending verification"}
-                        </span>
-                      </div>
-                    ))}
+              <TabsContent value="details" className="space-y-6">
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="p-4 rounded-lg bg-secondary">
+                    <p className="text-sm text-muted-foreground">Bedrooms</p>
+                    <p className="text-2xl font-semibold">{property.bedrooms}</p>
                   </div>
-
-                  {verification.verification_notes && (
-                    <div className="p-4 rounded-lg bg-secondary">
-                      <p className="text-sm text-muted-foreground">
-                        <strong>Verification Notes:</strong> {verification.verification_notes}
-                      </p>
-                    </div>
-                  )}
+                  <div className="p-4 rounded-lg bg-secondary">
+                    <p className="text-sm text-muted-foreground">Bathrooms</p>
+                    <p className="text-2xl font-semibold">{property.bathrooms}</p>
+                  </div>
+                  <div className="p-4 rounded-lg bg-secondary">
+                    <p className="text-sm text-muted-foreground">Square Feet</p>
+                    <p className="text-2xl font-semibold">{property.squareFeet?.toLocaleString()}</p>
+                  </div>
+                  <div className="p-4 rounded-lg bg-secondary">
+                    <p className="text-sm text-muted-foreground">Property Type</p>
+                    <p className="text-2xl font-semibold">{propertyTypeLabels[property.propertyType]}</p>
+                  </div>
+                  <div className="p-4 rounded-lg bg-secondary col-span-2">
+                    <p className="text-sm text-muted-foreground">Address</p>
+                    <p className="text-lg font-semibold">{property.address}</p>
+                  </div>
+                  <div className="p-4 rounded-lg bg-secondary">
+                    <p className="text-sm text-muted-foreground">City</p>
+                    <p className="text-xl font-semibold">{property.city}</p>
+                  </div>
+                  <div className="p-4 rounded-lg bg-secondary">
+                    <p className="text-sm text-muted-foreground">State</p>
+                    <p className="text-xl font-semibold">{property.state}</p>
+                  </div>
                 </div>
               </TabsContent>
             </Tabs>
           </div>
 
-          {/* Sidebar - Booking Card */}
+          {/* Sidebar - Seller Info & Contact Card */}
           <div className="lg:col-span-1">
-            <div className="sticky top-24 bg-card rounded-2xl border p-6 space-y-6">
-              {/* Price */}
-              <div>
-                <div className="flex items-baseline gap-1">
-                  <span className="text-3xl font-bold">
-                    ₹{property.price_per_month.toLocaleString()}
-                  </span>
-                  <span className="text-muted-foreground">/month</span>
+            <div className="sticky top-24 space-y-6">
+              {/* Seller Info Card */}
+              <Card className="p-6">
+                <h3 className="font-semibold text-lg mb-4">Hosted by</h3>
+                <div className="space-y-4">
+                  <div>
+                    <p className="font-medium text-lg">{seller?.name || "Property Owner"}</p>
+                    <p className="text-sm text-muted-foreground">Property Seller</p>
+                  </div>
+                  
+                  <div className="space-y-2 py-4 border-y">
+                    {seller?.email && (
+                      <div className="flex items-center gap-2 text-sm">
+                        <Mail className="h-4 w-4 text-muted-foreground" />
+                        <span className="text-muted-foreground">{seller.email}</span>
+                      </div>
+                    )}
+                    {seller?.phone && (
+                      <div className="flex items-center gap-2 text-sm">
+                        <Phone className="h-4 w-4 text-muted-foreground" />
+                        <span className="text-muted-foreground">{seller.phone}</span>
+                      </div>
+                    )}
+                  </div>
+
+                  {/* Contact Buttons */}
+                  <div className="space-y-3">
+                    <Button 
+                      className="w-full gap-2"
+                      onClick={handleContactSeller}
+                    >
+                      <MessageCircle className="h-4 w-4" />
+                      Message Seller
+                    </Button>
+                    <Button 
+                      variant="outline"
+                      className="w-full gap-2"
+                      onClick={handleInquiry}
+                    >
+                      <BookOpen className="h-4 w-4" />
+                      Send Inquiry
+                    </Button>
+                  </div>
                 </div>
-                <p className="text-sm text-muted-foreground mt-1">
-                  + ₹{property.security_deposit.toLocaleString()} security deposit
-                </p>
-              </div>
+              </Card>
 
-              {/* Availability */}
-              <div className="flex items-center justify-between py-4 border-y">
-                <div className="flex items-center gap-2">
-                  <Users className="h-5 w-5 text-muted-foreground" />
-                  <span>Available Beds</span>
+              {/* Price & Availability Card */}
+              <Card className="p-6">
+                <div className="space-y-4">
+                  <div>
+                    <p className="text-sm text-muted-foreground">Price</p>
+                    <div className="flex items-baseline gap-1 mt-1">
+                      <span className="text-3xl font-bold">
+                        ₹{property.price?.toLocaleString()}
+                      </span>
+                      <span className="text-muted-foreground">/month</span>
+                    </div>
+                  </div>
+
+                  {/* Quick Details */}
+                  <div className="grid grid-cols-2 gap-3 py-4 border-y text-sm">
+                    <div>
+                      <p className="text-muted-foreground">Bedrooms</p>
+                      <p className="font-semibold text-lg">{property.bedrooms}</p>
+                    </div>
+                    <div>
+                      <p className="text-muted-foreground">Bathrooms</p>
+                      <p className="font-semibold text-lg">{property.bathrooms}</p>
+                    </div>
+                  </div>
+
+                  <p className="text-xs text-muted-foreground">
+                    {property.status === 'available' 
+                      ? '✓ Available Now' 
+                      : `Status: ${property.status}`}
+                  </p>
                 </div>
-                <span className="font-semibold">
-                  {property.available_beds}/{property.total_beds}
-                </span>
-              </div>
+              </Card>
 
-              {/* Book Now */}
-              <Button
-                className="w-full bg-accent hover:bg-accent/90 text-accent-foreground h-12 text-base"
-                onClick={handleBookNow}
-              >
-                Book Now
-              </Button>
-
-              {/* Contact */}
-              <div className="space-y-3 pt-4 border-t">
-                <h4 className="font-medium">Contact Property</h4>
-                <Button variant="outline" className="w-full gap-2">
-                  <Phone className="h-4 w-4" />
-                  Call Owner
-                </Button>
-                <Button variant="outline" className="w-full gap-2">
-                  <Mail className="h-4 w-4" />
-                  Send Inquiry
-                </Button>
-              </div>
-
-              {/* Trust Guarantee */}
-              <div className="p-4 rounded-lg bg-green-50 border border-green-200">
+              {/* Safety & Trust */}
+              <Card className="p-4 bg-green-50 border-green-200">
                 <div className="flex items-start gap-3">
-                  <Shield className="h-5 w-5 text-green-600 flex-shrink-0" />
+                  <Check className="h-5 w-5 text-green-600 flex-shrink-0 mt-0.5" />
                   <div>
                     <p className="font-medium text-green-800 text-sm">
-                      WebGI Guarantee
+                      Verified Property
                     </p>
                     <p className="text-xs text-green-700 mt-1">
-                      This property is verified. If reality doesn't match the listing, we'll help you find an alternative.
+                      This property has been verified for authenticity and safety.
                     </p>
                   </div>
                 </div>
-              </div>
+              </Card>
             </div>
           </div>
         </div>
       </div>
-
-      {/* Booking Modal */}
-      <BookingModal
-        property={property}
-        isOpen={isBookingModalOpen}
-        onClose={() => setIsBookingModalOpen(false)}
-        onSuccess={() => setIsBookingModalOpen(false)}
-      />
     </Layout>
   );
 };

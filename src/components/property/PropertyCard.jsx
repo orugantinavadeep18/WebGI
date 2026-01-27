@@ -76,7 +76,7 @@ const PropertyCard = ({ property, isSaved, onToggleSave }) => {
       </div>
 
       {/* Content */}
-      <Link to={`/property/${property._id}`} className="block p-4">
+      <Link to={`/properties/${property._id}`} className="block p-4">
         <div className="space-y-3">
           {/* Title and Location */}
           <div>

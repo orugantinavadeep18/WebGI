@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import Layout from "@/components/layout/Layout";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -7,11 +7,14 @@ import { Card } from "@/components/ui/card";
 import { useAuth } from "@/hooks/useAuth";
 import { useMessages } from "@/hooks/useMessages";
 import { formatDistanceToNow } from "date-fns";
-import { Send, MessageCircle } from "lucide-react";
+import { Send, MessageCircle, ArrowLeft, Loader2 } from "lucide-react";
+import { apiCall } from "@/lib/api";
+import { toast } from "sonner";
 
 export default function Messages() {
   const { user } = useAuth();
   const navigate = useNavigate();
+  const { sellerId } = useParams();
   const {
     conversations,
     messages,
@@ -22,16 +25,26 @@ export default function Messages() {
   } = useMessages();
 
   const [selectedConversation, setSelectedConversation] = useState(null);
+  const [directMessages, setDirectMessages] = useState([]);
   const [messageText, setMessageText] = useState("");
   const [isSending, setIsSending] = useState(false);
+  const [loadingMessages, setLoadingMessages] = useState(false);
 
+  // Load conversations on mount
   useEffect(() => {
     if (!user) {
       navigate("/auth");
       return;
     }
     loadConversations();
-  }, [user]);
+  }, [user, navigate]);
+
+  // If sellerId is provided, load direct messages with that seller
+  useEffect(() => {
+    if (sellerId && user) {
+      loadDirectMessages();
+    }
+  }, [sellerId, user]);
 
   const loadConversations = async () => {
     try {
@@ -41,10 +54,27 @@ export default function Messages() {
     }
   };
 
+  const loadDirectMessages = async () => {
+    try {
+      setLoadingMessages(true);
+      const response = await apiCall(`/messages/direct/${sellerId}`, {
+        method: "GET",
+      });
+      if (response.ok) {
+        setDirectMessages(response.data?.messages || []);
+      }
+    } catch (error) {
+      console.error("Failed to load direct messages:", error);
+      toast.error("Failed to load messages");
+    } finally {
+      setLoadingMessages(false);
+    }
+  };
+
   const handleSelectConversation = async (conversation) => {
     setSelectedConversation(conversation);
     try {
-      await getBookingMessages(conversation.booking._id);
+      await getBookingMessages(conversation.bookingId);
     } catch (error) {
       console.error("Failed to load messages:", error);
     }
@@ -52,20 +82,36 @@ export default function Messages() {
 
   const handleSendMessage = async (e) => {
     e.preventDefault();
-    if (!messageText.trim() || !selectedConversation) return;
+    if (!messageText.trim()) return;
 
     setIsSending(true);
     try {
-      const receiverId = selectedConversation.booking.propertyOwner === user.id
-        ? selectedConversation.booking.renter
-        : selectedConversation.booking.propertyOwner;
-
-      await sendMessage(selectedConversation.booking._id, receiverId, messageText);
-      setMessageText("");
-      // Refresh messages
-      await getBookingMessages(selectedConversation.booking._id);
+      if (sellerId) {
+        // Send direct message
+        const response = await apiCall("/messages/direct/send", {
+          method: "POST",
+          body: JSON.stringify({
+            receiverId: sellerId,
+            content: messageText,
+          }),
+        });
+        if (response.ok) {
+          setMessageText("");
+          // Reload direct messages
+          await loadDirectMessages();
+        } else {
+          toast.error(response.message || "Failed to send message");
+        }
+      } else if (selectedConversation) {
+        // Send booking-based message
+        await sendMessage(selectedConversation.bookingId, selectedConversation.otherPartyId, messageText);
+        setMessageText("");
+        // Refresh messages
+        await getBookingMessages(selectedConversation.bookingId);
+      }
     } catch (error) {
       console.error("Failed to send message:", error);
+      toast.error("Failed to send message");
     } finally {
       setIsSending(false);
     }
@@ -81,6 +127,105 @@ export default function Messages() {
     );
   }
 
+  // Direct message view (from PropertyDetail)
+  if (sellerId) {
+    return (
+      <Layout>
+        <div className="container mx-auto px-4 py-8 max-w-2xl">
+          {/* Header */}
+          <div className="mb-6 flex items-center gap-4">
+            <button
+              onClick={() => navigate(-1)}
+              className="flex items-center gap-2 text-primary hover:text-primary/80"
+            >
+              <ArrowLeft className="h-4 w-4" />
+              Back
+            </button>
+            <h1 className="text-2xl font-bold">Message Seller</h1>
+          </div>
+
+          {/* Messages Card */}
+          <Card className="flex flex-col h-[600px]">
+            {/* Messages Area */}
+            <div className="flex-1 overflow-y-auto p-6 space-y-4">
+              {loadingMessages ? (
+                <div className="flex items-center justify-center h-full">
+                  <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
+                </div>
+              ) : directMessages.length === 0 ? (
+                <div className="flex items-center justify-center h-full text-muted-foreground">
+                  <p>No messages yet. Start a conversation!</p>
+                </div>
+              ) : (
+                directMessages.map((message) => (
+                  <div
+                    key={message._id}
+                    className={`flex ${
+                      message.sender === user.id ? "justify-end" : "justify-start"
+                    }`}
+                  >
+                    <div
+                      className={`max-w-xs px-4 py-2 rounded-lg ${
+                        message.sender === user.id
+                          ? "bg-primary text-primary-foreground"
+                          : "bg-secondary text-foreground"
+                      }`}
+                    >
+                      <p className="text-sm">{message.content}</p>
+                      <p
+                        className={`text-xs mt-1 ${
+                          message.sender === user.id
+                            ? "text-primary-foreground/70"
+                            : "text-muted-foreground"
+                        }`}
+                      >
+                        {new Date(message.createdAt).toLocaleTimeString([], {
+                          hour: "2-digit",
+                          minute: "2-digit",
+                        })}
+                      </p>
+                    </div>
+                  </div>
+                ))
+              )}
+            </div>
+
+            {/* Message Input */}
+            <div className="border-t p-4">
+              <form onSubmit={handleSendMessage} className="flex gap-2">
+                <Input
+                  placeholder="Type your message..."
+                  value={messageText}
+                  onChange={(e) => setMessageText(e.target.value)}
+                  disabled={isSending}
+                />
+                <Button
+                  type="submit"
+                  disabled={isSending || !messageText.trim()}
+                  size="icon"
+                >
+                  {isSending ? (
+                    <Loader2 className="h-4 w-4 animate-spin" />
+                  ) : (
+                    <Send className="h-4 w-4" />
+                  )}
+                </Button>
+              </form>
+            </div>
+          </Card>
+
+          {/* Safety Info */}
+          <Card className="mt-6 p-4 bg-blue-50 border-blue-200">
+            <p className="text-sm text-blue-800">
+              <strong>💡 Safety Tip:</strong> Always meet in person before making any commitments. Never share personal financial details online.
+            </p>
+          </Card>
+        </div>
+      </Layout>
+    );
+  }
+
+  // Conversation list view
   return (
     <Layout>
       <div className="container mx-auto px-4 py-8">
@@ -103,10 +248,10 @@ export default function Messages() {
               ) : (
                 conversations.map((conversation) => (
                   <div
-                    key={conversation.booking._id}
+                    key={conversation.bookingId}
                     onClick={() => handleSelectConversation(conversation)}
                     className={`p-4 border-b cursor-pointer hover:bg-gray-50 ${
-                      selectedConversation?.booking._id === conversation.booking._id
+                      selectedConversation?.bookingId === conversation.bookingId
                         ? "bg-blue-50 border-l-4 border-l-blue-600"
                         : ""
                     }`}
@@ -114,10 +259,10 @@ export default function Messages() {
                     <div className="flex items-start justify-between">
                       <div className="flex-1">
                         <p className="font-medium truncate">
-                          {conversation.booking.property?.title || "Property"}
+                          {conversation.property?.title || "Property"}
                         </p>
                         <p className="text-sm text-gray-600 truncate">
-                          {conversation.lastMessage?.content || "No messages yet"}
+                          {conversation.lastMessage || "No messages yet"}
                         </p>
                       </div>
                       {conversation.unreadCount > 0 && (
@@ -127,11 +272,9 @@ export default function Messages() {
                       )}
                     </div>
                     <p className="text-xs text-gray-500 mt-1">
-                      {conversation.lastMessage?.createdAt
-                        ? formatDistanceToNow(new Date(conversation.lastMessage.createdAt), {
-                            addSuffix: true,
-                          })
-                        : "No messages"}
+                      {formatDistanceToNow(new Date(conversation.lastMessageTime), {
+                        addSuffix: true,
+                      })}
                     </p>
                   </div>
                 ))
@@ -143,18 +286,25 @@ export default function Messages() {
           {selectedConversation ? (
             <div className="md:col-span-2 border rounded-lg overflow-hidden flex flex-col">
               {/* Chat Header */}
-              <div className="bg-gray-50 p-4 border-b">
-                <h2 className="font-semibold">
-                  {selectedConversation.booking.property?.title || "Property"}
-                </h2>
-                <p className="text-sm text-gray-600">
-                  Booking: {new Date(selectedConversation.booking.createdAt).toLocaleDateString()}
-                </p>
+              <div className="bg-gray-50 p-4 border-b flex items-center justify-between">
+                <div>
+                  <h2 className="font-semibold">
+                    {selectedConversation.property?.title || "Property"}
+                  </h2>
+                  <p className="text-sm text-gray-600">
+                    Status: {selectedConversation.bookingStatus || "Active"}
+                  </p>
+                </div>
               </div>
 
               {/* Messages */}
               <div className="flex-1 overflow-y-auto p-4 space-y-4">
-                {messages.length === 0 ? (
+                {loading && messages.length === 0 ? (
+                  <div className="text-center text-gray-500 py-8">
+                    <MessageCircle className="h-8 w-8 mx-auto mb-2 opacity-50" />
+                    <p>Loading messages...</p>
+                  </div>
+                ) : messages.length === 0 ? (
                   <div className="text-center text-gray-500 py-8">
                     <MessageCircle className="h-8 w-8 mx-auto mb-2 opacity-50" />
                     <p>No messages yet. Start the conversation!</p>
@@ -164,12 +314,12 @@ export default function Messages() {
                     <div
                       key={message._id}
                       className={`flex ${
-                        message.sender === user.id ? "justify-end" : "justify-start"
+                        message.sender === user?.id ? "justify-end" : "justify-start"
                       }`}
                     >
                       <div
                         className={`max-w-xs px-4 py-2 rounded-lg ${
-                          message.sender === user.id
+                          message.sender === user?.id
                             ? "bg-blue-600 text-white"
                             : "bg-gray-200 text-gray-900"
                         }`}
@@ -177,7 +327,7 @@ export default function Messages() {
                         <p>{message.content}</p>
                         <p
                           className={`text-xs mt-1 ${
-                            message.sender === user.id
+                            message.sender === user?.id
                               ? "text-blue-100"
                               : "text-gray-600"
                           }`}

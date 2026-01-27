@@ -149,8 +149,8 @@ const ChatBot = () => {
           <div 
             ref={lottieRef} 
             style={{ 
-              width: "384px", 
-              height: "384px", 
+              width: "192px", 
+              height: "192px", 
               display: "flex", 
               alignItems: "center", 
               justifyContent: "center",
@@ -162,7 +162,7 @@ const ChatBot = () => {
 
       {/* Chatbot Container */}
       {isOpen && (
-        <div className="fixed bottom-24 right-6 z-50 w-96 h-[500px] bg-white rounded-lg shadow-2xl flex flex-col border border-border animate-slide-up">
+        <div className="fixed bottom-24 right-6 z-50 w-48 h-[250px] bg-white rounded-lg shadow-2xl flex flex-col border border-border animate-slide-up">
           {/* Header */}
           <div className="bg-gradient-to-r from-primary via-primary/95 to-primary/90 text-white p-4 rounded-t-lg">
             <div className="flex items-center justify-between">

@@ -52,6 +52,7 @@ const AppContent = () => {
           <Route path="/my-properties" element={<ListProperties />} />
           <Route path="/create-property" element={<CreateProperty />} />
           <Route path="/messages" element={<Messages />} />
+          <Route path="/messages/:sellerId" element={<Messages />} />
           <Route path="/booking-requests" element={<BookingRequests />} />
           <Route path="/auth" element={<Auth />} />
           <Route path="*" element={<NotFound />} />
