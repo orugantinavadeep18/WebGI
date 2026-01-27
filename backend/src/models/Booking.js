@@ -8,14 +8,14 @@ const bookingSchema = new mongoose.Schema(
       required: true,
     },
     propertyOwner: {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: "User",
+      type: String,
       required: true,
+      // Stores Supabase user ID (UUID)
     },
     renter: {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: "User",
+      type: String,
       required: true,
+      // Stores Supabase user ID (UUID)
     },
     checkInDate: {
       type: Date,

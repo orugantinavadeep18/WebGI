@@ -8,14 +8,14 @@ const messageSchema = new mongoose.Schema(
       required: true,
     },
     sender: {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: "User",
+      type: String,
       required: true,
+      // Stores Supabase user ID (UUID)
     },
     receiver: {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: "User",
+      type: String,
       required: true,
+      // Stores Supabase user ID (UUID)
     },
     content: {
       type: String,

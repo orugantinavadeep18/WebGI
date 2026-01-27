@@ -23,7 +23,7 @@ export const createBooking = async (req, res) => {
     }
 
     // Check if user is not the owner
-    if (property.seller.toString() === renterId) {
+    if (property.seller === renterId) {
       return res
         .status(400)
         .json({ message: "Cannot book your own property" });

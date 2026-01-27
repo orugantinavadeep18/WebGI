@@ -121,7 +121,7 @@ export const updateProperty = async (req, res) => {
     }
 
     // Check if user is the seller
-    if (property.seller.toString() !== req.user.id) {
+    if (property.seller !== req.user.id) {
       return res.status(403).json({
         success: false,
         message: "You can only update your own properties",
@@ -155,7 +155,7 @@ export const deleteProperty = async (req, res) => {
     }
 
     // Check if user is the seller
-    if (property.seller.toString() !== req.user.id) {
+    if (property.seller !== req.user.id) {
       return res.status(403).json({
         success: false,
         message: "You can only delete your own properties",
@@ -201,7 +201,7 @@ export const uploadPropertyImages = async (req, res) => {
     }
 
     // Check if user is the seller
-    if (property.seller.toString() !== req.user.id) {
+    if (property.seller !== req.user.id) {
       return res.status(403).json({
         success: false,
         message: "You can only upload images to your own properties",

@@ -22,16 +22,16 @@ export const sendMessage = async (req, res) => {
 
     // Check if sender is part of this booking
     if (
-      booking.propertyOwner.toString() !== senderId &&
-      booking.renter.toString() !== senderId
+      booking.propertyOwner !== senderId &&
+      booking.renter !== senderId
     ) {
       return res.status(403).json({ message: "Access denied" });
     }
 
     // Check if receiver is the other party in booking
     if (
-      receiverId !== booking.propertyOwner.toString() &&
-      receiverId !== booking.renter.toString()
+      receiverId !== booking.propertyOwner &&
+      receiverId !== booking.renter
     ) {
       return res.status(400).json({ message: "Invalid receiver" });
     }
@@ -46,10 +46,6 @@ export const sendMessage = async (req, res) => {
     });
 
     await message.save();
-    await message.populate([
-      { path: "sender", select: "name email" },
-      { path: "receiver", select: "name email" },
-    ]);
 
     res.status(201).json({
       message: "Message sent",
@@ -80,8 +76,6 @@ export const getBookingMessages = async (req, res) => {
     }
 
     const messages = await Message.find({ booking: bookingId })
-      .populate("sender", "name email")
-      .populate("receiver", "name email")
       .sort({ createdAt: 1 });
 
     // Mark unread messages as read
@@ -109,12 +103,10 @@ export const getUserConversations = async (req, res) => {
     const conversations = await Promise.all(
       bookings.map(async (booking) => {
         const lastMessage = await Message.findOne({ booking: booking._id })
-          .sort({ createdAt: -1 })
-          .populate("sender", "name email")
-          .populate("receiver", "name email");
+          .sort({ createdAt: -1 });
 
         const otherPartyId =
-          booking.propertyOwner.toString() === userId
+          booking.propertyOwner === userId
             ? booking.renter
             : booking.propertyOwner;
 
