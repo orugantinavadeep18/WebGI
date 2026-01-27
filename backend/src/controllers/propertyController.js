@@ -49,6 +49,9 @@ export const getPropertyById = async (req, res) => {
 
 export const createProperty = async (req, res) => {
   try {
+    console.log("📝 CREATE PROPERTY - User:", req.user);
+    console.log("📝 CREATE PROPERTY - Request Body:", req.body);
+
     const {
       title,
       description,
@@ -94,11 +97,13 @@ export const createProperty = async (req, res) => {
       city,
       state,
       zipCode,
-      amenities: amenities ? amenities.split(",") : [],
+      amenities: Array.isArray(amenities) ? amenities : (amenities ? amenities.split(",") : []),
       seller: req.user.id,
     });
 
+    console.log("📝 CREATE PROPERTY - Property object:", property);
     const savedProperty = await property.save();
+    console.log("✅ CREATE PROPERTY - Saved successfully:", savedProperty._id);
 
     res.status(201).json({
       success: true,
@@ -106,6 +111,8 @@ export const createProperty = async (req, res) => {
       property: savedProperty,
     });
   } catch (error) {
+    console.error("❌ CREATE PROPERTY ERROR:", error);
+    console.error("Error Stack:", error.stack);
     res.status(500).json({ success: false, message: error.message });
   }
 };

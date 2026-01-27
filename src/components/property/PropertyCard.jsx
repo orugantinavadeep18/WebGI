@@ -1,9 +1,8 @@
 import { Link } from "react-router-dom";
-import { Heart, MapPin, Users, Wifi, Wind, Utensils } from "lucide-react";
+import { Heart, MapPin, BedDouble, Bath } from "lucide-react";
 import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { TrustScore, TrustBadgesRow } from "@/components/trust/TrustBadge";
 import { cn } from "@/lib/utils";
 
 // Import property images
@@ -13,13 +12,7 @@ import property3 from "@/assets/property-3.jpg";
 
 const defaultImages = [property1, property2, property3];
 
-const amenityIcons = {
-  wifi: Wifi,
-  ac: Wind,
-  food: Utensils,
-};
-
-const PropertyCard = ({ property, verification, isSaved, onToggleSave }) => {
+const PropertyCard = ({ property, isSaved, onToggleSave }) => {
   // Handle both image formats: string URL or object with url property
   let imageUrl;
   if (property.images && property.images.length > 0) {
@@ -27,19 +20,13 @@ const PropertyCard = ({ property, verification, isSaved, onToggleSave }) => {
     imageUrl = typeof firstImage === 'string' ? firstImage : firstImage.url;
   }
   imageUrl = imageUrl || defaultImages[Math.floor(Math.random() * 3)];
-  const trustScore = verification?.trust_score || 0;
 
   const propertyTypeLabels = {
-    hostel: "Hostel",
-    pg: "PG",
-    rental_room: "Rental Room",
-    flat: "Flat",
-  };
-
-  const genderLabels = {
-    male: "Boys",
-    female: "Girls",
-    any: "Co-ed",
+    house: "House",
+    apartment: "Apartment",
+    condo: "Condo",
+    villa: "Villa",
+    studio: "Studio",
   };
 
   return (
@@ -52,31 +39,24 @@ const PropertyCard = ({ property, verification, isSaved, onToggleSave }) => {
       whileHover={{ y: -4, transition: { duration: 0.2 } }}
     >
       {/* Image */}
-      <div className="relative aspect-[4/3] overflow-hidden">
+      <div className="relative aspect-[4/3] overflow-hidden rounded-lg">
         <img
           src={imageUrl}
-          alt={property.name}
+          alt={property.title}
           className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
         />
         
         {/* Badges overlay */}
         <div className="absolute top-3 left-3 flex gap-2">
           <Badge className="bg-primary/90 text-primary-foreground text-xs font-medium">
-            {propertyTypeLabels[property.property_type] || property.property_type}
+            {propertyTypeLabels[property.propertyType] || property.propertyType}
           </Badge>
-          {property.gender_preference !== "any" && (
-            <Badge variant="secondary" className="text-xs">
-              {genderLabels[property.gender_preference]}
+          {property.status && (
+            <Badge variant="secondary" className="text-xs capitalize">
+              {property.status}
             </Badge>
           )}
         </div>
-
-        {/* Trust Score */}
-        {trustScore > 0 && (
-          <div className="absolute top-3 right-3">
-            <TrustScore score={trustScore} size="sm" />
-          </div>
-        )}
 
         {/* Save button */}
         <Button
@@ -96,12 +76,12 @@ const PropertyCard = ({ property, verification, isSaved, onToggleSave }) => {
       </div>
 
       {/* Content */}
-      <Link to={`/property/${property.id}`} className="block p-4">
+      <Link to={`/property/${property._id}`} className="block p-4">
         <div className="space-y-3">
           {/* Title and Location */}
           <div>
             <h3 className="font-heading font-semibold text-lg text-foreground group-hover:text-accent transition-colors line-clamp-1">
-              {property.name}
+              {property.title}
             </h3>
             <div className="flex items-center gap-1 text-muted-foreground text-sm mt-1">
               <MapPin className="h-3.5 w-3.5" />
@@ -109,33 +89,30 @@ const PropertyCard = ({ property, verification, isSaved, onToggleSave }) => {
             </div>
           </div>
 
-          {/* Trust Badges */}
-          <TrustBadgesRow verification={verification} size="sm" />
-
           {/* Amenities */}
-          <div className="flex items-center gap-3 text-sm text-muted-foreground">
-            {property.amenities?.slice(0, 3).map((amenity) => {
-              const Icon = amenityIcons[amenity.toLowerCase()] || Wifi;
-              return (
-                <div key={amenity} className="flex items-center gap-1">
-                  <Icon className="h-3.5 w-3.5" />
-                  <span className="capitalize">{amenity}</span>
-                </div>
-              );
-            })}
+          <div className="flex items-center gap-3 text-sm text-muted-foreground flex-wrap">
+            {property.amenities?.slice(0, 3).map((amenity) => (
+              <span key={amenity} className="capitalize">{amenity}</span>
+            ))}
           </div>
 
-          {/* Price and Availability */}
+          {/* Price and Details */}
           <div className="flex items-center justify-between pt-2 border-t">
             <div>
               <span className="text-xl font-bold text-foreground">
-                ₹{property.price_per_month.toLocaleString()}
+                ₹{property.price?.toLocaleString()}
               </span>
               <span className="text-sm text-muted-foreground">/month</span>
             </div>
-            <div className="flex items-center gap-1 text-sm text-muted-foreground">
-              <Users className="h-4 w-4" />
-              <span>{property.available_beds}/{property.total_beds} beds</span>
+            <div className="flex items-center gap-3 text-sm text-muted-foreground">
+              <div className="flex items-center gap-1">
+                <BedDouble className="h-4 w-4" />
+                <span>{property.bedrooms}</span>
+              </div>
+              <div className="flex items-center gap-1">
+                <Bath className="h-4 w-4" />
+                <span>{property.bathrooms}</span>
+              </div>
             </div>
           </div>
         </div>
