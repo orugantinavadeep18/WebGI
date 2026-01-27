@@ -18,7 +18,6 @@ export const getAllProperties = async (req, res) => {
     if (status) filter.status = status;
 
     const properties = await Property.find(filter)
-      .populate("seller", "name phone profileImage")
       .limit(50)
       .sort({ createdAt: -1 });
 
@@ -34,7 +33,7 @@ export const getPropertyById = async (req, res) => {
       req.params.id,
       { $inc: { views: 1 } },
       { new: true }
-    ).populate("seller", "name email phone profileImage");
+    );
 
     if (!property) {
       return res
@@ -104,10 +103,7 @@ export const createProperty = async (req, res) => {
     res.status(201).json({
       success: true,
       message: "Property created successfully",
-      property: await savedProperty.populate(
-        "seller",
-        "name phone profileImage"
-      ),
+      property: savedProperty,
     });
   } catch (error) {
     res.status(500).json({ success: false, message: error.message });
@@ -259,7 +255,6 @@ export const uploadPropertyImages = async (req, res) => {
 export const getSellerProperties = async (req, res) => {
   try {
     const properties = await Property.find({ seller: req.user.id })
-      .populate("seller", "name phone profileImage")
       .sort({ createdAt: -1 });
 
     res.json({ success: true, count: properties.length, properties });
@@ -286,7 +281,6 @@ export const searchProperties = async (req, res) => {
         { city: { $regex: query, $options: "i" } },
       ],
     })
-      .populate("seller", "name phone profileImage")
       .limit(20);
 
     res.json({ success: true, count: properties.length, properties });

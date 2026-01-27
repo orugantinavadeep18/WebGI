@@ -67,9 +67,9 @@ const propertySchema = new mongoose.Schema(
     ],
     amenities: [String],
     seller: {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: "User",
+      type: String,
       required: true,
+      // Stores Supabase user ID (UUID) instead of MongoDB ObjectId
     },
     status: {
       type: String,

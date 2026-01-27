@@ -50,10 +50,15 @@ app.get("/api/health", (req, res) => {
 
 // Error handling middleware
 app.use((err, req, res, next) => {
-  console.error(err.stack);
+  console.error("❌ SERVER ERROR");
+  console.error("Message:", err.message);
+  console.error("Stack:", err.stack);
+  console.error("Route:", req.method, req.path);
+  console.error("User:", req.user);
   res.status(500).json({
     success: false,
     message: err.message || "Internal server error",
+    error: process.env.NODE_ENV === "development" ? err.message : undefined,
   });
 });
 
