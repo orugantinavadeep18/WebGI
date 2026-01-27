@@ -22,7 +22,10 @@ export const apiCall = async (endpoint, options = {}) => {
     if (!response.ok) {
       if (response.status === 401) {
         localStorage.removeItem("token");
-        window.location.href = "/auth";
+        // Don't redirect - let the component handle it
+        const error = new Error("Unauthorized - Token expired or invalid");
+        error.status = 401;
+        throw error;
       }
       throw new Error(`HTTP error! status: ${response.status}`);
     }

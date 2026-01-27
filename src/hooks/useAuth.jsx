@@ -15,6 +15,14 @@ export const AuthProvider = ({ children }) => {
       async (event, session) => {
         setSession(session);
         setUser(session?.user ?? null);
+        
+        // Store the Supabase session token for API calls
+        if (session?.access_token) {
+          localStorage.setItem("token", session.access_token);
+        } else {
+          localStorage.removeItem("token");
+        }
+        
         setLoading(false);
       }
     );
@@ -23,6 +31,14 @@ export const AuthProvider = ({ children }) => {
     supabase.auth.getSession().then(({ data: { session } }) => {
       setSession(session);
       setUser(session?.user ?? null);
+      
+      // Store the Supabase session token for API calls
+      if (session?.access_token) {
+        localStorage.setItem("token", session.access_token);
+      } else {
+        localStorage.removeItem("token");
+      }
+      
       setLoading(false);
     });
 
@@ -69,6 +85,7 @@ export const AuthProvider = ({ children }) => {
       toast.error(error.message);
       throw error;
     }
+    localStorage.removeItem("token");
     toast.success("Signed out successfully");
   };
 
