@@ -1,5 +1,5 @@
 import { useState, useCallback } from "react";
-import api from "../lib/api";
+import { apiCall } from "../lib/api";
 
 export const useMessages = () => {
   const [loading, setLoading] = useState(false);
@@ -12,10 +12,13 @@ export const useMessages = () => {
     setLoading(true);
     setError(null);
     try {
-      const response = await api.messages.send({
-        bookingId,
-        receiverId,
-        content,
+      const response = await apiCall("/messages", {
+        method: "POST",
+        body: JSON.stringify({
+          bookingId,
+          receiverId,
+          content,
+        }),
       });
       if (!response.ok) {
         throw new Error(response.message || "Failed to send message");
@@ -35,7 +38,9 @@ export const useMessages = () => {
     setLoading(true);
     setError(null);
     try {
-      const response = await api.messages.getBookingMessages(bookingId);
+      const response = await apiCall(`/messages/booking/${bookingId}`, {
+        method: "GET",
+      });
       if (!response.ok) {
         throw new Error(response.message || "Failed to fetch messages");
       }
@@ -53,7 +58,9 @@ export const useMessages = () => {
     setLoading(true);
     setError(null);
     try {
-      const response = await api.messages.getConversations();
+      const response = await apiCall("/messages/conversations/all", {
+        method: "GET",
+      });
       if (!response.ok) {
         throw new Error(response.message || "Failed to fetch conversations");
       }
@@ -69,7 +76,9 @@ export const useMessages = () => {
 
   const getUnreadCount = useCallback(async () => {
     try {
-      const response = await api.messages.getUnreadCount();
+      const response = await apiCall("/messages/unread/count", {
+        method: "GET",
+      });
       if (!response.ok) {
         throw new Error(response.message || "Failed to fetch unread count");
       }

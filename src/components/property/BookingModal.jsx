@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "../ui/dialog";
+import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetFooter } from "../ui/sheet";
 import { Button } from "../ui/button";
 import { Input } from "../ui/input";
 import { Label } from "../ui/label";
@@ -70,13 +70,13 @@ export default function BookingModal({ property, isOpen, onClose, onSuccess }) {
   };
 
   return (
-    <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="max-w-md">
-        <DialogHeader>
-          <DialogTitle>Book {property?.title}</DialogTitle>
-        </DialogHeader>
+    <Sheet open={isOpen} onOpenChange={onClose}>
+      <SheetContent className="max-w-md">
+        <SheetHeader>
+          <SheetTitle>Book {property?.title}</SheetTitle>
+        </SheetHeader>
 
-        <form onSubmit={handleSubmit} className="space-y-4">
+        <form onSubmit={handleSubmit} className="space-y-4 mt-6">
           <div className="space-y-2">
             <Label htmlFor="checkIn">Check-in Date</Label>
             <Input
@@ -133,7 +133,7 @@ export default function BookingModal({ property, isOpen, onClose, onSuccess }) {
             </div>
           )}
 
-          <DialogFooter className="gap-2">
+          <SheetFooter className="gap-2 pt-4">
             <Button variant="outline" onClick={onClose} disabled={isSubmitting}>
               Cancel
             </Button>
@@ -144,7 +144,7 @@ export default function BookingModal({ property, isOpen, onClose, onSuccess }) {
             >
               {isSubmitting ? "Booking..." : "Book Now"}
             </Button>
-          </DialogFooter>
+          </SheetFooter>
         </form>
 
         {!user && (
@@ -152,7 +152,7 @@ export default function BookingModal({ property, isOpen, onClose, onSuccess }) {
             Please log in to book this property.
           </div>
         )}
-      </DialogContent>
-    </Dialog>
+      </SheetContent>
+    </Sheet>
   );
 }

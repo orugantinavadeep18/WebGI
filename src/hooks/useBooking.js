@@ -1,5 +1,5 @@
 import { useState } from "react";
-import api from "../lib/api";
+import { apiCall } from "../lib/api";
 
 export const useBooking = () => {
   const [loading, setLoading] = useState(false);
@@ -9,9 +9,12 @@ export const useBooking = () => {
     setLoading(true);
     setError(null);
     try {
-      const response = await api.bookings.create({
-        propertyId,
-        ...bookingData,
+      const response = await apiCall("/bookings", {
+        method: "POST",
+        body: JSON.stringify({
+          propertyId,
+          ...bookingData,
+        }),
       });
       if (!response.ok) {
         throw new Error(response.message || "Failed to create booking");
@@ -29,7 +32,9 @@ export const useBooking = () => {
     setLoading(true);
     setError(null);
     try {
-      const response = await api.bookings.getOwnerRequests();
+      const response = await apiCall("/bookings/owner/requests", {
+        method: "GET",
+      });
       if (!response.ok) {
         throw new Error(response.message || "Failed to fetch requests");
       }
@@ -46,7 +51,9 @@ export const useBooking = () => {
     setLoading(true);
     setError(null);
     try {
-      const response = await api.bookings.getRenterBookings();
+      const response = await apiCall("/bookings/renter/bookings", {
+        method: "GET",
+      });
       if (!response.ok) {
         throw new Error(response.message || "Failed to fetch bookings");
       }
@@ -63,7 +70,9 @@ export const useBooking = () => {
     setLoading(true);
     setError(null);
     try {
-      const response = await api.bookings.accept(bookingId);
+      const response = await apiCall(`/bookings/${bookingId}/accept`, {
+        method: "PUT",
+      });
       if (!response.ok) {
         throw new Error(response.message || "Failed to accept booking");
       }
@@ -80,7 +89,9 @@ export const useBooking = () => {
     setLoading(true);
     setError(null);
     try {
-      const response = await api.bookings.reject(bookingId);
+      const response = await apiCall(`/bookings/${bookingId}/reject`, {
+        method: "PUT",
+      });
       if (!response.ok) {
         throw new Error(response.message || "Failed to reject booking");
       }
@@ -97,7 +108,9 @@ export const useBooking = () => {
     setLoading(true);
     setError(null);
     try {
-      const response = await api.bookings.cancel(bookingId);
+      const response = await apiCall(`/bookings/${bookingId}/cancel`, {
+        method: "PUT",
+      });
       if (!response.ok) {
         throw new Error(response.message || "Failed to cancel booking");
       }
