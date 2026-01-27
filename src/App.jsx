@@ -13,6 +13,8 @@ import PropertyDetail from "./pages/PropertyDetail";
 import Auth from "./pages/Auth";
 import ListProperties from "./pages/ListProperties";
 import CreateProperty from "./pages/CreateProperty";
+import Messages from "./pages/Messages";
+import BookingRequests from "./pages/BookingRequests";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -49,6 +51,8 @@ const AppContent = () => {
           <Route path="/properties/:id" element={<PropertyDetail />} />
           <Route path="/my-properties" element={<ListProperties />} />
           <Route path="/create-property" element={<CreateProperty />} />
+          <Route path="/messages" element={<Messages />} />
+          <Route path="/booking-requests" element={<BookingRequests />} />
           <Route path="/auth" element={<Auth />} />
           <Route path="*" element={<NotFound />} />
         </Routes>

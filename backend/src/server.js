@@ -5,6 +5,8 @@ import dotenv from "dotenv";
 import connectDB from "./config/database.js";
 import authRoutes from "./routes/auth.js";
 import propertyRoutes from "./routes/properties.js";
+import bookingRoutes from "./routes/bookings.js";
+import messageRoutes from "./routes/messages.js";
 
 dotenv.config();
 
@@ -38,6 +40,8 @@ connectDB();
 // Routes
 app.use("/api/auth", authRoutes);
 app.use("/api/properties", propertyRoutes);
+app.use("/api/bookings", bookingRoutes);
+app.use("/api/messages", messageRoutes);
 
 // Health check endpoint
 app.get("/api/health", (req, res) => {

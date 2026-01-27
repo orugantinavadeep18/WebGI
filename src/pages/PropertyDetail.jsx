@@ -24,6 +24,7 @@ import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { TrustScore } from "@/components/trust/TrustBadge";
 import TrustBadge from "@/components/trust/TrustBadge";
+import BookingModal from "@/components/property/BookingModal";
 import { toast } from "sonner";
 import { useAuth } from "@/hooks/useAuth";
 
@@ -90,6 +91,7 @@ const PropertyDetail = () => {
   const { user } = useAuth();
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const [isSaved, setIsSaved] = useState(false);
+  const [isBookingModalOpen, setIsBookingModalOpen] = useState(false);
 
   const property = demoProperty;
   const verification = demoVerification;
@@ -125,7 +127,7 @@ const PropertyDetail = () => {
       toast.error("Please sign in to book");
       return;
     }
-    toast.success("Booking request sent! The owner will contact you soon.");
+    setIsBookingModalOpen(true);
   };
 
   const propertyTypeLabels = {
@@ -404,6 +406,14 @@ const PropertyDetail = () => {
           </div>
         </div>
       </div>
+
+      {/* Booking Modal */}
+      <BookingModal
+        property={property}
+        isOpen={isBookingModalOpen}
+        onClose={() => setIsBookingModalOpen(false)}
+        onSuccess={() => setIsBookingModalOpen(false)}
+      />
     </Layout>
   );
 };

@@ -116,4 +116,58 @@ export const propertyAPI = {
     apiCall(`/properties/search?query=${encodeURIComponent(query)}`, {
       method: "GET",
     }),
+
+  // Booking endpoints
+  bookings: {
+    create: (bookingData) =>
+      apiCall("/bookings", {
+        method: "POST",
+        body: JSON.stringify(bookingData),
+      }),
+    getOwnerRequests: () =>
+      apiCall("/bookings/owner/requests", {
+        method: "GET",
+      }),
+    getRenterBookings: () =>
+      apiCall("/bookings/renter/bookings", {
+        method: "GET",
+      }),
+    getBooking: (bookingId) =>
+      apiCall(`/bookings/${bookingId}`, {
+        method: "GET",
+      }),
+    accept: (bookingId) =>
+      apiCall(`/bookings/${bookingId}/accept`, {
+        method: "PUT",
+      }),
+    reject: (bookingId) =>
+      apiCall(`/bookings/${bookingId}/reject`, {
+        method: "PUT",
+      }),
+    cancel: (bookingId) =>
+      apiCall(`/bookings/${bookingId}/cancel`, {
+        method: "PUT",
+      }),
+  },
+
+  // Messaging endpoints
+  messages: {
+    send: (messageData) =>
+      apiCall("/messages", {
+        method: "POST",
+        body: JSON.stringify(messageData),
+      }),
+    getBookingMessages: (bookingId) =>
+      apiCall(`/messages/booking/${bookingId}`, {
+        method: "GET",
+      }),
+    getConversations: () =>
+      apiCall("/messages/conversations/all", {
+        method: "GET",
+      }),
+    getUnreadCount: () =>
+      apiCall("/messages/unread/count", {
+        method: "GET",
+      }),
+  },
 };

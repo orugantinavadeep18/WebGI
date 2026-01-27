@@ -103,13 +103,18 @@ const Header = () => {
                     My Properties
                   </DropdownMenuItem>
                   <DropdownMenuSeparator />
+                  <DropdownMenuItem onClick={() => navigate("/booking-requests")}>
+                    <Home className="mr-2 h-4 w-4" />
+                    Booking Requests
+                  </DropdownMenuItem>
+                  <DropdownMenuItem onClick={() => navigate("/messages")}>
+                    <Home className="mr-2 h-4 w-4" />
+                    Messages
+                  </DropdownMenuItem>
+                  <DropdownMenuSeparator />
                   <DropdownMenuItem onClick={() => navigate("/saved")}>
                     <Heart className="mr-2 h-4 w-4" />
                     Saved Properties
-                  </DropdownMenuItem>
-                  <DropdownMenuItem onClick={() => navigate("/bookings")}>
-                    <Home className="mr-2 h-4 w-4" />
-                    My Bookings
                   </DropdownMenuItem>
                   <DropdownMenuSeparator />
                   <DropdownMenuItem onClick={() => signOut()}>
