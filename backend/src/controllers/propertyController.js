@@ -55,50 +55,70 @@ export const createProperty = async (req, res) => {
 
     const {
       title,
+      name,
       description,
+      about,
       price,
+      property_type,
       propertyType,
-      bedrooms,
-      bathrooms,
-      squareFeet,
+      capacity,
+      vacancies,
       address,
+      location,
       city,
       state,
       zipCode,
       amenities,
+      amenities_object,
+      rules,
+      required_documents,
+      owner_details,
+      gender_preference,
+      sharing_type,
+      status,
+      bedrooms,
+      bathrooms,
+      squareFeet,
     } = req.body;
 
+    // Validate required fields
     if (
       !title ||
       !description ||
       !price ||
-      !propertyType ||
-      !bedrooms ||
-      !bathrooms ||
-      !squareFeet ||
-      !address ||
-      !city ||
-      !state ||
-      !zipCode
+      !city
     ) {
       return res
         .status(400)
-        .json({ success: false, message: "All required fields must be filled" });
+        .json({ success: false, message: "Title, description, price, and city are required" });
     }
 
     const property = new Property({
       title,
+      name: name || title,
       description,
+      about,
       price: Number(price),
-      propertyType,
-      bedrooms: Number(bedrooms),
-      bathrooms: Number(bathrooms),
-      squareFeet: Number(squareFeet),
+      property_type: property_type || propertyType,
+      propertyType: propertyType || property_type,
+      capacity: capacity ? Number(capacity) : 1,
+      vacancies: vacancies ? Number(vacancies) : 0,
       address,
+      location: location || address,
       city,
       state,
       zipCode,
+      bedrooms: bedrooms ? Number(bedrooms) : undefined,
+      bathrooms: bathrooms ? Number(bathrooms) : undefined,
+      squareFeet: squareFeet ? Number(squareFeet) : undefined,
       amenities: Array.isArray(amenities) ? amenities : (amenities ? amenities.split(",") : []),
+      amenities_object: amenities_object || {},
+      rules,
+      required_documents,
+      owner_details,
+      gender_preference: gender_preference || "unisex",
+      sharing_type: sharing_type || "shared",
+      status: status || "available",
       seller: req.user.id,
     });
 
