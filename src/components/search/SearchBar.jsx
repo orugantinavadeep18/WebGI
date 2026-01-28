@@ -33,10 +33,15 @@ const SearchBar = ({ variant = "hero", className }) => {
           <MapPin className="h-4 w-4 text-muted-foreground" />
           <Input
             type="text"
-            placeholder="Enter city..."
+            placeholder="Enter city, area or locality"
             value={city}
             onChange={(e) => setCity(e.target.value)}
-            className="border-0 bg-transparent focus-visible:ring-0 px-0"
+            onKeyDown={(e) => {
+              if (e.key === "Enter" && city.trim()) {
+                handleSearch(city);
+              }
+            }}
+            className="border-0 bg-transparent focus-visible:ring-0 p-0 h-auto text-base font-medium placeholder:text-muted-foreground/60"
           />
         </div>
         <Button
@@ -67,6 +72,11 @@ const SearchBar = ({ variant = "hero", className }) => {
               placeholder="Enter city, area or locality"
               value={city}
               onChange={(e) => setCity(e.target.value)}
+              onKeyDown={(e) => {
+                if (e.key === "Enter" && city.trim()) {
+                  handleSearch(city);
+                }
+              }}
               className="border-0 bg-transparent focus-visible:ring-0 p-0 h-auto text-base font-medium placeholder:text-muted-foreground/60"
             />
           </div>

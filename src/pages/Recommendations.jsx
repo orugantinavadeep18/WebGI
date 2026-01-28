@@ -8,6 +8,7 @@ import Layout from "../components/layout/Layout";
 import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
 import { apiCall } from "../lib/api";
+import { getPropertyImageUrl, handleImageError } from "../lib/imageUtils";
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || "http://localhost:5000/api";
 
@@ -404,17 +405,12 @@ export default function Recommendations() {
                     >
                       {/* Image Section */}
                       <div className="relative h-48 bg-gray-200 overflow-hidden">
-                        {rental.images && rental.images.length > 0 ? (
-                          <img
-                            src={rental.images[0].url || rental.images[0]}
-                            alt={rental.name || rental.title}
-                            className="w-full h-full object-cover"
-                          />
-                        ) : (
-                          <div className="w-full h-full bg-gradient-to-r from-blue-500 to-indigo-600 flex items-center justify-center">
-                            <span className="text-white text-4xl">🏠</span>
-                          </div>
-                        )}
+                        <img
+                          src={getPropertyImageUrl(rental, 0)}
+                          alt={rental.name || rental.title}
+                          className="w-full h-full object-cover"
+                          onError={(e) => handleImageError(e, 'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" width="400" height="300"%3E%3Crect fill="%235B7C99" width="400" height="300"/%3E%3Ctext x="50%" y="50%" font-size="32" fill="white" text-anchor="middle" dominant-baseline="middle" font-family="Arial, sans-serif"%3E🏠%3C/text%3E%3C/svg%3E')}
+                        />
                         <button
                           onClick={(e) => {
                             e.stopPropagation();

@@ -7,6 +7,7 @@ import { Card } from "../components/ui/card";
 import { Edit2, Trash2, Plus, Upload, Eye, MapPin, ArrowLeft, RefreshCw } from "lucide-react";
 import PropertyImageUpload from "../components/property/PropertyImageUpload";
 import PropertyEditForm from "../components/property/PropertyEditForm";
+import { getPropertyImageUrl, handleImageError } from "@/lib/imageUtils";
 
 export default function ListProperties() {
   const navigate = useNavigate();
@@ -288,21 +289,19 @@ function PropertyCard({ property, onEdit, onUploadImages, onDelete, onView }) {
     villa: "Villa",
   };
 
+  // Get image URL with fallback
+  const imageUrl = getPropertyImageUrl(property, 0);
+
   return (
     <Card className="overflow-hidden hover:shadow-lg transition-shadow">
       {/* Image */}
       <div className="relative h-48 bg-gray-200 overflow-hidden">
-        {property.images && property.images.length > 0 ? (
-          <img
-            src={property.images[0]?.url || property.images[0]}
-            alt={property.title}
-            className="w-full h-full object-cover hover:scale-105 transition-transform"
-          />
-        ) : (
-          <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-blue-400 to-indigo-600">
-            <Upload className="text-white" size={40} />
-          </div>
-        )}
+        <img
+          src={imageUrl}
+          alt={property.title}
+          className="w-full h-full object-cover hover:scale-105 transition-transform"
+          onError={(e) => handleImageError(e, 'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" width="400" height="300"%3E%3Crect fill="%23E5E7EB" width="400" height="300"/%3E%3C/svg%3E')}
+        />
         <div className="absolute top-2 right-2 bg-blue-600 text-white px-3 py-1 rounded-full text-sm font-semibold">
           ₹{property.price?.toLocaleString() || 'N/A'}/mo
         </div>

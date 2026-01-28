@@ -25,6 +25,7 @@ import { toast } from "sonner";
 import { useAuth } from "@/hooks/useAuth";
 import { useProperties } from "@/hooks/useProperties";
 import ReviewSystem from "@/components/property/ReviewSystem";
+import { getPropertyImageUrls, handleImageError } from "@/lib/imageUtils";
 
 // Import demo images
 import property1 from "@/assets/property-1.jpg";
@@ -126,7 +127,7 @@ const PropertyDetail = () => {
   }
 
   const images = property.images && property.images.length > 0
-    ? property.images
+    ? getPropertyImageUrls(property)
     : [property1, property2, property3];
 
   const currentImage = images[currentImageIndex] || property1;
@@ -213,6 +214,7 @@ const PropertyDetail = () => {
                 src={typeof currentImage === 'string' ? currentImage : currentImage.url || property1}
                 alt={property.title}
                 className="w-full h-full object-cover"
+                onError={(e) => handleImageError(e, property1)}
               />
 
               {/* Navigation */}
