@@ -262,10 +262,10 @@ const ChatBot = () => {
 
   return (
     <>
-      {/* Floating Button - Small */}
+      {/* Floating Button - Small - Hidden on mobile, visible on md+ screens */}
       <button
         onClick={() => setIsOpen(!isOpen)}
-        className="fixed bottom-6 right-6 z-40 flex items-center justify-center cursor-pointer hover:opacity-90 transition-all duration-300 group"
+        className="hidden md:flex fixed bottom-6 right-6 z-40 items-center justify-center cursor-pointer hover:opacity-90 transition-all duration-300 group"
         title={isOpen ? "Close chat" : "Open chat"}
         style={{ background: "none", border: "none", padding: 0 }}
       >
@@ -294,9 +294,9 @@ const ChatBot = () => {
         )}
       </button>
 
-      {/* Chatbot Container - Large */}
+      {/* Chatbot Container - Large - Hidden on mobile, visible on md+ screens */}
       {isOpen && (
-        <div className="fixed bottom-20 right-6 z-50 w-96 h-[600px] bg-white rounded-xl shadow-2xl flex flex-col border border-border animate-slide-up overflow-hidden">
+        <div className="hidden md:flex fixed bottom-20 right-6 z-50 w-96 h-[600px] bg-white rounded-xl shadow-2xl flex-col border border-border animate-slide-up overflow-hidden">
           {/* Header */}
           <div className="bg-gradient-to-r from-primary via-primary/95 to-primary/90 text-white p-5 rounded-t-xl">
             <div className="flex items-center justify-between">

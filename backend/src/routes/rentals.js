@@ -15,16 +15,18 @@ import { authenticateToken } from "../middleware/auth.js";
 
 const router = express.Router();
 
-// Public routes
+// Public routes - specific routes BEFORE wildcard routes
 router.post("/recommend", getRecommendations);
-router.get("/", getAllRentals);
 router.get("/trending", getTrendingRentals);
-router.put("/:id/select", authenticateToken, toggleRentalSelection);
-router.get("/:id", getRentalById);
+router.get("/", getAllRentals);
 
-// Review routes (using unified Property model)
+// Review routes MUST come before /:id to avoid the wildcard catching /reviews
 router.get("/:id/reviews", getPropertyReviews);
 router.post("/:id/reviews", authenticateToken, addPropertyReview);
 router.delete("/:id/reviews/:reviewId", authenticateToken, deletePropertyReview);
+
+// ID-based routes (must be last)
+router.get("/:id", getRentalById);
+router.put("/:id/select", authenticateToken, toggleRentalSelection);
 
 export default router;

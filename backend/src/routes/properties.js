@@ -33,24 +33,32 @@ const upload = multer({
   },
 });
 
-// Public routes
-router.get("/", getAllProperties);
-router.get("/search", searchProperties);
-router.get("/:id", getPropertyById);
-router.get("/:id/reviews", getPropertyReviews);
+// Specific routes MUST come before wildcard /:id routes
 
-// Protected routes (authenticated users only)
-router.post("/", authenticateToken, createProperty);
-router.put("/:id", authenticateToken, updateProperty);
-router.delete("/:id", authenticateToken, deleteProperty);
+// Public routes - specific named paths
+router.get("/search", searchProperties);
+router.get("/", getAllProperties);
+
+// Protected routes - specific named paths BEFORE /:id
+router.get("/seller/my-properties", authenticateToken, getSellerProperties);
+
+// Review routes - MUST come BEFORE /:id to avoid wildcard catching
+router.get("/:id/reviews", getPropertyReviews);
+router.post("/:id/reviews", authenticateToken, addPropertyReview);
+router.delete("/:id/reviews/:reviewId", authenticateToken, deletePropertyReview);
+
+// Image upload route BEFORE /:id
 router.post(
   "/:id/upload-images",
   authenticateToken,
   upload.array("images", 10),
   uploadPropertyImages
 );
-router.get("/seller/my-properties", authenticateToken, getSellerProperties);
-router.post("/:id/reviews", authenticateToken, addPropertyReview);
-router.delete("/:id/reviews/:reviewId", authenticateToken, deletePropertyReview);
+
+// ID-based routes (must be last)
+router.get("/:id", getPropertyById);
+router.post("/", authenticateToken, createProperty);
+router.put("/:id", authenticateToken, updateProperty);
+router.delete("/:id", authenticateToken, deleteProperty);
 
 export default router;
