@@ -1,13 +1,54 @@
 import { Link } from "react-router-dom";
 import { Building, Home, Users, Key, ArrowRight } from "lucide-react";
+import { useState, useEffect } from "react";
+import { apiCall } from "@/lib/api";
 
 const PropertyTypes = () => {
+  const [stats, setStats] = useState({
+    hostel: 0,
+    pg: 0,
+    others: 0,
+  });
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchStats = async () => {
+      try {
+        const data = await apiCall("/rentals");
+        const properties = data.rentals || [];
+
+        // Count properties by type
+        const counts = {
+          hostel: 0,
+          pg: 0,
+          others: 0,
+        };
+
+        properties.forEach((prop) => {
+          const type = prop.property_type?.toLowerCase() || "others";
+          if (type in counts) {
+            counts[type]++;
+          }
+        });
+
+        setStats(counts);
+      } catch (error) {
+        console.error("Error fetching property stats:", error);
+        // Keep default counts on error
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchStats();
+  }, []);
+
   const types = [
     {
       icon: Building,
       title: "Hostels",
       description: "Affordable shared accommodations with community living",
-      count: "500+ listings",
+      count: `${stats.hostel}+ listings`,
       href: "/properties?type=hostel",
       color: "bg-blue-50 text-blue-600",
     },
@@ -15,25 +56,17 @@ const PropertyTypes = () => {
       icon: Users,
       title: "Paying Guest (PG)",
       description: "Home-like stay with meals and housekeeping",
-      count: "800+ listings",
+      count: `${stats.pg}+ listings`,
       href: "/properties?type=pg",
       color: "bg-green-50 text-green-600",
     },
     {
       icon: Key,
-      title: "Rental Rooms",
-      description: "Private rooms with flexibility and independence",
-      count: "400+ listings",
-      href: "/properties?type=rental_room",
+      title: "Other Properties",
+      description: "Rental rooms and various accommodation types",
+      count: `${stats.others}+ listings`,
+      href: "/properties?type=others",
       color: "bg-amber-50 text-amber-600",
-    },
-    {
-      icon: Home,
-      title: "Flats",
-      description: "Complete apartments for individuals or groups",
-      count: "300+ listings",
-      href: "/properties?type=flat",
-      color: "bg-purple-50 text-purple-600",
     },
   ];
 
@@ -45,11 +78,11 @@ const PropertyTypes = () => {
             Find Your Perfect Stay
           </h2>
           <p className="text-muted-foreground max-w-xl mx-auto">
-            Choose from verified hostels, PGs, rental rooms, and flats across major cities
+            Choose from verified hostels, PGs, and other properties across major cities
           </p>
         </div>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
           {types.map((type) => (
             <Link
               key={type.title}
@@ -66,7 +99,7 @@ const PropertyTypes = () => {
                 {type.description}
               </p>
               <div className="flex items-center justify-between">
-                <span className="text-sm font-medium text-foreground">{type.count}</span>
+                <span className="text-sm font-medium text-foreground">{loading ? "Loading..." : type.count}</span>
                 <ArrowRight className="h-4 w-4 text-muted-foreground group-hover:text-accent group-hover:translate-x-1 transition-all" />
               </div>
             </Link>

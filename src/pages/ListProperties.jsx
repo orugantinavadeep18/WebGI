@@ -4,7 +4,7 @@ import { useAuth } from "@/hooks/useAuth";
 import { useProperties } from "../hooks/useProperties";
 import { Button } from "../components/ui/button";
 import { Card } from "../components/ui/card";
-import { Edit2, Trash2, Plus, Upload, Eye, MapPin, ArrowLeft } from "lucide-react";
+import { Edit2, Trash2, Plus, Upload, Eye, MapPin, ArrowLeft, RefreshCw } from "lucide-react";
 import PropertyImageUpload from "../components/property/PropertyImageUpload";
 import PropertyEditForm from "../components/property/PropertyEditForm";
 
@@ -123,13 +123,24 @@ export default function ListProperties() {
               Manage and showcase your listings
             </p>
           </div>
-          <Button
-            onClick={() => navigate("/create-property")}
-            className="bg-blue-600 hover:bg-blue-700 text-white flex items-center gap-2"
-          >
-            <Plus size={20} />
-            List New Property
-          </Button>
+          <div className="flex gap-2">
+            <Button
+              onClick={fetchProperties}
+              variant="outline"
+              className="flex items-center gap-2"
+              disabled={loading}
+            >
+              <RefreshCw size={20} className={loading ? "animate-spin" : ""} />
+              Refresh
+            </Button>
+            <Button
+              onClick={() => navigate("/create-property")}
+              className="bg-blue-600 hover:bg-blue-700 text-white flex items-center gap-2"
+            >
+              <Plus size={20} />
+              List New Property
+            </Button>
+          </div>
         </div>
 
         {/* Stats */}

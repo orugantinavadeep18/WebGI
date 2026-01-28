@@ -4,6 +4,7 @@ import helmet from "helmet";
 import dotenv from "dotenv";
 import connectDB from "./config/database.js";
 import User from "./models/User.js";
+import Property from "./models/Property.js";
 import authRoutes from "./routes/auth.js";
 import propertyRoutes from "./routes/properties.js";
 import bookingRoutes from "./routes/bookings.js";
@@ -20,19 +21,21 @@ app.use(cors()); // Allow requests from any server
 app.use(express.json());
 app.use(express.urlencoded({ limit: "10mb", extended: true }));
 
-// Connect to MongoDB and print users
+// Connect to MongoDB and print users with property counts
 connectDB().then(async () => {
   try {
     console.log("\n" + "=".repeat(60));
     console.log("📋 REGISTERED USERS (For Development)");
     console.log("=".repeat(60));
-    const users = await User.find({}, "email name -_id").sort({ createdAt: -1 });
+    const users = await User.find({}, "email name _id").sort({ createdAt: -1 });
     if (users.length === 0) {
       console.log("⚠️  No users registered yet");
     } else {
-      users.forEach((user, index) => {
-        console.log(`${index + 1}. Email: ${user.email} | Name: ${user.name}`);
-      });
+      for (let i = 0; i < users.length; i++) {
+        const user = users[i];
+        const propertyCount = await Property.countDocuments({ seller: user._id });
+        console.log(`${i + 1}. Email: ${user.email} | Name: ${user.name} | My Properties: ${propertyCount}`);
+      }
     }
     console.log("=".repeat(60));
     console.log("💡 Tip: Use email and password '123456' for admin account");

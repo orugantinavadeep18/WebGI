@@ -1,17 +1,51 @@
 import { Link } from "react-router-dom";
 import { MapPin, ArrowRight } from "lucide-react";
 import { motion } from "framer-motion";
-
-const popularCities = [
-  { name: "Bangalore", properties: 1200, image: "https://images.unsplash.com/photo-1596176530529-78163a4f7af2?w=400&h=300&fit=crop" },
-  { name: "Mumbai", properties: 980, image: "https://images.unsplash.com/photo-1570168007204-dfb528c6958f?w=400&h=300&fit=crop" },
-  { name: "Delhi", properties: 850, image: "https://images.unsplash.com/photo-1587474260584-136574528ed5?w=400&h=300&fit=crop" },
-  { name: "Pune", properties: 720, image: "https://images.unsplash.com/photo-1588416936097-41850ab3d86d?w=400&h=300&fit=crop" },
-  { name: "Hyderabad", properties: 650, image: "https://images.unsplash.com/photo-1576502200916-3808e07386a5?w=400&h=300&fit=crop" },
-  { name: "Chennai", properties: 580, image: "https://images.unsplash.com/photo-1582510003544-4d00b7f74220?w=400&h=300&fit=crop" },
-];
+import { useState, useEffect } from "react";
+import { apiCall } from "@/lib/api";
 
 const PopularCities = () => {
+  const [cities, setCities] = useState([
+    { name: "Bangalore", properties: 0, image: "https://images.unsplash.com/photo-1596176530529-78163a4f7af2?w=400&h=300&fit=crop" },
+    { name: "Mumbai", properties: 0, image: "https://images.unsplash.com/photo-1570168007204-dfb528c6958f?w=400&h=300&fit=crop" },
+    { name: "Delhi", properties: 0, image: "https://images.unsplash.com/photo-1587474260584-136574528ed5?w=400&h=300&fit=crop" },
+    { name: "Pune", properties: 0, image: "https://images.unsplash.com/photo-1588416936097-41850ab3d86d?w=400&h=300&fit=crop" },
+    { name: "Hyderabad", properties: 0, image: "https://images.unsplash.com/photo-1576502200916-3808e07386a5?w=400&h=300&fit=crop" },
+    { name: "Chennai", properties: 0, image: "https://images.unsplash.com/photo-1582510003544-4d00b7f74220?w=400&h=300&fit=crop" },
+  ]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchCityData = async () => {
+      try {
+        const data = await apiCall("/rentals");
+        const properties = data.rentals || [];
+
+        // Count properties by city
+        const cityCounts = {};
+        properties.forEach((prop) => {
+          const city = prop.city || "Unknown";
+          cityCounts[city] = (cityCounts[city] || 0) + 1;
+        });
+
+        // Update cities with real counts
+        const updatedCities = cities.map((city) => ({
+          ...city,
+          properties: cityCounts[city.name] || 0,
+        }));
+
+        setCities(updatedCities);
+      } catch (error) {
+        console.error("Error fetching city data:", error);
+        // Keep default cities on error
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchCityData();
+  }, []);
+
   return (
     <section className="py-16 bg-secondary">
       <div className="container mx-auto px-4">
@@ -34,7 +68,7 @@ const PopularCities = () => {
         </div>
 
         <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
-          {popularCities.map((city, index) => (
+          {cities.map((city, index) => (
             <motion.div
               key={city.name}
               initial={{ opacity: 0, scale: 0.9 }}
@@ -57,7 +91,7 @@ const PopularCities = () => {
               <div className="absolute bottom-0 left-0 right-0 p-4">
                 <div className="flex items-center gap-1 text-primary-foreground/80 text-xs mb-1">
                   <MapPin className="h-3 w-3" />
-                  <span>{city.properties}+ properties</span>
+                  <span>{loading ? "Loading..." : `${city.properties}+ properties`}</span>
                 </div>
                 <h3 className="font-heading font-semibold text-lg text-primary-foreground">
                   {city.name}

@@ -46,59 +46,59 @@ const PropertyDetail = () => {
   const [seller, setSeller] = useState(null);
 
   // Fetch property data
-  useEffect(() => {
-    const loadProperty = async () => {
-      try {
-        setLoading(true);
-        const data = await getPropertyById(id);
-        
-        // Check if data exists
-        if (!data) {
-          setError("Property not found");
-          setProperty(null);
-          return;
-        }
-        
-        // Normalize rental data to property structure
-        const normalizedProperty = {
-          ...data,
-          // Map rental fields to property fields
-          title: data.name || data.title,
-          description: data.about || data.description,
-          propertyType: data.property_type || data.propertyType,
-          address: data.location || data.address || "",
-          city: data.location || data.city || "",
-          seller: data._id || data.id,
-          // Ensure amenities is an array
-          amenities: Array.isArray(data.amenities) 
-            ? data.amenities 
-            : Object.entries(data.amenities || {})
-                .filter(([, value]) => value === true)
-                .map(([key]) => key.replace(/_/g, ' ')),
-        };
-        
-        setProperty(normalizedProperty);
-        
-        // Set seller info
-        setSeller({
-          id: data?._id || data?.id,
-          name: data?.owner_details || "Property Owner",
-          email: "owner@example.com",
-          phone: "+91 XXXXX XXXXX",
-        });
-      } catch (err) {
-        setError(err.message);
+  const loadProperty = async () => {
+    try {
+      setLoading(true);
+      const data = await getPropertyById(id);
+      
+      // Check if data exists
+      if (!data) {
+        setError("Property not found");
         setProperty(null);
-        console.error("Error loading property:", err);
-      } finally {
-        setLoading(false);
+        return;
       }
-    };
+      
+      // Normalize rental data to property structure
+      const normalizedProperty = {
+        ...data,
+        // Map rental fields to property fields
+        title: data.name || data.title,
+        description: data.about || data.description,
+        propertyType: data.property_type || data.propertyType,
+        address: data.location || data.address || "",
+        city: data.location || data.city || "",
+        seller: data._id || data.id,
+        // Ensure amenities is an array
+        amenities: Array.isArray(data.amenities) 
+          ? data.amenities 
+          : Object.entries(data.amenities || {})
+              .filter(([, value]) => value === true)
+              .map(([key]) => key.replace(/_/g, ' ')),
+      };
+      
+      setProperty(normalizedProperty);
+      
+      // Set seller info
+      setSeller({
+        id: data?._id || data?.id,
+        name: data?.owner_details || "Property Owner",
+        email: "owner@example.com",
+        phone: "+91 XXXXX XXXXX",
+      });
+    } catch (err) {
+      setError(err.message);
+      setProperty(null);
+      console.error("Error loading property:", err);
+    } finally {
+      setLoading(false);
+    }
+  };
 
+  useEffect(() => {
     if (id) {
       loadProperty();
     }
-  }, [id]); // Only depend on id, not getPropertyById
+  }, [id]);
 
   if (loading) {
     return (

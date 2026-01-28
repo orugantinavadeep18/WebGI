@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { Heart, Wifi, UtensilsCrossed, Zap, Wind, Shirt, Users, ArrowLeft } from "lucide-react";
+import { Heart, Wifi, UtensilsCrossed, Zap, Wind, Shirt, Users, ArrowLeft, RefreshCw } from "lucide-react";
 import { Button } from "../components/ui/button";
 import { Input } from "../components/ui/input";
 import { Slider } from "../components/ui/slider";
@@ -7,6 +7,9 @@ import { Card } from "../components/ui/card";
 import Layout from "../components/layout/Layout";
 import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
+import { apiCall } from "../lib/api";
+
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || "http://localhost:5000/api";
 
 export default function Recommendations() {
   const navigate = useNavigate();
@@ -47,20 +50,17 @@ export default function Recommendations() {
   const fetchRecommendations = async () => {
     setLoading(true);
     try {
-      const response = await fetch("http://localhost:5000/api/rentals/recommend", {
+      const data = await apiCall("/rentals/recommend", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
         body: JSON.stringify(filters),
       });
 
-      if (!response.ok) throw new Error("Failed to fetch recommendations");
-
-      const data = await response.json();
       setRentals(data.recommendations || []);
+      console.log(`✓ Found ${data.count} recommendations!`);
       toast.success(`Found ${data.count} recommendations!`);
     } catch (error) {
-      console.error("Error:", error);
-      toast.error("Failed to load recommendations");
+      console.error("❌ Error fetching recommendations:", error);
+      toast.error(error.message || "Failed to load recommendations");
     } finally {
       setLoading(false);
     }
@@ -115,12 +115,37 @@ export default function Recommendations() {
 
           {/* Header */}
           <div className="mb-8">
-            <h1 className="text-4xl font-bold text-gray-800 mb-2">
-              🎯 AI Rental Recommendations
-            </h1>
-            <p className="text-gray-600">
-              Discover perfect rentals tailored to your preferences
-            </p>
+            <div className="flex justify-between items-start mb-4">
+              <div>
+                <h1 className="text-4xl font-bold text-gray-800 mb-2">
+                  🎯 AI Rental Recommendations
+                </h1>
+                <p className="text-gray-600">
+                  Discover perfect rentals tailored to your preferences
+                </p>
+              </div>
+              <Button
+                onClick={() => {
+                  setRentals([]);
+                  setFilters({
+                    max_budget: 5000,
+                    location: "hyderabad",
+                    gender_preference: "unisex",
+                    sharing_type: "all",
+                    property_type: "all",
+                    min_rating: 0,
+                    required_amenities: [],
+                    limit: 12,
+                  });
+                  toast.success("Filters reset");
+                }}
+                variant="outline"
+                className="flex items-center gap-2"
+              >
+                <RefreshCw size={20} />
+                Clear Filters
+              </Button>
+            </div>
           </div>
 
           <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">

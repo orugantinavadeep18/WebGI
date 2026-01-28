@@ -320,6 +320,12 @@ export const getPropertyReviews = async (req, res) => {
     const { id } = req.params;
     console.log(`🔍 getPropertyReviews - Looking for property with ID: ${id}`);
     
+    // Validate if ID is a valid MongoDB ObjectId
+    if (!mongoose.Types.ObjectId.isValid(id)) {
+      console.log(`❌ Invalid ObjectId format: ${id}`);
+      return res.status(400).json({ success: false, message: "Invalid property ID format" });
+    }
+    
     const property = await Property.findById(id);
 
     if (!property) {
@@ -344,6 +350,12 @@ export const addPropertyReview = async (req, res) => {
     const userId = req.user?.id;
 
     console.log(`📝 addPropertyReview - Property ID: ${id}, User: ${userId}`);
+
+    // Validate if ID is a valid MongoDB ObjectId
+    if (!mongoose.Types.ObjectId.isValid(id)) {
+      console.log(`❌ Invalid ObjectId format: ${id}`);
+      return res.status(400).json({ success: false, message: "Invalid property ID format" });
+    }
 
     if (!rating || !comment) {
       return res.status(400).json({ success: false, message: "Rating and comment required" });
@@ -385,6 +397,12 @@ export const deletePropertyReview = async (req, res) => {
   try {
     const { id, reviewId } = req.params;
     const userId = req.user?.id;
+
+    // Validate if ID is a valid MongoDB ObjectId
+    if (!mongoose.Types.ObjectId.isValid(id)) {
+      console.log(`❌ Invalid ObjectId format: ${id}`);
+      return res.status(400).json({ success: false, message: "Invalid property ID format" });
+    }
 
     const property = await Property.findById(id);
     if (!property) {
