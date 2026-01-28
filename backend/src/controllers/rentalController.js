@@ -1,4 +1,4 @@
-import Rental from "../models/Rental.js";
+import Property from "../models/Property.js";
 
 // Recommendation algorithm based on user preferences
 export const getRecommendations = async (req, res) => {
@@ -22,7 +22,10 @@ export const getRecommendations = async (req, res) => {
     }
 
     if (location) {
-      filter.location = { $regex: location, $options: "i" };
+      filter.$or = [
+        { location: { $regex: location, $options: "i" } },
+        { city: { $regex: location, $options: "i" } },
+      ];
     }
 
     if (gender_preference) {
@@ -34,7 +37,11 @@ export const getRecommendations = async (req, res) => {
     }
 
     if (property_type) {
-      filter.property_type = property_type;
+      filter.$or = filter.$or || [];
+      filter.$or.push(
+        { property_type: property_type },
+        { propertyType: property_type }
+      );
     }
 
     if (min_rating > 0) {
@@ -44,58 +51,58 @@ export const getRecommendations = async (req, res) => {
     // Filter by amenities - must have all required amenities
     if (required_amenities.length > 0) {
       const amenityFilters = required_amenities.map((amenity) => ({
-        [`amenities.${amenity}`]: true,
+        [`amenities_object.${amenity}`]: true,
       }));
       filter.$and = amenityFilters;
     }
 
-    // Get filtered rentals
-    let candidates = await Rental.find(filter);
+    // Get filtered properties
+    let candidates = await Property.find(filter);
 
     // Calculate recommendation scores
-    candidates = candidates.map((rental) => {
+    candidates = candidates.map((property) => {
       let score = 0;
 
       // Price score (lower is better, max 25 points)
       if (max_budget) {
-        const priceScore = Math.max(0, (1 - rental.price / max_budget) * 25);
+        const priceScore = Math.max(0, (1 - property.price / max_budget) * 25);
         score += priceScore;
       } else {
         score += 20;
       }
 
       // Rating score (max 30 points)
-      score += (rental.rating || 0) * 6;
+      score += (property.rating || 0) * 6;
 
       // Amenity match score (max 25 points)
       let amenityMatch = 0;
       if (required_amenities && required_amenities.length > 0) {
         required_amenities.forEach((amenity) => {
-          if (rental.amenities && rental.amenities[amenity]) {
+          if (property.amenities_object && property.amenities_object[amenity]) {
             amenityMatch += 1;
           }
         });
         score += (amenityMatch / required_amenities.length) * 25;
       } else {
         // If no specific amenities required, give bonus points based on how many amenities are available
-        const availableAmenities = Object.values(rental.amenities || {}).filter(v => v === true).length;
+        const availableAmenities = Object.values(property.amenities_object || {}).filter(v => v === true).length;
         score += Math.min(availableAmenities, 8) * 2; // Max 16 points
       }
 
       // Vacancy score (max 15 points)
-      if (rental.vacancies > 0) {
-        score += Math.min(rental.vacancies, 5) * 3;
+      if (property.vacancies > 0) {
+        score += Math.min(property.vacancies, 5) * 3;
       } else {
         score += 0; // No vacancy means no bonus
       }
 
       // Capacity match score (max 5 points)
-      if (rental.capacity >= 2) {
+      if (property.capacity >= 2) {
         score += 5;
       }
 
       return {
-        ...rental.toObject(),
+        ...property.toObject(),
         score: parseFloat(score.toFixed(2)),
         recommendation_score: parseFloat(score.toFixed(2)),
       };
@@ -121,92 +128,108 @@ export const getRecommendations = async (req, res) => {
   }
 };
 
-// Get all rentals with optional filters
+// Get all properties (unified endpoint)
 export const getAllRentals = async (req, res) => {
   try {
-    const { location, property_type, sort_by = "price" } = req.query;
+    const { location, property_type, city, sort_by = "price" } = req.query;
     let filter = {};
 
     if (location) {
-      filter.location = { $regex: location, $options: "i" };
+      filter.$or = [
+        { location: { $regex: location, $options: "i" } },
+        { city: { $regex: location, $options: "i" } },
+        { address: { $regex: location, $options: "i" } },
+      ];
+    }
+
+    if (city) {
+      filter.city = { $regex: city, $options: "i" };
     }
 
     if (property_type) {
-      filter.property_type = property_type;
+      filter.$or = filter.$or || [];
+      filter.$or.push(
+        { property_type: property_type },
+        { propertyType: property_type }
+      );
     }
 
-    const rentals = await Rental.find(filter).sort({ [sort_by]: 1 });
+    const properties = await Property.find(filter).sort({ [sort_by]: 1 });
 
     res.json({
-      message: "Rentals retrieved successfully",
-      count: rentals.length,
-      rentals,
+      message: "Properties retrieved successfully",
+      count: properties.length,
+      properties,
+      rentals: properties, // Include both keys for compatibility
     });
   } catch (error) {
-    res.status(500).json({ message: "Error retrieving rentals", error: error.message });
+    res.status(500).json({ message: "Error retrieving properties", error: error.message });
   }
 };
 
-// Get rental by ID
+// Get property by ID
 export const getRentalById = async (req, res) => {
   try {
     const { id } = req.params;
     console.log(`🔍 getRentalById called with ID: ${id}`);
     
-    const rental = await Rental.findById(id);
-    console.log(`📦 Query result:`, rental ? `Found rental ${rental.name}` : "No rental found");
+    const property = await Property.findById(id);
+    console.log(`📦 Query result:`, property ? `Found property ${property.title || property.name}` : "No property found");
 
-    if (!rental) {
-      return res.status(404).json({ message: "Rental not found" });
+    if (!property) {
+      return res.status(404).json({ message: "Property not found" });
     }
 
     res.json({
-      message: "Rental retrieved successfully",
-      rental,
+      message: "Property retrieved successfully",
+      property,
+      rental: property, // Include both keys for compatibility
     });
   } catch (error) {
     console.error(`❌ Error in getRentalById:`, error);
-    res.status(500).json({ message: "Error retrieving rental", error: error.message });
+    res.status(500).json({ message: "Error retrieving property", error: error.message });
   }
 };
 
-// Mark rental as selected/favorited
+// Mark property as selected/favorited
 export const toggleRentalSelection = async (req, res) => {
   try {
     const { id } = req.params;
-    const rental = await Rental.findOne({ id });
+    const property = await Property.findById(id);
 
-    if (!rental) {
-      return res.status(404).json({ message: "Rental not found" });
+    if (!property) {
+      return res.status(404).json({ message: "Property not found" });
     }
 
-    rental.is_selected = !rental.is_selected;
-    await rental.save();
+    property.is_selected = !property.is_selected;
+    await property.save();
 
     res.json({
-      message: `Rental ${rental.is_selected ? "selected" : "deselected"} successfully`,
-      rental,
+      message: `Property ${property.is_selected ? "selected" : "deselected"} successfully`,
+      property,
     });
   } catch (error) {
-    res.status(500).json({ message: "Error updating rental", error: error.message });
+    res.status(500).json({ message: "Error updating property", error: error.message });
   }
 };
 
-// Get trending/popular rentals
+// Get trending/popular properties
 export const getTrendingRentals = async (req, res) => {
   try {
     const { limit = 10 } = req.query;
 
-    const trending = await Rental.find()
+    const trending = await Property.find()
       .sort({ rating: -1, is_selected: -1 })
       .limit(parseInt(limit));
 
     res.json({
-      message: "Trending rentals retrieved",
+      message: "Trending properties retrieved",
       count: trending.length,
-      rentals: trending,
+      properties: trending,
+      rentals: trending, // Include both keys for compatibility
     });
   } catch (error) {
-    res.status(500).json({ message: "Error retrieving trending rentals", error: error.message });
+    res.status(500).json({ message: "Error retrieving trending properties", error: error.message });
   }
 };
+

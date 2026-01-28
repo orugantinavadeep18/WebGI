@@ -19,10 +19,10 @@ const router = express.Router();
 router.post("/recommend", getRecommendations);
 router.get("/", getAllRentals);
 router.get("/trending", getTrendingRentals);
-router.put("/:id/select", toggleRentalSelection);
+router.put("/:id/select", authenticateToken, toggleRentalSelection);
 router.get("/:id", getRentalById);
 
-// Review routes (rentals use same reviews as properties)
+// Review routes (using unified Property model)
 router.get("/:id/reviews", getPropertyReviews);
 router.post("/:id/reviews", authenticateToken, addPropertyReview);
 router.delete("/:id/reviews/:reviewId", authenticateToken, deletePropertyReview);
