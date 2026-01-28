@@ -59,7 +59,7 @@ const PropertyFilters = ({ filters, onFiltersChange, onClearFilters }) => {
   const hasActiveFilters =
     (filters.propertyTypes && filters.propertyTypes.length > 0) ||
     (filters.amenities && filters.amenities.length > 0) ||
-    (filters.priceRange && (filters.priceRange[0] > 0 || filters.priceRange[1] < 500000));
+    (filters.priceRange && (filters.priceRange[0] > 0 || filters.priceRange[1] < 20000));
 
   return (
     <div className="bg-card rounded-xl border p-5 space-y-5">
@@ -122,14 +122,14 @@ const PropertyFilters = ({ filters, onFiltersChange, onClearFilters }) => {
         </CollapsibleTrigger>
         <CollapsibleContent className="pt-3 space-y-4">
           <div className="text-sm text-muted-foreground">
-            ₹{(filters.priceRange && filters.priceRange[0] ? filters.priceRange[0] : 0).toLocaleString()} - ₹{(filters.priceRange && filters.priceRange[1] ? filters.priceRange[1] : 500000).toLocaleString()}
+            ₹{(filters.priceRange && filters.priceRange[0] ? filters.priceRange[0] : 0).toLocaleString()} - ₹{(filters.priceRange && filters.priceRange[1] ? filters.priceRange[1] : 20000).toLocaleString()}
           </div>
           <Slider
-            value={filters.priceRange || [0, 500000]}
+            value={filters.priceRange || [0, 20000]}
             onValueChange={handlePriceChange}
             min={0}
-            max={500000}
-            step={10000}
+            max={20000}
+            step={1000}
             className="w-full"
           />
         </CollapsibleContent>

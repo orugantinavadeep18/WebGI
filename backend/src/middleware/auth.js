@@ -6,38 +6,33 @@ export const authenticateToken = async (req, res, next) => {
 
   if (!token) {
     console.error("❌ No token provided in Authorization header");
-    console.error("Headers:", req.headers);
     return res.status(401).json({ message: "Access token required" });
   }
 
   try {
-    // Decode the JWT token without verification (for Supabase tokens)
-    // This works because we trust Supabase as our auth provider
-    const decoded = jwt.decode(token, { complete: true });
+    // Verify and decode the JWT token
+    const decoded = jwt.verify(token, process.env.JWT_SECRET || "your_jwt_secret_key_change_this_in_production");
     
     if (!decoded) {
       console.error("❌ Failed to decode token");
       return res.status(401).json({ message: "Invalid token format" });
     }
 
-    const payload = decoded.payload;
-    console.log("✓ Token decoded successfully");
-    console.log("Payload keys:", Object.keys(payload));
+    console.log(`✓ Token verified successfully for user: ${decoded.email}`);
     
-    // Extract user information from Supabase JWT
-    // Supabase tokens have 'sub' (user ID) and 'email'
-    if (payload && payload.sub) {
+    // Extract user information from our JWT
+    // Our tokens have 'id' and 'email' fields
+    if (decoded && decoded.id) {
       req.user = {
-        id: payload.sub,
-        email: payload.email,
-        name: payload.user_metadata?.full_name || payload.email || "User",
+        id: decoded.id,
+        email: decoded.email,
       };
       console.log(`✓ User authenticated: ${req.user.email} (${req.user.id})`);
       return next();
     }
 
-    console.error("❌ Token missing required fields (sub or email)");
-    console.error("Payload:", payload);
+    console.error("❌ Token missing required fields (id or email)");
+    console.error("Payload:", decoded);
     return res.status(401).json({ message: "Invalid token: missing user ID or email" });
   } catch (err) {
     console.error("❌ Authentication error:", err.message);

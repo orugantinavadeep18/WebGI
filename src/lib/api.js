@@ -9,10 +9,14 @@ export const apiCall = async (endpoint, options = {}) => {
     ...options.headers,
   };
 
+  // Public endpoints that don't require authentication
+  const publicEndpoints = ["/properties", "/auth/register", "/auth/login"];
+  const isPublicEndpoint = publicEndpoints.some(ep => endpoint.startsWith(ep));
+
   if (token) {
     headers.Authorization = `Bearer ${token}`;
     console.log(`✓ Token added to request for ${endpoint}`);
-  } else {
+  } else if (!isPublicEndpoint) {
     console.warn(`⚠️ No token in localStorage for ${endpoint}`);
   }
 
@@ -76,7 +80,7 @@ export const propertyAPI = {
   },
 
   getPropertyById: (id) =>
-    apiCall(`/properties/${id}`, {
+    apiCall(`/rentals/${id}`, {
       method: "GET",
     }),
 

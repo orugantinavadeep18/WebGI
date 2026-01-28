@@ -1,29 +1,21 @@
-import { createContext, useContext, useEffect, useState } from "react";
+import { createContext, useContext, useEffect } from "react";
 
 const ThemeContext = createContext();
 
 export const ThemeProvider = ({ children }) => {
-  const [isDark, setIsDark] = useState(() => {
-    // Check localStorage first
-    const saved = localStorage.getItem("theme");
-    if (saved) return saved === "dark";
-    // Check system preference
-    return window.matchMedia("(prefers-color-scheme: dark)").matches;
-  });
+  // Always light theme - no dark mode
+  const isDark = false;
 
   useEffect(() => {
-    // Update localStorage and DOM
-    localStorage.setItem("theme", isDark ? "dark" : "light");
+    // Force light theme on the DOM
+    localStorage.setItem("theme", "light");
     const html = document.documentElement;
-    if (isDark) {
-      html.classList.add("dark");
-    } else {
-      html.classList.remove("dark");
-    }
-  }, [isDark]);
+    html.classList.remove("dark");
+  }, []);
 
+  // Empty function to maintain compatibility if toggleTheme is called anywhere
   const toggleTheme = () => {
-    setIsDark((prev) => !prev);
+    // No-op: theme toggle disabled
   };
 
   return (

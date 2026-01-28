@@ -6,7 +6,7 @@ import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { useAuth } from "@/hooks/useAuth";
 import { useBooking } from "@/hooks/useBooking";
-import { Calendar, Users, DollarSign, MessageSquare, Check, X } from "lucide-react";
+import { Calendar, Users, DollarSign, MessageSquare, Check, X, ArrowLeft } from "lucide-react";
 
 export default function BookingRequests() {
   const { user } = useAuth();
@@ -84,6 +84,16 @@ export default function BookingRequests() {
   return (
     <Layout>
       <div className="container mx-auto px-4 py-8">
+        {/* Back Button */}
+        <button
+          onClick={() => navigate(-1)}
+          className="mb-4 p-2 hover:bg-gray-100 rounded-lg transition inline-flex items-center gap-2 text-gray-700"
+          title="Go back"
+        >
+          <ArrowLeft className="h-5 w-5" />
+          <span className="text-sm font-medium">Back</span>
+        </button>
+
         <h1 className="text-3xl font-bold mb-8">Booking Requests</h1>
 
         {loading && bookings.length === 0 ? (

@@ -15,6 +15,10 @@ import ListProperties from "./pages/ListProperties";
 import CreateProperty from "./pages/CreateProperty";
 import Messages from "./pages/Messages";
 import BookingRequests from "./pages/BookingRequests";
+import SavedProperties from "./pages/SavedProperties";
+import MyBookings from "./pages/MyBookings";
+import Admin from "./pages/Admin";
+import Recommendations from "./pages/Recommendations";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -54,6 +58,10 @@ const AppContent = () => {
           <Route path="/messages" element={<Messages />} />
           <Route path="/messages/:sellerId" element={<Messages />} />
           <Route path="/booking-requests" element={<BookingRequests />} />
+          <Route path="/saved" element={<SavedProperties />} />
+          <Route path="/bookings" element={<MyBookings />} />
+          <Route path="/recommendations" element={<Recommendations />} />
+          <Route path="/admin" element={<Admin />} />
           <Route path="/auth" element={<Auth />} />
           <Route path="*" element={<NotFound />} />
         </Routes>
@@ -66,7 +74,7 @@ const App = () => (
   <QueryClientProvider client={queryClient}>
     <TooltipProvider>
       <ThemeProvider>
-        <BrowserRouter>
+        <BrowserRouter future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
           <AuthProvider>
             <AppContent />
             <ChatBot />

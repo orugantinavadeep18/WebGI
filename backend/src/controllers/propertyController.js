@@ -161,11 +161,16 @@ export const deleteProperty = async (req, res) => {
         .json({ success: false, message: "Property not found" });
     }
 
-    // Check if user is the seller
-    if (property.seller !== req.user.id) {
+    // Check if user is the seller or admin
+    const User = require("../models/User").default || require("../models/User");
+    const currentUser = await User.findById(req.user.id);
+    const isAdmin = currentUser && currentUser.email === "kittu8441@gmail.com";
+    const isSeller = property.seller === req.user.id;
+
+    if (!isSeller && !isAdmin) {
       return res.status(403).json({
         success: false,
-        message: "You can only delete your own properties",
+        message: "Unauthorized: Only property owner or admin can delete",
       });
     }
 
@@ -291,6 +296,87 @@ export const searchProperties = async (req, res) => {
       .limit(20);
 
     res.json({ success: true, count: properties.length, properties });
+  } catch (error) {
+    res.status(500).json({ success: false, message: error.message });
+  }
+};
+// Get reviews for a property
+export const getPropertyReviews = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const property = await Property.findById(id);
+
+    if (!property) {
+      return res.status(404).json({ success: false, message: "Property not found" });
+    }
+
+    const reviews = property.ratings || [];
+    res.json({ success: true, reviews });
+  } catch (error) {
+    res.status(500).json({ success: false, message: error.message });
+  }
+};
+
+// Add review to property
+export const addPropertyReview = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { rating, comment } = req.body;
+    const userId = req.user?.id;
+
+    if (!rating || !comment) {
+      return res.status(400).json({ success: false, message: "Rating and comment required" });
+    }
+
+    if (rating < 1 || rating > 5) {
+      return res.status(400).json({ success: false, message: "Rating must be between 1 and 5" });
+    }
+
+    const property = await Property.findById(id);
+    if (!property) {
+      return res.status(404).json({ success: false, message: "Property not found" });
+    }
+
+    const review = {
+      userId,
+      rating: parseInt(rating),
+      comment,
+      userName: req.user?.name || "Anonymous",
+      createdAt: new Date(),
+    };
+
+    property.ratings.push(review);
+    await property.save();
+
+    res.json({ success: true, message: "Review added successfully", review });
+  } catch (error) {
+    res.status(500).json({ success: false, message: error.message });
+  }
+};
+
+// Delete review from property
+export const deletePropertyReview = async (req, res) => {
+  try {
+    const { id, reviewId } = req.params;
+    const userId = req.user?.id;
+
+    const property = await Property.findById(id);
+    if (!property) {
+      return res.status(404).json({ success: false, message: "Property not found" });
+    }
+
+    const reviewIndex = property.ratings.findIndex(
+      (r) => r._id.toString() === reviewId && r.userId === userId
+    );
+
+    if (reviewIndex === -1) {
+      return res.status(403).json({ success: false, message: "Not authorized or review not found" });
+    }
+
+    property.ratings.splice(reviewIndex, 1);
+    await property.save();
+
+    res.json({ success: true, message: "Review deleted successfully" });
   } catch (error) {
     res.status(500).json({ success: false, message: error.message });
   }

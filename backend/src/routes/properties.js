@@ -9,6 +9,9 @@ import {
   uploadPropertyImages,
   getSellerProperties,
   searchProperties,
+  getPropertyReviews,
+  addPropertyReview,
+  deletePropertyReview,
 } from "../controllers/propertyController.js";
 import { authenticateToken } from "../middleware/auth.js";
 
@@ -34,6 +37,7 @@ const upload = multer({
 router.get("/", getAllProperties);
 router.get("/search", searchProperties);
 router.get("/:id", getPropertyById);
+router.get("/:id/reviews", getPropertyReviews);
 
 // Protected routes (authenticated users only)
 router.post("/", authenticateToken, createProperty);
@@ -46,5 +50,7 @@ router.post(
   uploadPropertyImages
 );
 router.get("/seller/my-properties", authenticateToken, getSellerProperties);
+router.post("/:id/reviews", authenticateToken, addPropertyReview);
+router.delete("/:id/reviews/:reviewId", authenticateToken, deletePropertyReview);
 
 export default router;

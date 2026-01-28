@@ -5,6 +5,7 @@ import { useProperties } from "../hooks/useProperties";
 import { Button } from "../components/ui/button";
 import { Input } from "../components/ui/input";
 import { Label } from "../components/ui/label";
+import { Checkbox } from "../components/ui/checkbox";
 import {
   Select,
   SelectContent,
@@ -14,6 +15,23 @@ import {
 } from "../components/ui/select";
 import { ArrowLeft, Upload, X } from "lucide-react";
 import { toast } from "sonner";
+
+const AVAILABLE_AMENITIES = [
+  "WiFi",
+  "Parking",
+  "Gym",
+  "Pool",
+  "Garden",
+  "Balcony",
+  "AC",
+  "Microwave",
+  "Washing Machine",
+  "Dishwasher",
+  "TV",
+  "Security",
+  "Elevator",
+  "Pet Friendly",
+];
 
 export default function CreateProperty() {
   const navigate = useNavigate();
@@ -35,7 +53,7 @@ export default function CreateProperty() {
     city: "",
     state: "",
     zipCode: "",
-    amenities: "",
+    amenities: [],
     status: "available",
   });
 
@@ -128,9 +146,7 @@ export default function CreateProperty() {
         city: formData.city,
         state: formData.state,
         zipCode: formData.zipCode,
-        amenities: formData.amenities
-          ? formData.amenities.split(",").map((a) => a.trim())
-          : [],
+        amenities: formData.amenities,
         status: formData.status,
       };
 
@@ -251,7 +267,7 @@ export default function CreateProperty() {
           {/* Price and Property Type */}
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
-              <Label htmlFor="price">Price ($) *</Label>
+              <Label htmlFor="price">Price (₹) *</Label>
               <Input
                 id="price"
                 name="price"
@@ -378,16 +394,37 @@ export default function CreateProperty() {
           </div>
 
           {/* Amenities and Status */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <div className="space-y-4">
             <div>
-              <Label htmlFor="amenities">Amenities (comma-separated)</Label>
-              <Input
-                id="amenities"
-                name="amenities"
-                value={formData.amenities}
-                onChange={handleChange}
-                placeholder="e.g., WiFi, Parking, Gym, Pool"
-              />
+              <Label>Amenities</Label>
+              <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3 mt-2 p-4 bg-gray-50 rounded-lg">
+                {AVAILABLE_AMENITIES.map((amenity) => (
+                  <div key={amenity} className="flex items-center space-x-2">
+                    <Checkbox
+                      id={amenity}
+                      checked={formData.amenities.includes(amenity)}
+                      onCheckedChange={(checked) => {
+                        if (checked) {
+                          setFormData({
+                            ...formData,
+                            amenities: [...formData.amenities, amenity],
+                          });
+                        } else {
+                          setFormData({
+                            ...formData,
+                            amenities: formData.amenities.filter(
+                              (a) => a !== amenity
+                            ),
+                          });
+                        }
+                      }}
+                    />
+                    <label htmlFor={amenity} className="text-sm cursor-pointer">
+                      {amenity}
+                    </label>
+                  </div>
+                ))}
+              </div>
             </div>
 
             <div>

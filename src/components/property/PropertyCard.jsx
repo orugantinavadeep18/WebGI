@@ -21,6 +21,15 @@ const PropertyCard = ({ property, isSaved, onToggleSave }) => {
   }
   imageUrl = imageUrl || defaultImages[Math.floor(Math.random() * 3)];
 
+  // Handle amenities - convert object to array if needed
+  const amenitiesArray = Array.isArray(property.amenities)
+    ? property.amenities
+    : property.amenities
+    ? Object.keys(property.amenities)
+        .filter(k => property.amenities[k] === true)
+        .map(k => k.replace(/_/g, ' '))
+    : [];
+
   const propertyTypeLabels = {
     house: "House",
     apartment: "Apartment",
@@ -91,7 +100,7 @@ const PropertyCard = ({ property, isSaved, onToggleSave }) => {
 
           {/* Amenities */}
           <div className="flex items-center gap-3 text-sm text-muted-foreground flex-wrap">
-            {property.amenities?.slice(0, 3).map((amenity) => (
+            {amenitiesArray?.slice(0, 3).map((amenity) => (
               <span key={amenity} className="capitalize">{amenity}</span>
             ))}
           </div>

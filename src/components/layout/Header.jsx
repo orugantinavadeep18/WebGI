@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { Menu, X, User, Home, Search, Heart, LogIn, Plus, ChevronDown } from "lucide-react";
+import { Menu, X, User, Home, Search, Heart, LogIn, Plus, ChevronDown, Mail, Bell } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import {
@@ -11,11 +11,13 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { useAuth } from "@/hooks/useAuth";
+import { Badge } from "@/components/ui/badge";
 
 const Header = () => {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [showCityBar, setShowCityBar] = useState(true);
   const [lastScrollY, setLastScrollY] = useState(0);
+  const [unreadCount, setUnreadCount] = useState(0);
   const { user, signOut } = useAuth();
   const navigate = useNavigate();
 
@@ -31,6 +33,35 @@ const Header = () => {
     "Pune",
     "All Cities"
   ];
+
+  // Fetch unread message count
+  useEffect(() => {
+    if (user) {
+      const fetchUnreadCount = async () => {
+        try {
+          const token = localStorage.getItem("token");
+          const response = await fetch(
+            `${import.meta.env.VITE_API_BASE_URL}/messages/unread/count`,
+            {
+              headers: { Authorization: `Bearer ${token}` },
+            }
+          );
+          if (response.ok) {
+            const data = await response.json();
+            setUnreadCount(data.count || 0);
+          }
+        } catch (err) {
+          console.error("Failed to fetch unread count:", err);
+        }
+      };
+
+      fetchUnreadCount();
+
+      // Poll for new messages every 10 seconds
+      const interval = setInterval(fetchUnreadCount, 10000);
+      return () => clearInterval(interval);
+    }
+  }, [user]);
 
   useEffect(() => {
     const handleScroll = () => {
@@ -94,6 +125,23 @@ const Header = () => {
                 </Button>
               )}
 
+              {user && (
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => navigate("/messages")}
+                  className="gap-2 relative"
+                >
+                  <Mail className="h-4 w-4" />
+                  Messages
+                  {unreadCount > 0 && (
+                    <Badge className="absolute -top-2 -right-2 h-5 w-5 flex items-center justify-center p-0 bg-red-500">
+                      {unreadCount > 9 ? "9+" : unreadCount}
+                    </Badge>
+                  )}
+                </Button>
+              )}
+
               {user ? (
                 <DropdownMenu>
                   <DropdownMenuTrigger asChild>
@@ -103,6 +151,11 @@ const Header = () => {
                     </Button>
                   </DropdownMenuTrigger>
                   <DropdownMenuContent align="end" className="w-48">
+                    <DropdownMenuItem onClick={() => navigate("/messages")}>
+                      <Mail className="mr-2 h-4 w-4" />
+                      Messages {unreadCount > 0 && `(${unreadCount})`}
+                    </DropdownMenuItem>
+                    <DropdownMenuSeparator />
                     <DropdownMenuItem onClick={() => navigate("/my-properties")}>
                       <Home className="mr-2 h-4 w-4" />
                       My Properties
@@ -116,6 +169,14 @@ const Header = () => {
                       <Home className="mr-2 h-4 w-4" />
                       My Bookings
                     </DropdownMenuItem>
+                    {user?.email === "kittu8441@gmail.com" && (
+                      <>
+                        <DropdownMenuSeparator />
+                        <DropdownMenuItem onClick={() => navigate("/admin")} className="text-primary font-semibold">
+                          ⚙️ Admin Dashboard
+                        </DropdownMenuItem>
+                      </>
+                    )}
                     <DropdownMenuSeparator />
                     <DropdownMenuItem onClick={() => signOut()}>
                       Log out

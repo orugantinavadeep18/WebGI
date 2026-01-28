@@ -14,6 +14,7 @@ import {
   Star,
   Check,
   AlertCircle,
+  ArrowLeft,
 } from "lucide-react";
 import Layout from "@/components/layout/Layout";
 import { Button } from "@/components/ui/button";
@@ -23,6 +24,7 @@ import { Card } from "@/components/ui/card";
 import { toast } from "sonner";
 import { useAuth } from "@/hooks/useAuth";
 import { useProperties } from "@/hooks/useProperties";
+import ReviewSystem from "@/components/property/ReviewSystem";
 
 // Import demo images
 import property1 from "@/assets/property-1.jpg";
@@ -49,18 +51,44 @@ const PropertyDetail = () => {
       try {
         setLoading(true);
         const data = await getPropertyById(id);
-        setProperty(data);
         
-        // In a real app, fetch seller data from API
-        // For now, set placeholder seller info
+        // Check if data exists
+        if (!data) {
+          setError("Property not found");
+          setProperty(null);
+          return;
+        }
+        
+        // Normalize rental data to property structure
+        const normalizedProperty = {
+          ...data,
+          // Map rental fields to property fields
+          title: data.name || data.title,
+          description: data.about || data.description,
+          propertyType: data.property_type || data.propertyType,
+          address: data.location || data.address || "",
+          city: data.location || data.city || "",
+          seller: data._id || data.id,
+          // Ensure amenities is an array
+          amenities: Array.isArray(data.amenities) 
+            ? data.amenities 
+            : Object.entries(data.amenities || {})
+                .filter(([, value]) => value === true)
+                .map(([key]) => key.replace(/_/g, ' ')),
+        };
+        
+        setProperty(normalizedProperty);
+        
+        // Set seller info
         setSeller({
-          id: data.seller,
-          name: "Property Owner",
+          id: data?._id || data?.id,
+          name: data?.owner_details || "Property Owner",
           email: "owner@example.com",
           phone: "+91 XXXXX XXXXX",
         });
       } catch (err) {
         setError(err.message);
+        setProperty(null);
         console.error("Error loading property:", err);
       } finally {
         setLoading(false);
@@ -135,7 +163,7 @@ const PropertyDetail = () => {
       return;
     }
     // Navigate to messaging/chat page
-    navigate(`/messages/${property.seller}`);
+    navigate(`/messages/${seller?.id}`);
   };
 
   const handleInquiry = () => {
@@ -157,6 +185,16 @@ const PropertyDetail = () => {
   return (
     <Layout>
       <div className="container mx-auto px-4 py-8">
+        {/* Back Button */}
+        <button
+          onClick={() => navigate(-1)}
+          className="mb-4 p-2 hover:bg-gray-100 rounded-lg transition inline-flex items-center gap-2 text-gray-700"
+          title="Go back"
+        >
+          <ArrowLeft className="h-5 w-5" />
+          <span className="text-sm font-medium">Back</span>
+        </button>
+
         {/* Breadcrumb */}
         <nav className="flex items-center gap-2 text-sm text-muted-foreground mb-6">
           <button onClick={() => navigate("/")} className="hover:text-foreground">Home</button>
@@ -270,10 +308,11 @@ const PropertyDetail = () => {
 
             {/* Tabs */}
             <Tabs defaultValue="overview" className="space-y-6">
-              <TabsList className="grid w-full grid-cols-3">
+              <TabsList className="grid w-full grid-cols-4">
                 <TabsTrigger value="overview">Overview</TabsTrigger>
                 <TabsTrigger value="amenities">Amenities</TabsTrigger>
                 <TabsTrigger value="details">Details</TabsTrigger>
+                <TabsTrigger value="reviews">Reviews</TabsTrigger>
               </TabsList>
 
               <TabsContent value="overview" className="space-y-6">
@@ -334,6 +373,13 @@ const PropertyDetail = () => {
                     <p className="text-xl font-semibold">{property.state}</p>
                   </div>
                 </div>
+              </TabsContent>
+
+              <TabsContent value="reviews" className="space-y-6">
+                <ReviewSystem 
+                  propertyId={property._id}
+                  onReviewsUpdated={() => loadProperty()}
+                />
               </TabsContent>
             </Tabs>
           </div>

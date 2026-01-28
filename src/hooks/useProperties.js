@@ -26,7 +26,8 @@ export const useProperties = () => {
       setLoading(true);
       const response = await propertyAPI.getPropertyById(id);
       setError(null);
-      return response.property;
+      // Rentals API returns response.rental, properties API returns response.property
+      return response.rental || response.property;
     } catch (err) {
       setError(err.message);
       throw err;

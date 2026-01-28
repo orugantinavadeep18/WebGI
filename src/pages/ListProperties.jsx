@@ -4,7 +4,7 @@ import { useAuth } from "@/hooks/useAuth";
 import { useProperties } from "../hooks/useProperties";
 import { Button } from "../components/ui/button";
 import { Card } from "../components/ui/card";
-import { Edit2, Trash2, Plus, Upload, Eye, MapPin } from "lucide-react";
+import { Edit2, Trash2, Plus, Upload, Eye, MapPin, ArrowLeft } from "lucide-react";
 import PropertyImageUpload from "../components/property/PropertyImageUpload";
 import PropertyEditForm from "../components/property/PropertyEditForm";
 
@@ -105,6 +105,16 @@ export default function ListProperties() {
   return (
     <div className="min-h-screen bg-gray-50 py-8 px-4 sm:px-6 lg:px-8">
       <div className="max-w-7xl mx-auto">
+        {/* Back Button */}
+        <button
+          onClick={() => navigate(-1)}
+          className="mb-4 p-2 hover:bg-gray-200 rounded-lg transition inline-flex items-center gap-2 text-gray-700"
+          title="Go back"
+        >
+          <ArrowLeft className="h-5 w-5" />
+          <span className="text-sm font-medium">Back</span>
+        </button>
+
         {/* Header */}
         <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-8">
           <div>

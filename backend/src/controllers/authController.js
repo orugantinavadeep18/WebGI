@@ -132,3 +132,69 @@ export const updateProfile = async (req, res) => {
     res.status(500).json({ message: error.message });
   }
 };
+
+export const getAllUsers = async (req, res) => {
+  try {
+    // Admin-only access check
+    const adminEmail = "kittu8441@gmail.com";
+    const currentUser = await User.findById(req.user.id);
+    
+    if (!currentUser || currentUser.email !== adminEmail) {
+      return res.status(403).json({ message: "Unauthorized: Admin access only" });
+    }
+
+    const users = await User.find({}, { password: 0 }).sort({ createdAt: -1 });
+    
+    res.json({
+      message: "All users retrieved successfully",
+      users,
+      total: users.length,
+    });
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};
+
+export const deleteUser = async (req, res) => {
+  try {
+    const { userId } = req.params;
+    
+    // Admin-only access check
+    const adminEmail = "kittu8441@gmail.com";
+    const currentUser = await User.findById(req.user.id);
+    
+    if (!currentUser || currentUser.email !== adminEmail) {
+      return res.status(403).json({ message: "Unauthorized: Admin access only" });
+    }
+
+    // Don't allow deleting self
+    if (userId === req.user.id) {
+      return res.status(400).json({ message: "Cannot delete your own account" });
+    }
+
+    // Delete user's properties
+    const Property = require("../models/Property").default || require("../models/Property");
+    await Property.deleteMany({ ownerId: userId });
+
+    // Delete user's bookings
+    const Booking = require("../models/Booking").default || require("../models/Booking");
+    await Booking.deleteMany({ $or: [{ renterId: userId }, { ownerId: userId }] });
+
+    // Delete user's messages
+    const Message = require("../models/Message").default || require("../models/Message");
+    await Message.deleteMany({ $or: [{ senderId: userId }, { receiverId: userId }] });
+
+    // Delete user's direct messages
+    const DirectMessage = require("../models/DirectMessage").default || require("../models/DirectMessage");
+    await DirectMessage.deleteMany({ $or: [{ senderId: userId }, { receiverId: userId }] });
+
+    // Delete user
+    await User.findByIdAndDelete(userId);
+
+    res.json({
+      message: "User and associated data deleted successfully",
+    });
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};

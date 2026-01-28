@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { Home, Mail, Lock, User, Eye, EyeOff } from "lucide-react";
+import { Home, Mail, Lock, User, Eye, EyeOff, ArrowLeft } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -50,6 +50,15 @@ const Auth = () => {
 
   return (
     <div className="min-h-screen flex">
+      {/* Back Button */}
+      <button
+        onClick={() => navigate(-1)}
+        className="absolute top-6 left-6 p-2 hover:bg-gray-100 rounded-lg transition"
+        title="Go back"
+      >
+        <ArrowLeft className="h-5 w-5 text-gray-700" />
+      </button>
+
       {/* Left Side - Form */}
       <div className="flex-1 flex items-center justify-center p-8">
         <div className="w-full max-w-md space-y-8">
