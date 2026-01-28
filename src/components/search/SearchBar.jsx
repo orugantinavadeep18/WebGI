@@ -62,13 +62,19 @@ const SearchBar = ({ variant = "hero", className }) => {
           <MapPin className="h-5 w-5 text-muted-foreground flex-shrink-0" />
           <div className="flex-1">
             <p className="text-xs text-muted-foreground mb-0.5">Location</p>
-            <Input
-              type="text"
-              placeholder="Enter city, area or locality"
-              value={city}
-              onChange={(e) => setCity(e.target.value)}
-              className="border-0 bg-transparent focus-visible:ring-0 p-0 h-auto text-base font-medium placeholder:text-muted-foreground/60"
-            />
+          <Input
+            type="text"
+            placeholder="Enter city, area or locality"
+            value={city}
+            onChange={(e) => setCity(e.target.value)}
+            onKeyDown={(e) => {
+              if (e.key === "Enter") {
+                handleSearch();
+              }
+            }}
+            className="border-0 bg-transparent focus-visible:ring-0 p-0 h-auto text-base font-medium placeholder:text-muted-foreground/60"
+          />
+
           </div>
         </div>
 

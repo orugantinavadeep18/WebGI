@@ -11,6 +11,8 @@ export const getRecommendations = async (req, res) => {
       property_type,
       location,
       min_rating = 0,
+      min_capacity = 1,
+      min_vacancies = 0,
       limit = 10,
     } = req.body;
 
@@ -21,22 +23,22 @@ export const getRecommendations = async (req, res) => {
       filter.price = { $lte: max_budget };
     }
 
-    if (location) {
+    if (location && location.toLowerCase() !== "all") {
       filter.$or = [
         { location: { $regex: location, $options: "i" } },
         { city: { $regex: location, $options: "i" } },
       ];
     }
 
-    if (gender_preference) {
+    if (gender_preference && gender_preference !== "all") {
       filter.gender_preference = { $in: [gender_preference, "unisex"] };
     }
 
-    if (sharing_type) {
+    if (sharing_type && sharing_type !== "all") {
       filter.sharing_type = sharing_type;
     }
 
-    if (property_type) {
+    if (property_type && property_type !== "all") {
       filter.$or = filter.$or || [];
       filter.$or.push(
         { property_type: property_type },
@@ -46,6 +48,14 @@ export const getRecommendations = async (req, res) => {
 
     if (min_rating > 0) {
       filter.rating = { $gte: min_rating };
+    }
+
+    if (min_capacity > 0) {
+      filter.capacity = { $gte: min_capacity };
+    }
+
+    if (min_vacancies >= 0) {
+      filter.vacancies = { $gte: min_vacancies };
     }
 
     // Filter by amenities - must have all required amenities

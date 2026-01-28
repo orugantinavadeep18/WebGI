@@ -25,6 +25,8 @@ export default function Recommendations() {
     sharing_type: "all",
     property_type: "all",
     min_rating: 0,
+    min_capacity: 1,
+    min_vacancies: 0,
     required_amenities: [],
     limit: 12,
   });
@@ -38,6 +40,27 @@ export default function Recommendations() {
     { id: "power_backup", label: "Power Backup", icon: Zap },
     { id: "security", label: "Security", icon: "🔒" },
     { id: "cctv", label: "CCTV", icon: "📹" },
+  ];
+
+  const propertyTypeOptions = [
+    { value: "all", label: "All Types" },
+    { value: "hostel", label: "Hostel" },
+    { value: "pg", label: "PG/Shared" },
+    { value: "others", label: "Others" },
+  ];
+
+  const sharingTypeOptions = [
+    { value: "all", label: "All Sharing" },
+    { value: "single", label: "Single Room" },
+    { value: "double", label: "Double Occupancy" },
+    { value: "triple", label: "Triple Occupancy" },
+    { value: "shared", label: "Shared" },
+  ];
+
+  const genderOptions = [
+    { value: "unisex", label: "Anyone" },
+    { value: "male", label: "Male Only" },
+    { value: "female", label: "Female Only" },
   ];
 
   // Load saved rentals from localStorage
@@ -244,6 +267,57 @@ export default function Recommendations() {
                   </select>
                 </div>
 
+                {/* Minimum Capacity */}
+                <div className="mb-6">
+                  <label className="block text-sm font-semibold mb-2 text-gray-700">
+                    Minimum Capacity: {filters.min_capacity}
+                  </label>
+                  <Slider
+                    value={[filters.min_capacity]}
+                    onValueChange={(value) =>
+                      setFilters({ ...filters, min_capacity: value[0] })
+                    }
+                    min={1}
+                    max={10}
+                    step={1}
+                    className="w-full"
+                  />
+                </div>
+
+                {/* Minimum Vacancies */}
+                <div className="mb-6">
+                  <label className="block text-sm font-semibold mb-2 text-gray-700">
+                    Minimum Vacancies: {filters.min_vacancies}
+                  </label>
+                  <Slider
+                    value={[filters.min_vacancies]}
+                    onValueChange={(value) =>
+                      setFilters({ ...filters, min_vacancies: value[0] })
+                    }
+                    min={0}
+                    max={10}
+                    step={1}
+                    className="w-full"
+                  />
+                </div>
+
+                {/* Minimum Rating */}
+                <div className="mb-6">
+                  <label className="block text-sm font-semibold mb-2 text-gray-700">
+                    Minimum Rating: {filters.min_rating.toFixed(1)} ⭐
+                  </label>
+                  <Slider
+                    value={[filters.min_rating]}
+                    onValueChange={(value) =>
+                      setFilters({ ...filters, min_rating: value[0] })
+                    }
+                    min={0}
+                    max={5}
+                    step={0.5}
+                    className="w-full"
+                  />
+                </div>
+
                 {/* Amenities */}
                 <div className="mb-6">
                   <label className="block text-sm font-semibold mb-3 text-gray-700">
@@ -292,30 +366,51 @@ export default function Recommendations() {
                   {rentals.map((rental) => (
                     <Card
                       key={rental._id}
-                      className="overflow-hidden shadow-lg hover:shadow-xl transition-shadow"
+                      className="overflow-hidden shadow-lg hover:shadow-xl transition-shadow cursor-pointer hover:scale-105 transform"
+                      onClick={() => navigate(`/properties/${rental._id}`)}
                     >
-                      <div className="bg-gradient-to-r from-blue-500 to-indigo-600 p-4 text-white">
-                        <div className="flex justify-between items-start mb-2">
-                          <h3 className="text-lg font-bold">{rental.name}</h3>
-                          <button
-                            onClick={() => toggleSaveRental(rental)}
-                            className="focus:outline-none"
-                          >
-                            <Heart
-                              size={20}
-                              fill={isSaved(rental._id) ? "currentColor" : "none"}
-                              className={
-                                isSaved(rental._id)
-                                  ? "text-red-400"
-                                  : "text-white hover:text-red-300"
-                              }
-                            />
-                          </button>
+                      {/* Image Section */}
+                      <div className="relative h-48 bg-gray-200 overflow-hidden">
+                        {rental.images && rental.images.length > 0 ? (
+                          <img
+                            src={rental.images[0].url || rental.images[0]}
+                            alt={rental.name || rental.title}
+                            className="w-full h-full object-cover"
+                          />
+                        ) : (
+                          <div className="w-full h-full bg-gradient-to-r from-blue-500 to-indigo-600 flex items-center justify-center">
+                            <span className="text-white text-4xl">🏠</span>
+                          </div>
+                        )}
+                        <button
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            toggleSaveRental(rental);
+                          }}
+                          className="absolute top-3 right-3 bg-white rounded-full p-2 shadow-md hover:shadow-lg"
+                        >
+                          <Heart
+                            size={20}
+                            fill={isSaved(rental._id) ? "currentColor" : "none"}
+                            className={
+                              isSaved(rental._id)
+                                ? "text-red-500"
+                                : "text-gray-400 hover:text-red-500"
+                            }
+                          />
+                        </button>
+                        <div className="absolute top-3 left-3 bg-green-500 text-white px-2 py-1 rounded-lg text-xs font-bold">
+                          Match: {rental.recommendation_score?.toFixed(0) || 0}%
                         </div>
-                        <p className="text-sm opacity-90">{rental.location}</p>
                       </div>
 
                       <div className="p-4">
+                        {/* Title and Location */}
+                        <h3 className="text-lg font-bold text-gray-800 mb-1 truncate">
+                          {rental.name || rental.title}
+                        </h3>
+                        <p className="text-sm text-gray-600 mb-3">{rental.location || rental.city}</p>
+
                         {/* Price and Rating */}
                         <div className="flex justify-between items-center mb-3">
                           <span className="text-2xl font-bold text-blue-600">
