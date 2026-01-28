@@ -59,6 +59,7 @@ const Properties = () => {
             price: r.price,
             rating: r.rating,
             images: r.images || [],
+            propertyType: r.property_type,
             // Convert amenities object to array of keys where value is true
             amenities: Object.keys(r.amenities || {})
               .filter(k => r.amenities[k] === true)
@@ -126,6 +127,7 @@ const Properties = () => {
             rating: r.rating,
             score: r.recommendation_score || r.score || 0,
             images: r.images || [],
+            propertyType: r.property_type,
             amenities: Object.keys(r.amenities || {})
               .filter(k => r.amenities[k] === true)
               .map(k => k.replace(/_/g, ' ')),
@@ -290,7 +292,7 @@ const Properties = () => {
         <div className="flex gap-6">
           {/* LEFT SIDEBAR - Filters */}
           {showSidebar && (
-            <aside className="w-80 flex-shrink-0 h-fit sticky top-24">
+            <aside className="w-80 flex-shrink-0 h-[calc(100vh-200px)] sticky top-24 overflow-y-auto">
               <div className="bg-white rounded-xl border p-4">
                 <PropertyFilters
                   filters={filters}

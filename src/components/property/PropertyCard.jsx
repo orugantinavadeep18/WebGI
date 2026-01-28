@@ -31,6 +31,9 @@ const PropertyCard = ({ property, isSaved, onToggleSave }) => {
     : [];
 
   const propertyTypeLabels = {
+    hostel: "Hostel",
+    pg: "PG",
+    others: "Rental",
     house: "House",
     apartment: "Apartment",
     condo: "Condo",
