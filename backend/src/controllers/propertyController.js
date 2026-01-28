@@ -266,11 +266,17 @@ export const uploadPropertyImages = async (req, res) => {
 
 export const getSellerProperties = async (req, res) => {
   try {
+    console.log(`🔍 getSellerProperties - req.user:`, req.user);
+    console.log(`🔍 Searching for properties with seller ID: ${req.user.id}`);
+    
     const properties = await Property.find({ seller: req.user.id })
       .sort({ createdAt: -1 });
 
+    console.log(`✅ Found ${properties.length} properties for seller ${req.user.id}`);
+    
     res.json({ success: true, count: properties.length, properties });
   } catch (error) {
+    console.error(`❌ Error in getSellerProperties:`, error);
     res.status(500).json({ success: false, message: error.message });
   }
 };
