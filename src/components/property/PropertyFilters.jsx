@@ -22,11 +22,9 @@ const PropertyFilters = ({ filters, onFiltersChange, onClearFilters }) => {
   };
 
   const propertyTypes = [
-    { value: "house", label: "House" },
-    { value: "apartment", label: "Apartment" },
-    { value: "condo", label: "Condo" },
-    { value: "villa", label: "Villa" },
-    { value: "studio", label: "Studio" },
+    { value: "hostel", label: "Hostel" },
+    { value: "pg", label: "PG" },
+    { value: "others", label: "Rental" },
   ];
 
   const amenityOptions = [
