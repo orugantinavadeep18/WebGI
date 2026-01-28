@@ -437,11 +437,6 @@ export default function Recommendations() {
                             {rental.rating >= filters.min_rating ? <p>⭐ Rating: ✓ ({rental.rating})</p> : null}
                           </div>
                         </div>
-                            <span className="font-semibold text-gray-700">
-                              {rental.rating > 0 ? rental.rating : "New"}
-                            </span>
-                          </span>
-                        </div>
 
                         {/* Recommendation Score */}
                         <div className="bg-gradient-to-r from-green-100 to-emerald-100 p-2 rounded-lg mb-3">
