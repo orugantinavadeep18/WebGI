@@ -1,3 +1,4 @@
+import mongoose from "mongoose";
 import Property from "../models/Property.js";
 import imagekit from "../config/imagekit.js";
 
@@ -267,12 +268,19 @@ export const uploadPropertyImages = async (req, res) => {
 export const getSellerProperties = async (req, res) => {
   try {
     console.log(`🔍 getSellerProperties - req.user:`, req.user);
-    console.log(`🔍 Searching for properties with seller ID: ${req.user.id}`);
+    console.log(`🔍 Searching for properties with seller ID: ${req.user.id} (type: ${typeof req.user.id})`);
     
-    const properties = await Property.find({ seller: req.user.id })
+    // Convert string ID to ObjectId if needed
+    const sellerId = mongoose.Types.ObjectId.isValid(req.user.id) 
+      ? new mongoose.Types.ObjectId(req.user.id)
+      : req.user.id;
+    
+    console.log(`🔍 Query will use: ${sellerId} (type: ${typeof sellerId})`);
+    
+    const properties = await Property.find({ seller: sellerId })
       .sort({ createdAt: -1 });
 
-    console.log(`✅ Found ${properties.length} properties for seller ${req.user.id}`);
+    console.log(`✅ Found ${properties.length} properties for seller`);
     
     res.json({ success: true, count: properties.length, properties });
   } catch (error) {
@@ -310,15 +318,20 @@ export const searchProperties = async (req, res) => {
 export const getPropertyReviews = async (req, res) => {
   try {
     const { id } = req.params;
+    console.log(`🔍 getPropertyReviews - Looking for property with ID: ${id}`);
+    
     const property = await Property.findById(id);
 
     if (!property) {
+      console.log(`❌ Property not found with ID: ${id}`);
       return res.status(404).json({ success: false, message: "Property not found" });
     }
 
+    console.log(`✅ Found property: ${property.title || property.name}`);
     const reviews = property.ratings || [];
     res.json({ success: true, reviews });
   } catch (error) {
+    console.error(`❌ Error in getPropertyReviews:`, error);
     res.status(500).json({ success: false, message: error.message });
   }
 };
@@ -330,6 +343,8 @@ export const addPropertyReview = async (req, res) => {
     const { rating, comment } = req.body;
     const userId = req.user?.id;
 
+    console.log(`📝 addPropertyReview - Property ID: ${id}, User: ${userId}`);
+
     if (!rating || !comment) {
       return res.status(400).json({ success: false, message: "Rating and comment required" });
     }
@@ -340,8 +355,11 @@ export const addPropertyReview = async (req, res) => {
 
     const property = await Property.findById(id);
     if (!property) {
+      console.log(`❌ Property not found with ID: ${id}`);
       return res.status(404).json({ success: false, message: "Property not found" });
     }
+
+    console.log(`✅ Found property: ${property.title || property.name}`);
 
     const review = {
       userId,
@@ -354,8 +372,10 @@ export const addPropertyReview = async (req, res) => {
     property.ratings.push(review);
     await property.save();
 
+    console.log(`✅ Review added successfully`);
     res.json({ success: true, message: "Review added successfully", review });
   } catch (error) {
+    console.error(`❌ Error in addPropertyReview:`, error);
     res.status(500).json({ success: false, message: error.message });
   }
 };
