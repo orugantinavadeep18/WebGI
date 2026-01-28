@@ -9,15 +9,10 @@ export const apiCall = async (endpoint, options = {}) => {
     ...options.headers,
   };
 
-  // Public endpoints that don't require authentication
-  const publicEndpoints = ["/properties", "/auth/register", "/auth/login"];
-  const isPublicEndpoint = publicEndpoints.some(ep => endpoint.startsWith(ep));
-
-  if (token) {
+  // Always add token if available, unless explicitly disabled
+  if (token && options.headers?.["Authorization"] !== "none") {
     headers.Authorization = `Bearer ${token}`;
     console.log(`✓ Token added to request for ${endpoint}`);
-  } else if (!isPublicEndpoint) {
-    console.warn(`⚠️ No token in localStorage for ${endpoint}`);
   }
 
   try {
