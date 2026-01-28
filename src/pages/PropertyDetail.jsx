@@ -344,30 +344,64 @@ const PropertyDetail = () => {
 
               <TabsContent value="details" className="space-y-6">
                 <div className="grid grid-cols-2 gap-4">
-                  <div className="p-4 rounded-lg bg-secondary">
-                    <p className="text-sm text-muted-foreground">Bedrooms</p>
-                    <p className="text-2xl font-semibold">{property.bedrooms}</p>
-                  </div>
-                  <div className="p-4 rounded-lg bg-secondary">
-                    <p className="text-sm text-muted-foreground">Bathrooms</p>
-                    <p className="text-2xl font-semibold">{property.bathrooms}</p>
-                  </div>
-                  <div className="p-4 rounded-lg bg-secondary">
-                    <p className="text-sm text-muted-foreground">Square Feet</p>
-                    <p className="text-2xl font-semibold">{property.squareFeet?.toLocaleString()}</p>
-                  </div>
-                  <div className="p-4 rounded-lg bg-secondary">
-                    <p className="text-sm text-muted-foreground">Property Type</p>
-                    <p className="text-2xl font-semibold">{propertyTypeLabels[property.propertyType]}</p>
-                  </div>
+                  {property.bedrooms && (
+                    <div className="p-4 rounded-lg bg-secondary">
+                      <p className="text-sm text-muted-foreground">Bedrooms</p>
+                      <p className="text-2xl font-semibold">{property.bedrooms}</p>
+                    </div>
+                  )}
+                  {property.bathrooms && (
+                    <div className="p-4 rounded-lg bg-secondary">
+                      <p className="text-sm text-muted-foreground">Bathrooms</p>
+                      <p className="text-2xl font-semibold">{property.bathrooms}</p>
+                    </div>
+                  )}
+                  {property.squareFeet && (
+                    <div className="p-4 rounded-lg bg-secondary">
+                      <p className="text-sm text-muted-foreground">Square Feet</p>
+                      <p className="text-2xl font-semibold">{property.squareFeet?.toLocaleString()}</p>
+                    </div>
+                  )}
+                  {property.propertyType && (
+                    <div className="p-4 rounded-lg bg-secondary">
+                      <p className="text-sm text-muted-foreground">Property Type</p>
+                      <p className="text-2xl font-semibold capitalize">{property.property_type || property.propertyType}</p>
+                    </div>
+                  )}
+                  {property.capacity && (
+                    <div className="p-4 rounded-lg bg-secondary">
+                      <p className="text-sm text-muted-foreground">Capacity</p>
+                      <p className="text-2xl font-semibold">{property.capacity} people</p>
+                    </div>
+                  )}
+                  {property.vacancies !== undefined && (
+                    <div className="p-4 rounded-lg bg-secondary">
+                      <p className="text-sm text-muted-foreground">Vacancies</p>
+                      <p className="text-2xl font-semibold">{property.vacancies}</p>
+                    </div>
+                  )}
+                  {property.sharing_type && (
+                    <div className="p-4 rounded-lg bg-secondary">
+                      <p className="text-sm text-muted-foreground">Sharing Type</p>
+                      <p className="text-2xl font-semibold capitalize">{property.sharing_type}</p>
+                    </div>
+                  )}
+                  {property.gender_preference && (
+                    <div className="p-4 rounded-lg bg-secondary">
+                      <p className="text-sm text-muted-foreground">Gender Preference</p>
+                      <p className="text-2xl font-semibold capitalize">{property.gender_preference}</p>
+                    </div>
+                  )}
                   <div className="p-4 rounded-lg bg-secondary col-span-2">
                     <p className="text-sm text-muted-foreground">Address</p>
-                    <p className="text-lg font-semibold">{property.address}</p>
+                    <p className="text-lg font-semibold">{property.address || property.location}</p>
                   </div>
-                  <div className="p-4 rounded-lg bg-secondary">
-                    <p className="text-sm text-muted-foreground">City</p>
-                    <p className="text-xl font-semibold">{property.city}</p>
-                  </div>
+                  {property.city && (
+                    <div className="p-4 rounded-lg bg-secondary">
+                      <p className="text-sm text-muted-foreground">City</p>
+                      <p className="text-xl font-semibold">{property.city}</p>
+                    </div>
+                  )}
                   <div className="p-4 rounded-lg bg-secondary">
                     <p className="text-sm text-muted-foreground">State</p>
                     <p className="text-xl font-semibold">{property.state}</p>
