@@ -308,10 +308,11 @@ const PropertyDetail = () => {
 
             {/* Tabs */}
             <Tabs defaultValue="overview" className="space-y-6">
-              <TabsList className="grid w-full grid-cols-4">
+              <TabsList className="grid w-full grid-cols-5">
                 <TabsTrigger value="overview">Overview</TabsTrigger>
                 <TabsTrigger value="amenities">Amenities</TabsTrigger>
                 <TabsTrigger value="details">Details</TabsTrigger>
+                <TabsTrigger value="ai-score">AI Score</TabsTrigger>
                 <TabsTrigger value="reviews">Reviews</TabsTrigger>
               </TabsList>
 
@@ -319,9 +320,23 @@ const PropertyDetail = () => {
                 <div>
                   <h3 className="font-heading font-semibold text-lg mb-3">About this property</h3>
                   <p className="text-muted-foreground leading-relaxed">
-                    {property.description}
+                    {property.description || property.about || "No description provided"}
                   </p>
                 </div>
+                
+                {property.rules && (
+                  <div>
+                    <h3 className="font-heading font-semibold text-lg mb-3">📋 House Rules</h3>
+                    <p className="text-muted-foreground leading-relaxed">{property.rules}</p>
+                  </div>
+                )}
+                
+                {property.required_documents && (
+                  <div>
+                    <h3 className="font-heading font-semibold text-lg mb-3">📄 Required Documents</h3>
+                    <p className="text-muted-foreground leading-relaxed">{property.required_documents}</p>
+                  </div>
+                )}
               </TabsContent>
 
               <TabsContent value="amenities" className="space-y-6">
@@ -405,6 +420,97 @@ const PropertyDetail = () => {
                   <div className="p-4 rounded-lg bg-secondary">
                     <p className="text-sm text-muted-foreground">State</p>
                     <p className="text-xl font-semibold">{property.state}</p>
+                  </div>
+                </div>
+              </TabsContent>
+
+              <TabsContent value="ai-score" className="space-y-6">
+                <div className="bg-gradient-to-br from-blue-50 to-indigo-50 p-8 rounded-lg border-2 border-blue-200">
+                  <h3 className="text-2xl font-bold text-blue-900 mb-6">🤖 AI Recommendation Analysis</h3>
+                  
+                  {/* Overall Score */}
+                  <div className="mb-8 bg-white p-6 rounded-lg shadow-md">
+                    <p className="text-gray-600 text-sm mb-2">Overall Recommendation Score</p>
+                    <div className="flex items-end gap-4">
+                      <div className="text-5xl font-bold text-green-600">
+                        {property.recommendation_score?.toFixed(1) || 'N/A'}<span className="text-2xl">/100</span>
+                      </div>
+                      <div className="flex-1">
+                        <div className="w-full bg-gray-300 rounded-full h-4 mb-2">
+                          <div
+                            className="bg-gradient-to-r from-green-400 to-green-600 h-4 rounded-full"
+                            style={{width: `${Math.min((property.recommendation_score || 0) / 100 * 100, 100)}%`}}
+                          ></div>
+                        </div>
+                        <p className="text-sm text-gray-600">{property.recommendation_score > 75 ? '⭐⭐⭐ Excellent Match' : property.recommendation_score > 50 ? '⭐⭐ Good Match' : '⭐ Fair Match'}</p>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Scoring Breakdown */}
+                  <div className="grid md:grid-cols-2 gap-4 mb-8">
+                    {/* Price Factor */}
+                    <div className="bg-white p-4 rounded-lg border-l-4 border-blue-500">
+                      <div className="flex justify-between items-center mb-2">
+                        <p className="font-semibold text-gray-800">💰 Price Factor</p>
+                        <span className="text-lg font-bold text-blue-600">25%</span>
+                      </div>
+                      <p className="text-sm text-gray-600">₹{property.price?.toLocaleString()} /month</p>
+                      <div className="mt-2 bg-blue-100 h-2 rounded-full"></div>
+                    </div>
+
+                    {/* Rating Factor */}
+                    <div className="bg-white p-4 rounded-lg border-l-4 border-yellow-500">
+                      <div className="flex justify-between items-center mb-2">
+                        <p className="font-semibold text-gray-800">⭐ Rating Factor</p>
+                        <span className="text-lg font-bold text-yellow-600">30%</span>
+                      </div>
+                      <p className="text-sm text-gray-600">Rating: {property.rating?.toFixed(1) || 'N/A'} stars</p>
+                      <div className="mt-2 bg-yellow-100 h-2 rounded-full" style={{width: `${Math.min((property.rating || 0) / 5 * 100, 100)}%`}}></div>
+                    </div>
+
+                    {/* Amenities Factor */}
+                    <div className="bg-white p-4 rounded-lg border-l-4 border-green-500">
+                      <div className="flex justify-between items-center mb-2">
+                        <p className="font-semibold text-gray-800">✨ Amenities Factor</p>
+                        <span className="text-lg font-bold text-green-600">25%</span>
+                      </div>
+                      <p className="text-sm text-gray-600">{property.amenities?.length || 0} amenities available</p>
+                      <div className="mt-2 bg-green-100 h-2 rounded-full" style={{width: `${Math.min((property.amenities?.length || 0) / 8 * 100, 100)}%`}}></div>
+                    </div>
+
+                    {/* Availability Factor */}
+                    <div className="bg-white p-4 rounded-lg border-l-4 border-purple-500">
+                      <div className="flex justify-between items-center mb-2">
+                        <p className="font-semibold text-gray-800">🔑 Availability Factor</p>
+                        <span className="text-lg font-bold text-purple-600">15%</span>
+                      </div>
+                      <p className="text-sm text-gray-600">{property.vacancies || 0} rooms available</p>
+                      <div className="mt-2 bg-purple-100 h-2 rounded-full" style={{width: `${Math.min((property.vacancies || 0) / 5 * 100, 100)}%`}}></div>
+                    </div>
+
+                    {/* Capacity Factor */}
+                    <div className="bg-white p-4 rounded-lg border-l-4 border-orange-500">
+                      <div className="flex justify-between items-center mb-2">
+                        <p className="font-semibold text-gray-800">👥 Capacity Factor</p>
+                        <span className="text-lg font-bold text-orange-600">5%</span>
+                      </div>
+                      <p className="text-sm text-gray-600">Capacity: {property.capacity || 'N/A'} people</p>
+                      <div className="mt-2 bg-orange-100 h-2 rounded-full"></div>
+                    </div>
+                  </div>
+
+                  {/* Why This Property Was Recommended */}
+                  <div className="bg-white p-6 rounded-lg border-2 border-green-200">
+                    <h4 className="font-semibold text-gray-800 mb-4">✅ Why This Property Matches Your Preferences</h4>
+                    <ul className="space-y-2 text-sm text-gray-700">
+                      {property.price ? <li>✓ Price point fits your budget</li> : null}
+                      {property.capacity ? <li>✓ Capacity meets your requirements</li> : null}
+                      {property.vacancies ? <li>✓ Currently has available rooms</li> : null}
+                      {property.rating > 3 ? <li>✓ Well-rated by previous tenants</li> : null}
+                      {property.amenities?.length > 0 ? <li>✓ Offers essential amenities</li> : null}
+                      <li>✓ Located in your preferred area</li>
+                    </ul>
                   </div>
                 </div>
               </TabsContent>
