@@ -409,15 +409,34 @@ export default function Recommendations() {
                         <h3 className="text-lg font-bold text-gray-800 mb-1 truncate">
                           {rental.name || rental.title}
                         </h3>
-                        <p className="text-sm text-gray-600 mb-3">{rental.location || rental.city}</p>
+                        <p className="text-sm text-gray-600 mb-3 flex items-center">
+                          <MapPin size={16} className="mr-1" />
+                          {rental.location || rental.city}
+                        </p>
 
                         {/* Price and Rating */}
-                        <div className="flex justify-between items-center mb-3">
+                        <div className="flex justify-between items-center mb-4">
                           <span className="text-2xl font-bold text-blue-600">
-                            ₹{rental.price.toLocaleString()}
+                            ₹{rental.price?.toLocaleString() || 'N/A'}/mo
                           </span>
-                          <span className="flex items-center">
-                            <span className="text-yellow-400 mr-1">⭐</span>
+                          <span className="flex items-center bg-yellow-100 px-2 py-1 rounded-full">
+                            <span className="text-yellow-500 mr-1">⭐</span>
+                            <span className="font-semibold text-gray-700">
+                              {rental.rating > 0 ? rental.rating.toFixed(1) : "N/A"}
+                            </span>
+                          </span>
+                        </div>
+
+                        {/* Detailed Recommendation Breakdown */}
+                        <div className="bg-gradient-to-r from-green-50 to-emerald-50 p-3 rounded-lg mb-4 text-xs border border-green-200">
+                          <p className="font-bold text-green-800 mb-2">✨ Why Recommended ({rental.recommendation_score?.toFixed(1) || 0}/100):</p>
+                          <div className="space-y-1 text-gray-700">
+                            <p>💰 Price Match: {rental.price <= filters.max_budget ? '✓' : '✗'}</p>
+                            <p>👥 Capacity: {rental.capacity >= filters.min_capacity ? `✓ (${rental.capacity} people)` : `✗ (${rental.capacity}/${filters.min_capacity})`}</p>
+                            <p>🔑 Available: {rental.vacancies >= filters.min_vacancies ? `✓ (${rental.vacancies} rooms)` : `✗ (${rental.vacancies}/${filters.min_vacancies})`}</p>
+                            {rental.rating >= filters.min_rating ? <p>⭐ Rating: ✓ ({rental.rating})</p> : null}
+                          </div>
+                        </div>
                             <span className="font-semibold text-gray-700">
                               {rental.rating > 0 ? rental.rating : "New"}
                             </span>
