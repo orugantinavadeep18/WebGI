@@ -282,12 +282,12 @@ const Header = () => {
         </nav>
       </header>
 
-      {/* City Navigation Bar - Slides up under main navbar */}
+      {/* City Navigation Bar - Slides below main navbar */}
       <motion.div
-        initial={{ y: 64 }}
-        animate={{ y: showCityBar ? 64 : 16 }}
+        initial={{ y: 0 }}
+        animate={{ y: showCityBar ? 0 : -48 }}
         transition={{ duration: 0.3 }}
-        className="fixed top-0 left-0 right-0 z-40 bg-background border-b border-border"
+        className="fixed top-16 left-0 right-0 z-40 bg-background border-b border-border"
       >
         <div className="container mx-auto px-4">
           <div className="flex items-center justify-center gap-6 h-12 overflow-x-auto scrollbar-hide">

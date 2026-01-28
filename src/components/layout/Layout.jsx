@@ -24,25 +24,28 @@ const itemVariants = {
 
 const Layout = ({ children }) => {
   return (
-    <motion.div
-      className="min-h-screen flex flex-col bg-background"
-      initial="hidden"
-      animate="visible"
-      variants={containerVariants}
-    >
-      <motion.div variants={itemVariants}>
-        <Header />
-      </motion.div>
-      <motion.main 
-        className="flex-1 w-full"
-        variants={itemVariants}
+    <>
+      {/* Fixed Header - stays on top */}
+      <Header />
+      
+      {/* Main content area starts below fixed navbar and city bar */}
+      <motion.div
+        className="min-h-screen flex flex-col bg-background pt-28"
+        initial="hidden"
+        animate="visible"
+        variants={containerVariants}
       >
-        {children}
-      </motion.main>
-      <motion.div variants={itemVariants}>
-        <Footer />
+        <motion.main 
+          className="flex-1 w-full"
+          variants={itemVariants}
+        >
+          {children}
+        </motion.main>
+        <motion.div variants={itemVariants}>
+          <Footer />
+        </motion.div>
       </motion.div>
-    </motion.div>
+    </>
   );
 };
 
