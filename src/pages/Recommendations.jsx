@@ -71,6 +71,7 @@ export default function Recommendations() {
 
   // Fetch recommendations
   const fetchRecommendations = async () => {
+    console.log("📡 Fetching recommendations with filters:", filters);
     setLoading(true);
     try {
       const data = await apiCall("/rentals/recommend", {
@@ -78,9 +79,14 @@ export default function Recommendations() {
         body: JSON.stringify(filters),
       });
 
+      console.log("✅ Response received:", data);
       setRentals(data.recommendations || []);
-      console.log(`✓ Found ${data.count} recommendations!`);
-      toast.success(`Found ${data.count} recommendations!`);
+      console.log(`✓ Found ${data.count} recommendations out of ${data.total_available} total!`);
+      if (data.count > 0) {
+        toast.success(`Found ${data.count} recommendations!`);
+      } else {
+        toast.info("No rentals match your filters. Try adjusting them!");
+      }
     } catch (error) {
       console.error("❌ Error fetching recommendations:", error);
       toast.error(error.message || "Failed to load recommendations");
@@ -93,6 +99,27 @@ export default function Recommendations() {
   useEffect(() => {
     fetchRecommendations();
   }, []);
+
+  // Fetch when filters change (with debounce)
+  useEffect(() => {
+    const timeoutId = setTimeout(() => {
+      console.log("🔍 Filters changed, fetching recommendations...", filters);
+      fetchRecommendations();
+    }, 500); // 500ms debounce
+
+    return () => clearTimeout(timeoutId);
+  }, [
+    filters.max_budget,
+    filters.location,
+    filters.gender_preference,
+    filters.sharing_type,
+    filters.property_type,
+    filters.min_rating,
+    filters.min_capacity,
+    filters.min_vacancies,
+    filters.required_amenities,
+    filters.limit,
+  ]);
 
   const toggleAmenity = (amenityId) => {
     setFilters((prev) => ({
@@ -157,10 +184,16 @@ export default function Recommendations() {
                     sharing_type: "all",
                     property_type: "all",
                     min_rating: 0,
+                    min_capacity: 1,
+                    min_vacancies: 0,
                     required_amenities: [],
                     limit: 12,
                   });
                   toast.success("Filters reset");
+                  // Fetch immediately after reset
+                  setTimeout(() => {
+                    fetchRecommendations();
+                  }, 100);
                 }}
                 variant="outline"
                 className="flex items-center gap-2"
