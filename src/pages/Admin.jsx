@@ -100,14 +100,14 @@ export default function Admin() {
 
   const filteredUsers = allUsers.filter(
     (u) =>
-      u.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      u.email?.toLowerCase().includes(searchTerm.toLowerCase()) ||
       u.name?.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
   const filteredProperties = allProperties.filter(
     (p) =>
-      p.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      p.city.toLowerCase().includes(searchTerm.toLowerCase())
+      (p.title || p.name || "").toLowerCase().includes(searchTerm.toLowerCase()) ||
+      (p.city || p.location || "").toLowerCase().includes(searchTerm.toLowerCase())
   );
 
   if (loading) {
@@ -383,13 +383,13 @@ export default function Admin() {
                           return (
                             <tr key={p._id} className="border-b hover:bg-gray-50">
                               <td className="p-3 font-medium truncate max-w-xs">
-                                {p.title}
+                                {p.title || p.name || "Untitled"}
                               </td>
                               <td className="p-3">{owner?.name || "Unknown"}</td>
                               <td className="p-3 text-blue-600">{owner?.email || "N/A"}</td>
-                              <td className="p-3">{p.city}</td>
-                              <td className="p-3 font-bold">₹{p.price?.toLocaleString()}</td>
-                              <td className="p-3 capitalize">{p.propertyType}</td>
+                              <td className="p-3">{p.city || p.location || "N/A"}</td>
+                              <td className="p-3 font-bold">₹{p.price?.toLocaleString() || "N/A"}</td>
+                              <td className="p-3 capitalize">{p.propertyType || p.property_type || "N/A"}</td>
                               <td className="p-3">
                                 <Badge
                                   className={
