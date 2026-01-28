@@ -87,10 +87,6 @@ export default function ReviewSystem({ propertyId, onReviewsUpdated }) {
       toast.error(error.message || "Failed to submit review");
     }
   };
-      toast.error("Failed to submit review");
-      console.error("Error submitting review:", error);
-    }
-  };
 
   const deleteReview = async (reviewId) => {
     if (!confirm("Delete this review?")) return;
