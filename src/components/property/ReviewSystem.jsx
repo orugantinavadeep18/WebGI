@@ -23,10 +23,19 @@ export default function ReviewSystem({ propertyId, onReviewsUpdated }) {
   const fetchReviews = async () => {
     try {
       setLoading(true);
-      // Try to fetch from rentals endpoint, fall back gracefully if not available
-      const data = await apiCall(`/rentals/${propertyId}/reviews`, {
-        method: "GET",
-      }).catch(() => ({ reviews: [] }));
+      // Try rentals endpoint first, then fallback to properties endpoint
+      let data = null;
+      try {
+        data = await apiCall(`/rentals/${propertyId}/reviews`, {
+          method: "GET",
+        });
+      } catch (err) {
+        // If rentals fails, try properties endpoint
+        console.log("Rentals endpoint failed, trying properties endpoint...");
+        data = await apiCall(`/properties/${propertyId}/reviews`, {
+          method: "GET",
+        });
+      }
 
       setReviews(data.reviews || []);
 
@@ -37,12 +46,10 @@ export default function ReviewSystem({ propertyId, onReviewsUpdated }) {
           data.reviews.length;
         setAvgRating(avg.toFixed(1));
       } else {
-        // If no reviews from API, show property's rating if available
         setAvgRating(0);
       }
     } catch (error) {
       console.error("Error fetching reviews:", error);
-      // Don't throw error - allow component to work without reviews
       setReviews([]);
       setAvgRating(0);
     } finally {
@@ -64,13 +71,26 @@ export default function ReviewSystem({ propertyId, onReviewsUpdated }) {
     }
 
     try {
-      await apiCall(`/rentals/${propertyId}/reviews`, {
-        method: "POST",
-        body: JSON.stringify({
-          rating,
-          comment,
-        }),
-      });
+      // Try rentals endpoint first, then fallback to properties endpoint
+      try {
+        await apiCall(`/rentals/${propertyId}/reviews`, {
+          method: "POST",
+          body: JSON.stringify({
+            rating,
+            comment,
+          }),
+        });
+      } catch (err) {
+        // If rentals fails, try properties endpoint
+        console.log("Rentals endpoint failed, trying properties endpoint...");
+        await apiCall(`/properties/${propertyId}/reviews`, {
+          method: "POST",
+          body: JSON.stringify({
+            rating,
+            comment,
+          }),
+        });
+      }
 
       toast.success("Review submitted successfully!");
       setComment("");
@@ -78,7 +98,7 @@ export default function ReviewSystem({ propertyId, onReviewsUpdated }) {
       fetchReviews();
       onReviewsUpdated?.();
     } catch (error) {
-      toast.error("Reviews feature is currently unavailable for this property");
+      toast.error("Failed to submit review");
       console.error("Error submitting review:", error);
     }
   };
@@ -87,9 +107,18 @@ export default function ReviewSystem({ propertyId, onReviewsUpdated }) {
     if (!confirm("Delete this review?")) return;
 
     try {
-      await apiCall(`/rentals/${propertyId}/reviews/${reviewId}`, {
-        method: "DELETE",
-      });
+      // Try rentals endpoint first, then fallback to properties endpoint
+      try {
+        await apiCall(`/rentals/${propertyId}/reviews/${reviewId}`, {
+          method: "DELETE",
+        });
+      } catch (err) {
+        // If rentals fails, try properties endpoint
+        console.log("Rentals endpoint failed, trying properties endpoint...");
+        await apiCall(`/properties/${propertyId}/reviews/${reviewId}`, {
+          method: "DELETE",
+        });
+      }
 
       toast.success("Review deleted");
       fetchReviews();
