@@ -234,16 +234,16 @@ const Auth = () => {
           </p>
           <div className="flex justify-center gap-8">
             <div className="text-center">
-              <p className="text-3xl font-bold">2000+</p>
-              <p className="text-sm text-primary-foreground/70">Verified Properties</p>
+              <p className="text-3xl font-bold">Verified</p>
+              <p className="text-sm text-primary-foreground/70">Properties</p>
             </div>
             <div className="text-center">
-              <p className="text-3xl font-bold">50K+</p>
-              <p className="text-sm text-primary-foreground/70">Happy Users</p>
+              <p className="text-3xl font-bold">AI Picks</p>
+              <p className="text-sm text-primary-foreground/70">[From our side]</p>
             </div>
             <div className="text-center">
-              <p className="text-3xl font-bold">25+</p>
-              <p className="text-sm text-primary-foreground/70">Cities</p>
+              <p className="text-3xl font-bold">User-Friendly</p>
+              <p className="text-sm text-primary-foreground/70">Dashboard</p>
             </div>
           </div>
         </div>

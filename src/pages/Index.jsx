@@ -272,7 +272,7 @@ const Index = () => {
                 </Button>
               </Link>
               <Link to="/auth">
-                <Button size="lg" variant="outline" className="border-primary-foreground/30 text-primary-foreground hover:bg-primary-foreground/10">
+                <Button size="lg"  className="bg-accent hover:bg-accent/90 text-accent-foreground gap-2">
                   List Your Property
                 </Button>
               </Link>

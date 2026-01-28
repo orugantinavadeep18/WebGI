@@ -294,7 +294,13 @@ const Header = () => {
             {cities.map((city) => (
               <button
                 key={city}
-                onClick={() => navigate(`/properties?city=${city.toLowerCase()}`)}
+                        onClick={() => {
+                  if (city === "All Cities") {
+                    navigate("/properties");
+                  } else {
+                    navigate(`/properties?city=${city.toLowerCase()}`);
+                  }
+                }}
                 className="flex items-center gap-1 text-sm font-medium text-muted-foreground hover:text-foreground transition-colors whitespace-nowrap group"
               >
                 {city}
