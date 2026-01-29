@@ -458,7 +458,7 @@ const PropertyDetail = () => {
                   </div>
 
                   {/* Scoring Breakdown */}
-                  <div className="grid md:grid-cols-2 gap-4 mb-8">
+                  {/* <div className="grid md:grid-cols-2 gap-4 mb-8">
                     {/* Price Factor */}
                     <div className="bg-white p-4 rounded-lg border-l-4 border-blue-500">
                       <div className="flex justify-between items-center mb-2">
@@ -521,8 +521,8 @@ const PropertyDetail = () => {
                       {property.amenities?.length > 0 ? <li>✓ Offers essential amenities</li> : null}
                       <li>✓ Located in your preferred area</li>
                     </ul>
-                  </div>
-                </div>
+                  </div>*/}
+                </div> 
               </TabsContent>
 
               <TabsContent value="reviews" className="space-y-6">
