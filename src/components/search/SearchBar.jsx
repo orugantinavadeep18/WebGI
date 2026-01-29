@@ -28,7 +28,7 @@ const SearchBar = ({ variant = "hero", className }) => {
 
   if (variant === "compact") {
     return (
-      <div className={`flex items-center gap-2 p-2 bg-card rounded-xl border shadow-sm ${className}`}>
+      <div className={`flex items-center gap-2 p-2 bg-card rounded-xl border shadow-sm relative z-40 ${className}`}>
         <div className="flex-1 flex items-center gap-2 px-3">
           <MapPin className="h-4 w-4 text-muted-foreground" />
           <Input
@@ -51,7 +51,7 @@ const SearchBar = ({ variant = "hero", className }) => {
 
   return (
     <motion.div
-      className={`search-box p-2 md:p-3 ${className}`}
+      className={`search-box relative z-40 p-2 md:p-3 ${className}`}
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.5 }}

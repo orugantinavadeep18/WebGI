@@ -12,19 +12,29 @@ import {
   deletePropertyReview,
 } from "../controllers/propertyController.js";
 import { authenticateToken } from "../middleware/auth.js";
-import Property from "../models/Property.js"; // Import Property model
+import Property from "../models/Property.js";
 
 const router = express.Router();
+
+// ⚠️ IMPORTANT: Specific routes MUST come BEFORE parameterized routes (/:id)
 
 // City counts route - MUST be before /:id route
 router.get("/city-counts", async (req, res) => {
   try {
+    console.log("📊 City counts endpoint called");
+    
     // Aggregate properties by city and count them
     const cityCounts = await Property.aggregate([
       {
-        // Group by city (case-insensitive by converting to lowercase)
+        // Filter out properties with empty or null city names
+        $match: {
+          city: { $exists: true, $ne: "", $ne: null }
+        }
+      },
+      {
+        // Group by the ORIGINAL city value (preserving case from DB)
         $group: {
-          _id: { $toLower: "$city" },
+          _id: "$city",
           count: { $sum: 1 }
         }
       },
@@ -33,24 +43,19 @@ router.get("/city-counts", async (req, res) => {
         $sort: { count: -1 }
       },
       {
-        // Format the output with proper capitalization
+        // Format the output
         $project: {
           _id: 0,
-          city: {
-            $concat: [
-              { $toUpper: { $substrCP: ["$_id", 0, 1] } },
-              { $substrCP: ["$_id", 1, { $strLenCP: "$_id" }] }
-            ]
-          },
+          city: "$_id",
           count: 1
         }
       }
     ]);
 
-    console.log("City counts response:", cityCounts); // Debug log
+    console.log("✅ City counts result:", cityCounts);
     res.json(cityCounts);
   } catch (error) {
-    console.error("Error fetching city counts:", error);
+    console.error("❌ Error fetching city counts:", error);
     res.status(500).json({ 
       message: "Failed to fetch city counts",
       error: error.message 
@@ -58,12 +63,16 @@ router.get("/city-counts", async (req, res) => {
   }
 });
 
-// Public routes
+// Trending route - also before /:id
+router.get("/trending", getTrendingRentals);
+
+// Other public routes
 router.post("/recommend", getRecommendations);
 router.get("/", getAllRentals);
-router.get("/trending", getTrendingRentals);
-router.put("/:id/select", authenticateToken, toggleRentalSelection);
+
+// Parameterized routes come AFTER specific routes
 router.get("/:id", getRentalById);
+router.put("/:id/select", authenticateToken, toggleRentalSelection);
 
 // Review routes (using unified Property model)
 router.get("/:id/reviews", getPropertyReviews);
