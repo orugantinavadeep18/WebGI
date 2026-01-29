@@ -7,7 +7,7 @@ const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || "http://localhost:5000
 
 export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(true); // Start with true for initialization
 
   useEffect(() => {
     // Check for existing token on mount
@@ -23,10 +23,11 @@ export const AuthProvider = ({ children }) => {
         localStorage.removeItem("user");
       }
     }
+    // Always set loading to false after checking
+    setLoading(false);
   }, []);
 
   const signUp = async (email, password, fullName) => {
-    setLoading(true);
     try {
       const response = await fetch(`${API_BASE_URL}/auth/register`, {
         method: "POST",
@@ -48,13 +49,10 @@ export const AuthProvider = ({ children }) => {
       console.error("Sign up error:", error);
       toast.error(error.message || "Sign up failed");
       throw error;
-    } finally {
-      setLoading(false);
     }
   };
 
   const signIn = async (email, password) => {
-    setLoading(true);
     try {
       const response = await fetch(`${API_BASE_URL}/auth/login`, {
         method: "POST",
@@ -76,13 +74,10 @@ export const AuthProvider = ({ children }) => {
       console.error("Sign in error:", error);
       toast.error(error.message || "Invalid credentials");
       throw error;
-    } finally {
-      setLoading(false);
     }
   };
 
   const signOut = async () => {
-    setLoading(true);
     try {
       localStorage.removeItem("token");
       localStorage.removeItem("user");
@@ -91,8 +86,6 @@ export const AuthProvider = ({ children }) => {
     } catch (error) {
       toast.error(error.message || "Sign out failed");
       throw error;
-    } finally {
-      setLoading(false);
     }
   };
 

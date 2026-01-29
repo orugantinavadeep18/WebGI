@@ -20,15 +20,14 @@ export const useMessages = () => {
           content,
         }),
       });
-      if (!response.ok) {
-        throw new Error(response.message || "Failed to send message");
-      }
       // Refresh messages
       await getBookingMessages(bookingId);
-      return response.data;
+      return response.message || response;
     } catch (err) {
-      setError(err.message);
-      throw err;
+      console.error("sendMessage error:", err);
+      const errorMsg = err.message || "Failed to send message";
+      setError(errorMsg);
+      throw new Error(errorMsg);
     } finally {
       setLoading(false);
     }
@@ -41,16 +40,15 @@ export const useMessages = () => {
       const response = await apiCall(`/messages/booking/${bookingId}`, {
         method: "GET",
       });
-      if (!response.ok) {
-        throw new Error(response.message || "Failed to fetch messages");
-      }
       // Handle both { messages: [...] } and [ ... ] response formats
-      const messagesData = response.data.messages || response.data || [];
+      const messagesData = response.messages || response || [];
       setMessages(messagesData);
       return messagesData;
     } catch (err) {
-      setError(err.message);
-      throw err;
+      console.error("getBookingMessages error:", err);
+      const errorMsg = err.message || "Failed to fetch messages";
+      setError(errorMsg);
+      throw new Error(errorMsg);
     } finally {
       setLoading(false);
     }
@@ -63,14 +61,8 @@ export const useMessages = () => {
       const response = await apiCall("/messages/conversations/all", {
         method: "GET",
       });
-      
-      // Check if response has success flag
-      if (response && response.success === false) {
-        throw new Error(response.message || "Failed to fetch conversations");
-      }
-      
       // Handle both { conversations: [...] } and [ ... ] response formats
-      const conversationsData = response?.conversations || response?.data || [];
+      const conversationsData = response?.conversations || response?.data || response || [];
       setConversations(conversationsData);
       return conversationsData;
     } catch (err) {
@@ -89,12 +81,11 @@ export const useMessages = () => {
       const response = await apiCall("/messages/unread/count", {
         method: "GET",
       });
-      if (!response.ok) {
-        throw new Error(response.message || "Failed to fetch unread count");
-      }
-      setUnreadCount(response.data.count);
-      return response.data.count;
+      const count = response.count || 0;
+      setUnreadCount(count);
+      return count;
     } catch (err) {
+      console.error("getUnreadCount error:", err);
       setError(err.message);
       return 0;
     }

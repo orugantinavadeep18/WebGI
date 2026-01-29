@@ -14,7 +14,7 @@ import { apiCall } from "@/lib/api";
 
 export default function Admin() {
   const navigate = useNavigate();
-  const { user, signOut } = useAuth();
+  const { user, loading: authLoading, signOut } = useAuth();
   const [activeTab, setActiveTab] = useState("overview");
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState("");
@@ -32,13 +32,15 @@ export default function Admin() {
 
   // Admin authentication check
   useEffect(() => {
+    if (authLoading) return;
+
     if (!user || user.email !== "kittu8441@gmail.com") {
       toast.error("Unauthorized: Admin access only");
       navigate("/");
       return;
     }
     fetchAdminData();
-  }, [user, navigate]);
+  }, [user, authLoading, navigate]);
 
   const fetchAdminData = async () => {
     try {

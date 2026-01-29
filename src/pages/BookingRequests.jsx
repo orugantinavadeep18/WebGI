@@ -9,7 +9,7 @@ import { useBooking } from "@/hooks/useBooking";
 import { Calendar, Users, DollarSign, MessageSquare, Check, X, ArrowLeft } from "lucide-react";
 
 export default function BookingRequests() {
-  const { user } = useAuth();
+  const { user, loading: authLoading } = useAuth();
   const navigate = useNavigate();
   const {
     getOwnerRequests,
@@ -22,19 +22,24 @@ export default function BookingRequests() {
   const [processingId, setProcessingId] = useState(null);
 
   useEffect(() => {
+    if (authLoading) return;
+
     if (!user) {
       navigate("/auth");
       return;
     }
     loadBookings();
-  }, [user]);
+  }, [user, authLoading]);
 
   const loadBookings = async () => {
     try {
+      console.log("📥 Loading booking requests...");
       const requests = await getOwnerRequests();
+      console.log("✅ Booking requests loaded:", requests);
       setBookings(requests || []);
     } catch (error) {
-      console.error("Failed to load booking requests:", error);
+      console.error("❌ Failed to load booking requests:", error);
+      setBookings([]);
     }
   };
 
@@ -96,7 +101,7 @@ export default function BookingRequests() {
 
         <h1 className="text-3xl font-bold mb-8">Booking Requests</h1>
 
-        {loading && bookings.length === 0 ? (
+        {authLoading || (loading && bookings.length === 0) ? (
           <div className="text-center py-12">
             <p className="text-gray-500">Loading booking requests...</p>
           </div>

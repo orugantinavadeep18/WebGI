@@ -90,6 +90,10 @@ const Header = () => {
     <>
       {/* Main Header - Always Visible */}
       <header className="fixed top-0 left-0 right-0 z-50 bg-background border-b border-border">
+        {/* Notification Dot */}
+        {unreadCount > 0 && user && (
+          <div className="h-1 w-full bg-red-500 animate-pulse"></div>
+        )}
         <nav className="container mx-auto px-4">
           <div className="flex h-16 items-center justify-between">
             {/* Logo */}
@@ -147,7 +151,7 @@ const Header = () => {
                   <DropdownMenuTrigger asChild>
                     <Button variant="outline" size="sm" className="gap-2">
                       <User className="h-4 w-4" />
-                      Account
+                      {user.name || 'Account'}
                     </Button>
                   </DropdownMenuTrigger>
                   <DropdownMenuContent align="end" className="w-48">
@@ -168,6 +172,10 @@ const Header = () => {
                     <DropdownMenuItem onClick={() => navigate("/bookings")}>
                       <Home className="mr-2 h-4 w-4" />
                       My Bookings
+                    </DropdownMenuItem>
+                    <DropdownMenuItem onClick={() => navigate("/booking-requests")}>
+                      <Home className="mr-2 h-4 w-4" />
+                      Booking Requests
                     </DropdownMenuItem>
                     {user?.email === "kittu8441@gmail.com" && (
                       <>

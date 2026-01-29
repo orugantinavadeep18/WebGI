@@ -12,7 +12,7 @@ import { apiCall } from "@/lib/api";
 import { toast } from "sonner";
 
 export default function Messages() {
-  const { user } = useAuth();
+  const { user, loading: authLoading } = useAuth();
   const navigate = useNavigate();
   const { sellerId } = useParams();
   const {
@@ -32,12 +32,14 @@ export default function Messages() {
 
   // Load conversations on mount
   useEffect(() => {
+    if (authLoading) return;
+
     if (!user) {
       navigate("/auth");
       return;
     }
     loadConversations();
-  }, [user, navigate]);
+  }, [user, authLoading, navigate]);
 
   // If sellerId is provided, load direct messages with that seller
   useEffect(() => {
@@ -324,6 +326,13 @@ export default function Messages() {
                             : "bg-gray-200 text-gray-900"
                         }`}
                       >
+                        {message.sender !== user?.id && (
+                          <p className="text-xs font-semibold mb-1 opacity-80">
+                            {selectedConversation.otherPartyId === message.sender
+                              ? "Them"
+                              : "You"}
+                          </p>
+                        )}
                         <p>{message.content}</p>
                         <p
                           className={`text-xs mt-1 ${

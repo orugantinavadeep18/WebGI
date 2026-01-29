@@ -16,10 +16,7 @@ export const useBooking = () => {
           ...bookingData,
         }),
       });
-      if (!response.ok) {
-        throw new Error(response.message || "Failed to create booking");
-      }
-      return response.data;
+      return response.booking || response;
     } catch (err) {
       setError(err.message);
       throw err;
@@ -35,13 +32,15 @@ export const useBooking = () => {
       const response = await apiCall("/bookings/owner/requests", {
         method: "GET",
       });
-      if (!response.ok) {
-        throw new Error(response.message || "Failed to fetch requests");
-      }
-      return response.data;
+      console.log("✅ getOwnerRequests response:", response);
+      const data = response.bookings || response || [];
+      setError(null);
+      return data;
     } catch (err) {
-      setError(err.message);
-      throw err;
+      console.error("❌ getOwnerRequests error:", err);
+      const errorMsg = err.message || "Failed to fetch requests";
+      setError(errorMsg);
+      throw new Error(errorMsg);
     } finally {
       setLoading(false);
     }
@@ -54,10 +53,7 @@ export const useBooking = () => {
       const response = await apiCall("/bookings/renter/bookings", {
         method: "GET",
       });
-      if (!response.ok) {
-        throw new Error(response.message || "Failed to fetch bookings");
-      }
-      return response.data;
+      return response.bookings || [];
     } catch (err) {
       setError(err.message);
       throw err;
@@ -73,10 +69,7 @@ export const useBooking = () => {
       const response = await apiCall(`/bookings/${bookingId}/accept`, {
         method: "PUT",
       });
-      if (!response.ok) {
-        throw new Error(response.message || "Failed to accept booking");
-      }
-      return response.data;
+      return response.booking || response;
     } catch (err) {
       setError(err.message);
       throw err;
@@ -92,10 +85,7 @@ export const useBooking = () => {
       const response = await apiCall(`/bookings/${bookingId}/reject`, {
         method: "PUT",
       });
-      if (!response.ok) {
-        throw new Error(response.message || "Failed to reject booking");
-      }
-      return response.data;
+      return response.booking || response;
     } catch (err) {
       setError(err.message);
       throw err;
@@ -111,10 +101,7 @@ export const useBooking = () => {
       const response = await apiCall(`/bookings/${bookingId}/cancel`, {
         method: "PUT",
       });
-      if (!response.ok) {
-        throw new Error(response.message || "Failed to cancel booking");
-      }
-      return response.data;
+      return response.booking || response;
     } catch (err) {
       setError(err.message);
       throw err;
