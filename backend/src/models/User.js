@@ -48,6 +48,13 @@ const userSchema = new mongoose.Schema(
       type: Boolean,
       default: false,
     },
+    securityQuestion: {
+      type: String,
+    },
+    securityAnswer: {
+      type: String,
+      select: false, // Don't return by default for security
+    },
     createdAt: {
       type: Date,
       default: Date.now,

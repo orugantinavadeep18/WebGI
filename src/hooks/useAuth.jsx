@@ -27,12 +27,18 @@ export const AuthProvider = ({ children }) => {
     setLoading(false);
   }, []);
 
-  const signUp = async (email, password, fullName) => {
+  const signUp = async (email, password, fullName, securityQuestion, securityAnswer) => {
     try {
       const response = await fetch(`${API_BASE_URL}/auth/register`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email, password, name: fullName }),
+        body: JSON.stringify({ 
+          email, 
+          password, 
+          name: fullName,
+          securityQuestion,
+          securityAnswer,
+        }),
       });
 
       if (!response.ok) {

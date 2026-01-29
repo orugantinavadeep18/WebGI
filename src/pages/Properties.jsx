@@ -7,6 +7,7 @@ import PropertyCard from "@/components/property/PropertyCard";
 import PropertyFilters from "@/components/property/PropertyFilters";
 import { Button } from "@/components/ui/button";
 import { useProperties } from "@/hooks/useProperties";
+import { useSavedProperties } from "@/hooks/useSavedProperties";
 import { apiCall } from "@/lib/api";
 import {
   Select,
@@ -20,6 +21,7 @@ const Properties = () => {
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
   const { fetchProperties } = useProperties();
+  const { toggleSave, isSaved } = useSavedProperties();
   const [allProperties, setAllProperties] = useState([]);
   const [filteredProperties, setFilteredProperties] = useState([]);
   const [aiRecommendations, setAiRecommendations] = useState([]);
@@ -28,7 +30,6 @@ const Properties = () => {
   const [error, setError] = useState(null);
   const [sortBy, setSortBy] = useState("popularity");
   const [showSidebar, setShowSidebar] = useState(true);
-  const [saved, setSaved] = useState(new Set());
 
   const [filters, setFilters] = useState({
     propertyTypes: searchParams.get("type") ? [searchParams.get("type")] : [],
@@ -205,16 +206,8 @@ const Properties = () => {
     });
   };
 
-  const toggleSave = (propertyId) => {
-    setSaved(prev => {
-      const newSaved = new Set(prev);
-      if (newSaved.has(propertyId)) {
-        newSaved.delete(propertyId);
-      } else {
-        newSaved.add(propertyId);
-      }
-      return newSaved;
-    });
+  const handleToggleSave = (propertyId) => {
+    toggleSave(propertyId);
   };
 
   return (
@@ -314,8 +307,8 @@ const Properties = () => {
                   <PropertyCard
                     key={property._id}
                     property={property}
-                    isSaved={saved.has(property._id)}
-                    onToggleSave={() => toggleSave(property._id)}
+                    isSaved={isSaved(property._id)}
+                    onToggleSave={() => handleToggleSave(property._id)}
                   />
                 ))}
               </div>
@@ -389,11 +382,11 @@ const Properties = () => {
                                 size="sm"
                                 onClick={(e) => {
                                   e.stopPropagation();
-                                  toggleSave(rec._id);
+                                  handleToggleSave(rec._id);
                                 }}
                                 className="p-1 h-auto"
                               >
-                                {saved.has(rec._id) ? "❤️" : "🤍"}
+                                {isSaved(rec._id) ? "❤️" : "🤍"}
                               </Button>
                             </div>
                           </div>
