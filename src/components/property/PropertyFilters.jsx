@@ -67,6 +67,27 @@ const PropertyFilters = ({ filters, onFiltersChange, onClearFilters }) => {
     onFiltersChange({ ...filters, priceRange: value });
   };
 
+  const handlePriceInputChange = (index, rawValue) => {
+    const numericValue = Number(rawValue);
+    if (Number.isNaN(numericValue)) {
+      return;
+    }
+
+    const currentRange = filters.priceRange || [0, 20000];
+    const nextRange = [...currentRange];
+    nextRange[index] = Math.max(0, Math.min(20000, numericValue));
+
+    if (nextRange[0] > nextRange[1]) {
+      if (index === 0) {
+        nextRange[1] = nextRange[0];
+      } else {
+        nextRange[0] = nextRange[1];
+      }
+    }
+
+    onFiltersChange({ ...filters, priceRange: nextRange });
+  };
+
   const hasActiveFilters =
     (filters.propertyTypes && filters.propertyTypes.length > 0) ||
     (filters.amenities && filters.amenities.length > 0) ||
@@ -134,6 +155,32 @@ const PropertyFilters = ({ filters, onFiltersChange, onClearFilters }) => {
         <CollapsibleContent className="pt-3 space-y-4">
           <div className="text-sm text-muted-foreground">
             ₹{(filters.priceRange && filters.priceRange[0] ? filters.priceRange[0] : 0).toLocaleString()} - ₹{(filters.priceRange && filters.priceRange[1] ? filters.priceRange[1] : 20000).toLocaleString()}
+          </div>
+          <div className="grid grid-cols-2 gap-3">
+            <div className="space-y-1">
+              <Label className="text-xs text-muted-foreground">Min</Label>
+              <input
+                type="number"
+                min={0}
+                max={20000}
+                step={1000}
+                value={filters.priceRange ? filters.priceRange[0] : 0}
+                onChange={(event) => handlePriceInputChange(0, event.target.value)}
+                className="h-9 w-full rounded-md border border-input bg-background px-3 text-sm shadow-sm focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
+              />
+            </div>
+            <div className="space-y-1">
+              <Label className="text-xs text-muted-foreground">Max</Label>
+              <input
+                type="number"
+                min={0}
+                max={20000}
+                step={1000}
+                value={filters.priceRange ? filters.priceRange[1] : 20000}
+                onChange={(event) => handlePriceInputChange(1, event.target.value)}
+                className="h-9 w-full rounded-md border border-input bg-background px-3 text-sm shadow-sm focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
+              />
+            </div>
           </div>
           <Slider
             value={filters.priceRange || [0, 20000]}
