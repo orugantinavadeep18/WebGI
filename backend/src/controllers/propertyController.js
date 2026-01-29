@@ -368,8 +368,9 @@ export const addPropertyReview = async (req, res) => {
     const { id } = req.params;
     const { rating, comment } = req.body;
     const userId = req.user?.id;
+    const userName = req.user?.name || req.user?.email || "Anonymous";
 
-    console.log(`📝 addPropertyReview - Property ID: ${id}, User: ${userId}`);
+    console.log(`📝 addPropertyReview - Property ID: ${id}, User: ${userId}, Name: ${userName}`);
 
     // Validate if ID is a valid MongoDB ObjectId
     if (!mongoose.Types.ObjectId.isValid(id)) {
@@ -397,7 +398,7 @@ export const addPropertyReview = async (req, res) => {
       userId,
       rating: parseInt(rating),
       comment,
-      userName: req.user?.name || "Anonymous",
+      userName: userName,
       createdAt: new Date(),
     };
 

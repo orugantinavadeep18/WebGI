@@ -68,7 +68,7 @@ export default function ReviewSystem({ propertyId, onReviewsUpdated }) {
       console.log(`📝 Submitting review for property: ${propertyId}`);
       console.log(`User: ${user?.email}, Rating: ${rating}, Comment: ${comment}`);
       
-      await apiCall(`/rentals/${propertyId}/reviews`, {
+      const reviewResponse = await apiCall(`/rentals/${propertyId}/reviews`, {
         method: "POST",
         body: JSON.stringify({
           rating,
@@ -78,10 +78,26 @@ export default function ReviewSystem({ propertyId, onReviewsUpdated }) {
 
       console.log(`✓ Review submitted successfully!`);
       toast.success("Review submitted successfully!");
+      
+      // Add review to state without full page reload
+      const newReview = {
+        _id: reviewResponse.review._id,
+        userId: user.id || user._id,
+        rating: parseInt(rating),
+        comment,
+        userName: user.name || user.email,
+        createdAt: new Date(),
+      };
+      
+      setReviews([newReview, ...reviews]);
+      
+      // Update average rating
+      const allReviews = [newReview, ...reviews];
+      const avg = allReviews.reduce((sum, r) => sum + r.rating, 0) / allReviews.length;
+      setAvgRating(avg.toFixed(1));
+      
       setComment("");
       setRating(5);
-      fetchReviews();
-      onReviewsUpdated?.();
     } catch (error) {
       console.error("❌ Error submitting review:", error);
       toast.error(error.message || "Failed to submit review");
@@ -100,8 +116,18 @@ export default function ReviewSystem({ propertyId, onReviewsUpdated }) {
 
       console.log(`✓ Review deleted successfully!`);
       toast.success("Review deleted");
-      fetchReviews();
-      onReviewsUpdated?.();
+      
+      // Remove review from state without full page reload
+      const updatedReviews = reviews.filter(r => r._id !== reviewId);
+      setReviews(updatedReviews);
+      
+      // Update average rating
+      if (updatedReviews.length > 0) {
+        const avg = updatedReviews.reduce((sum, r) => sum + r.rating, 0) / updatedReviews.length;
+        setAvgRating(avg.toFixed(1));
+      } else {
+        setAvgRating(0);
+      }
     } catch (error) {
       console.error("❌ Error deleting review:", error);
       toast.error(error.message || "Failed to delete review");
@@ -207,7 +233,7 @@ export default function ReviewSystem({ propertyId, onReviewsUpdated }) {
                     </p>
                   </div>
                 </div>
-                {user?._id === review.userId && (
+                {(user?.id === review.userId || user?._id === review.userId) && (
                   <Button
                     variant="ghost"
                     size="sm"

@@ -11,13 +11,20 @@ const generateToken = (user) => {
 
 export const register = async (req, res) => {
   try {
-    const { name, email, password } = req.body;
+    const { name, email, password, securityQuestion, securityAnswer } = req.body;
 
     // Validate required fields
-    if (!name || !email || !password) {
+    if (!name || !email || !password || !securityQuestion || !securityAnswer) {
       return res
         .status(400)
         .json({ message: "Please provide all required fields" });
+    }
+
+    // Validate password length
+    if (password.length < 6) {
+      return res
+        .status(400)
+        .json({ message: "Password must be at least 6 characters" });
     }
 
     // Check if user already exists
@@ -31,6 +38,8 @@ export const register = async (req, res) => {
       name,
       email,
       password,
+      securityQuestion,
+      securityAnswer: securityAnswer.toLowerCase().trim(),
     });
 
     await user.save();

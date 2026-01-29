@@ -528,7 +528,10 @@ const PropertyDetail = () => {
               <TabsContent value="reviews" className="space-y-6">
                 <ReviewSystem 
                   propertyId={property._id}
-                  onReviewsUpdated={() => loadProperty()}
+                  onReviewsUpdated={() => {
+                    // Optional: Do nothing or add any cleanup logic here
+                    // No need to reload property on review updates
+                  }}
                 />
               </TabsContent>
             </Tabs>
