@@ -620,7 +620,7 @@ const PropertyDetail = () => {
               </Card>
 
               {/* Safety & Trust */}
-              <Card className="p-4 bg-green-50 border-green-200">
+              {/* <Card className="p-4 bg-green-50 border-green-200">
                 <div className="flex items-start gap-3">
                   <Check className="h-5 w-5 text-green-600 flex-shrink-0 mt-0.5" />
                   <div>
@@ -632,7 +632,7 @@ const PropertyDetail = () => {
                     </p>
                   </div>
                 </div>
-              </Card>
+              </Card> */}
             </div>
           </div>
         </div>
