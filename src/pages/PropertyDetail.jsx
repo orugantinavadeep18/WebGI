@@ -341,14 +341,27 @@ const PropertyDetail = () => {
                 {property.rules && (
                   <div>
                     <h3 className="font-heading font-semibold text-lg mb-3">📋 House Rules</h3>
-                    <p className="text-muted-foreground leading-relaxed">{property.rules}</p>
+                    <ul className="text-muted-foreground leading-relaxed list-disc pl-5">
+                      {property.rules
+                        ?.split(",")
+                        .map((doc, idx) => (
+                          <li key={idx}>{doc.trim()}</li>
+                        ))}
+                    </ul>
                   </div>
                 )}
                 
                 {property.required_documents && (
                   <div>
                     <h3 className="font-heading font-semibold text-lg mb-3">📄 Required Documents</h3>
-                    <p className="text-muted-foreground leading-relaxed">{property.required_documents}</p>
+                    <ul className="text-muted-foreground leading-relaxed list-disc pl-5">
+                      {property.required_documents
+                        ?.split(",")
+                        .map((doc, idx) => (
+                          <li key={idx}>{doc.trim()}</li>
+                        ))}
+                    </ul>
+
                   </div>
                 )}
               </TabsContent>
