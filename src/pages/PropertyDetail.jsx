@@ -128,9 +128,10 @@ const PropertyDetail = () => {
 
   const images = property.images && property.images.length > 0
     ? getPropertyImageUrls(property)
-    : [property1, property2, property3];
+    : [];
 
-  const currentImage = images[currentImageIndex] || property1;
+  const hasImages = images.length > 0;
+  const currentImage = hasImages ? images[currentImageIndex] : null;
 
   const nextImage = () => {
     setCurrentImageIndex((prev) =>
@@ -210,45 +211,56 @@ const PropertyDetail = () => {
           <div className="lg:col-span-2 space-y-8">
             {/* Image Gallery */}
             <div className="relative rounded-2xl overflow-hidden aspect-video bg-muted">
-              <img
-                src={typeof currentImage === 'string' ? currentImage : currentImage.url || property1}
-                alt={property.title}
-                className="w-full h-full object-cover"
-                onError={(e) => handleImageError(e, property1)}
-              />
-
-              {/* Navigation */}
-              {images.length > 1 && (
+              {hasImages ? (
                 <>
-                  <button
-                    onClick={prevImage}
-                    className="absolute left-4 top-1/2 -translate-y-1/2 h-10 w-10 rounded-full bg-background/80 hover:bg-background flex items-center justify-center transition"
-                  >
-                    <ChevronLeft className="h-6 w-6" />
-                  </button>
-                  <button
-                    onClick={nextImage}
-                    className="absolute right-4 top-1/2 -translate-y-1/2 h-10 w-10 rounded-full bg-background/80 hover:bg-background flex items-center justify-center transition"
-                  >
-                    <ChevronRight className="h-6 w-6" />
-                  </button>
-                </>
-              )}
-
-              {/* Image indicators */}
-              <div className="absolute bottom-4 left-1/2 -translate-x-1/2 flex gap-2">
-                {images.map((_, index) => (
-                  <button
-                    key={index}
-                    onClick={() => setCurrentImageIndex(index)}
-                    className={`h-2 w-2 rounded-full transition-all ${
-                      index === currentImageIndex
-                        ? "bg-background w-6"
-                        : "bg-background/60"
-                    }`}
+                  <img
+                    src={typeof currentImage === 'string' ? currentImage : currentImage.url}
+                    alt={property.title}
+                    className="w-full h-full object-cover"
+                    onError={(e) => handleImageError(e)}
                   />
-                ))}
-              </div>
+
+                  {/* Navigation */}
+                  {images.length > 1 && (
+                    <>
+                      <button
+                        onClick={prevImage}
+                        className="absolute left-4 top-1/2 -translate-y-1/2 h-10 w-10 rounded-full bg-background/80 hover:bg-background flex items-center justify-center transition"
+                      >
+                        <ChevronLeft className="h-6 w-6" />
+                      </button>
+                      <button
+                        onClick={nextImage}
+                        className="absolute right-4 top-1/2 -translate-y-1/2 h-10 w-10 rounded-full bg-background/80 hover:bg-background flex items-center justify-center transition"
+                      >
+                        <ChevronRight className="h-6 w-6" />
+                      </button>
+                    </>
+                  )}
+
+                  {/* Image indicators */}
+                  <div className="absolute bottom-4 left-1/2 -translate-x-1/2 flex gap-2">
+                    {images.map((_, index) => (
+                      <button
+                        key={index}
+                        onClick={() => setCurrentImageIndex(index)}
+                        className={`h-2 w-2 rounded-full transition-all ${
+                          index === currentImageIndex
+                            ? "bg-background w-6"
+                            : "bg-background/60"
+                        }`}
+                      />
+                    ))}
+                  </div>
+                </>
+              ) : (
+                <div className="w-full h-full flex flex-col items-center justify-center bg-gradient-to-br from-gray-100 to-gray-200">
+                  <div className="text-center">
+                    <p className="text-2xl font-bold text-gray-600 mb-2">No Preview Available</p>
+                    <p className="text-gray-500">Images will be available once the owner uploads them</p>
+                  </div>
+                </div>
+              )}
 
               {/* Badges */}
               <div className="absolute top-4 left-4 flex gap-2">

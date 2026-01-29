@@ -291,17 +291,25 @@ function PropertyCard({ property, onEdit, onUploadImages, onDelete, onView }) {
 
   // Get image URL with fallback
   const imageUrl = getPropertyImageUrl(property, 0);
+  const hasImages = property?.images && property.images.length > 0;
 
   return (
     <Card className="overflow-hidden hover:shadow-lg transition-shadow">
       {/* Image */}
-      <div className="relative h-48 bg-gray-200 overflow-hidden">
-        <img
-          src={imageUrl}
-          alt={property.title}
-          className="w-full h-full object-cover hover:scale-105 transition-transform"
-          onError={(e) => handleImageError(e, 'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" width="400" height="300"%3E%3Crect fill="%23E5E7EB" width="400" height="300"/%3E%3C/svg%3E')}
-        />
+      <div className="relative h-48 bg-gray-200 overflow-hidden flex items-center justify-center">
+        {hasImages ? (
+          <img
+            src={imageUrl}
+            alt={property.title}
+            className="w-full h-full object-cover hover:scale-105 transition-transform"
+            onError={(e) => handleImageError(e)}
+          />
+        ) : (
+          <div className="text-center text-gray-600">
+            <p className="text-sm font-semibold">No Preview</p>
+            <p className="text-xs">Images coming soon</p>
+          </div>
+        )}
         <div className="absolute top-2 right-2 bg-blue-600 text-white px-3 py-1 rounded-full text-sm font-semibold">
           ₹{property.price?.toLocaleString() || 'N/A'}/mo
         </div>

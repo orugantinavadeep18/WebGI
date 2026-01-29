@@ -397,20 +397,29 @@ export default function Recommendations() {
                 </div>
               ) : rentals.length > 0 ? (
                 <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
-                  {rentals.map((rental) => (
+                  {rentals.map((rental) => {
+                    const hasImages = rental?.images && rental.images.length > 0;
+                    return (
                     <Card
                       key={rental._id}
                       className="overflow-hidden shadow-lg hover:shadow-xl transition-shadow cursor-pointer hover:scale-105 transform"
                       onClick={() => navigate(`/properties/${rental._id}`)}
                     >
                       {/* Image Section */}
-                      <div className="relative h-48 bg-gray-200 overflow-hidden">
-                        <img
-                          src={getPropertyImageUrl(rental, 0)}
-                          alt={rental.name || rental.title}
-                          className="w-full h-full object-cover"
-                          onError={(e) => handleImageError(e, 'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" width="400" height="300"%3E%3Crect fill="%235B7C99" width="400" height="300"/%3E%3Ctext x="50%" y="50%" font-size="32" fill="white" text-anchor="middle" dominant-baseline="middle" font-family="Arial, sans-serif"%3E🏠%3C/text%3E%3C/svg%3E')}
-                        />
+                      <div className="relative h-48 bg-gray-200 overflow-hidden flex items-center justify-center">
+                        {hasImages ? (
+                          <img
+                            src={getPropertyImageUrl(rental, 0)}
+                            alt={rental.name || rental.title}
+                            className="w-full h-full object-cover"
+                            onError={(e) => handleImageError(e)}
+                          />
+                        ) : (
+                          <div className="text-center text-gray-600">
+                            <p className="text-sm font-semibold">No Preview</p>
+                            <p className="text-xs">Images coming soon</p>
+                          </div>
+                        )}
                         <button
                           onClick={(e) => {
                             e.stopPropagation();
@@ -561,7 +570,8 @@ export default function Recommendations() {
                         </Button>
                       </div>
                     </Card>
-                  ))}
+                    );
+                  })}
                 </div>
               ) : (
                 <Card className="p-12 text-center">

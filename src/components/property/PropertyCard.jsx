@@ -6,16 +6,10 @@ import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
 import { getPropertyImageUrl, handleImageError } from "@/lib/imageUtils";
 
-// Import property images
-import property1 from "@/assets/property-1.jpg";
-import property2 from "@/assets/property-2.jpg";
-import property3 from "@/assets/property-3.jpg";
-
-const defaultImages = [property1, property2, property3];
-
 const PropertyCard = ({ property, isSaved, onToggleSave }) => {
-  // Get image URL with automatic fallback
+  // Get image URL - only uploaded images, shows "No Preview" if none exist
   const imageUrl = getPropertyImageUrl(property, 0);
+  const hasImages = property?.images && property.images.length > 0;
 
   // Handle amenities - convert object to array if needed
   const amenitiesArray = Array.isArray(property.amenities)
@@ -47,13 +41,23 @@ const PropertyCard = ({ property, isSaved, onToggleSave }) => {
       whileHover={{ y: -4, transition: { duration: 0.2 } }}
     >
       {/* Image */}
-      <div className="relative aspect-[4/3] overflow-hidden rounded-lg">
+      <div className="relative aspect-[4/3] overflow-hidden rounded-lg bg-gray-100">
         <img
           src={imageUrl}
           alt={property.title}
           className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
-          onError={(e) => handleImageError(e, defaultImages[0])}
+          onError={(e) => handleImageError(e)}
         />
+        
+        {/* "No Preview" indicator badge */}
+        {!hasImages && (
+          <div className="absolute inset-0 flex items-center justify-center bg-black/10 backdrop-blur-sm">
+            <div className="text-center">
+              <p className="text-sm font-semibold text-gray-700">No Preview</p>
+              <p className="text-xs text-gray-600">Images coming soon</p>
+            </div>
+          </div>
+        )}
         
         {/* Badges overlay */}
         <div className="absolute top-3 left-3 flex gap-2">
