@@ -11,6 +11,7 @@ import Index from "./pages/Index";
 import Properties from "./pages/Properties";
 import PropertyDetail from "./pages/PropertyDetail";
 import Auth from "./pages/Auth";
+import ForgotPassword from "./pages/ForgotPassword";
 import ListProperties from "./pages/ListProperties";
 import CreateProperty from "./pages/CreateProperty";
 import Messages from "./pages/Messages";
@@ -63,6 +64,7 @@ const AppContent = () => {
           <Route path="/recommendations" element={<Recommendations />} />
           <Route path="/admin" element={<Admin />} />
           <Route path="/auth" element={<Auth />} />
+          <Route path="/forgot-password" element={<ForgotPassword />} />
           <Route path="*" element={<NotFound />} />
         </Routes>
       </motion.div>

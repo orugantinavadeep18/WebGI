@@ -1,18 +1,38 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { Home, Mail, Lock, User, Eye, EyeOff, ArrowLeft } from "lucide-react";
+import { Home, Mail, Lock, User, Eye, EyeOff, ArrowLeft, AlertCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { useAuth } from "@/hooks/useAuth";
 import { toast } from "sonner";
+
+const SECURITY_QUESTIONS = [
+  "What is your mother's maiden name?",
+  "What is the name of your first pet?",
+  "In what city were you born?",
+  "What is your favorite book?",
+  "What is your favorite movie?",
+  "What is your favorite hobby?",
+  "What is the name of your best friend?",
+  "What was your first job?",
+];
 
 const Auth = () => {
   const navigate = useNavigate();
   const { signIn, signUp } = useAuth();
   const [loading, setLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+  const [showDuplicateDialog, setShowDuplicateDialog] = useState(false);
 
   // Sign In state
   const [signInEmail, setSignInEmail] = useState("");
@@ -22,20 +42,9 @@ const Auth = () => {
   const [signUpName, setSignUpName] = useState("");
   const [signUpEmail, setSignUpEmail] = useState("");
   const [signUpPassword, setSignUpPassword] = useState("");
-  const [signUpVerifyPassword, setSignUpVerifyPassword] = useState("");
-  const [signUpSecurityQuestion, setSignUpSecurityQuestion] = useState("");
-  const [signUpSecurityAnswer, setSignUpSecurityAnswer] = useState("");
-
-  const securityQuestions = [
-    "What is your mother's maiden name?",
-    "What was the name of your first pet?",
-    "In what city were you born?",
-    "What is your favorite book?",
-    "What was the name of your first school?",
-    "What is your favorite movie?",
-    "What was your first job title?",
-    "What is the name of the street you grew up on?",
-  ];
+  const [signUpConfirmPassword, setSignUpConfirmPassword] = useState("");
+  const [securityQuestion, setSecurityQuestion] = useState("");
+  const [securityAnswer, setSecurityAnswer] = useState("");
 
   const handleSignIn = async (e) => {
     e.preventDefault();
@@ -53,41 +62,63 @@ const Auth = () => {
   const handleSignUp = async (e) => {
     e.preventDefault();
     
-    // Validate passwords match
-    if (signUpPassword !== signUpVerifyPassword) {
-      toast.error("Passwords do not match");
+    // Validation
+    if (signUpPassword !== signUpConfirmPassword) {
+      toast.error("Passwords do not match!");
       return;
     }
 
-    // Validate password length
-    if (signUpPassword.length < 6) {
-      toast.error("Password must be at least 6 characters");
-      return;
-    }
-
-    // Validate security question and answer
-    if (!signUpSecurityQuestion) {
-      toast.error("Please select a security question");
-      return;
-    }
-
-    if (!signUpSecurityAnswer.trim()) {
-      toast.error("Please provide an answer to the security question");
+    if (!securityQuestion || !securityAnswer) {
+      toast.error("Please select a security question and provide an answer");
       return;
     }
 
     setLoading(true);
     try {
-      await signUp(
-        signUpEmail, 
-        signUpPassword, 
-        signUpName,
-        signUpSecurityQuestion,
-        signUpSecurityAnswer
-      );
+      await signUp(signUpEmail, signUpPassword, signUpName, securityQuestion, securityAnswer);
       navigate("/");
     } catch (error) {
-      // Error is handled in useAuth
+      // Check if error is due to duplicate email
+      if (error.message && error.message.includes("already exists")) {
+        setShowDuplicateDialog(true);
+      }
+      // Error toast is already shown in useAuth
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleRecreateAccount = async () => {
+    setLoading(true);
+    try {
+      const response = await fetch(
+        `${import.meta.env.VITE_API_BASE_URL}/auth/recreate-account`,
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            email: signUpEmail,
+            name: signUpName,
+            password: signUpPassword,
+            securityQuestion,
+            securityAnswer,
+          }),
+        }
+      );
+
+      if (!response.ok) {
+        const error = await response.json();
+        throw new Error(error.message || "Failed to recreate account");
+      }
+
+      const data = await response.json();
+      localStorage.setItem("token", data.token);
+      localStorage.setItem("user", JSON.stringify(data.user));
+      setShowDuplicateDialog(false);
+      toast.success("Account recreated successfully!");
+      navigate("/");
+    } catch (error) {
+      toast.error(error.message || "Failed to recreate account");
     } finally {
       setLoading(false);
     }
@@ -97,9 +128,9 @@ const Auth = () => {
     <div className="min-h-screen flex">
       {/* Back Button */}
       <button
-        onClick={() => navigate(-1)}
+        onClick={() => navigate("/")}
         className="absolute top-6 left-6 p-2 hover:bg-gray-100 rounded-lg transition"
-        title="Go back"
+        title="Go home"
       >
         <ArrowLeft className="h-5 w-5 text-gray-700" />
       </button>
@@ -182,6 +213,16 @@ const Auth = () => {
                 >
                   {loading ? "Signing in..." : "Sign In"}
                 </Button>
+
+                <div className="text-center">
+                  <button
+                    type="button"
+                    onClick={() => navigate("/forgot-password")}
+                    className="text-sm text-primary hover:underline"
+                  >
+                    Forgot your password?
+                  </button>
+                </div>
               </form>
             </TabsContent>
 
@@ -252,71 +293,61 @@ const Auth = () => {
                 </div>
 
                 <div className="space-y-2">
-                  <Label htmlFor="signup-verify-password">Verify Password</Label>
+                  <Label htmlFor="signup-confirm-password">Confirm Password</Label>
                   <div className="relative">
                     <Lock className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
                     <Input
-                      id="signup-verify-password"
-                      type={showPassword ? "text" : "password"}
+                      id="signup-confirm-password"
+                      type={showConfirmPassword ? "text" : "password"}
                       placeholder="••••••••"
-                      value={signUpVerifyPassword}
-                      onChange={(e) => setSignUpVerifyPassword(e.target.value)}
+                      value={signUpConfirmPassword}
+                      onChange={(e) => setSignUpConfirmPassword(e.target.value)}
                       className="pl-10 pr-10"
                       required
                       minLength={6}
                     />
                     <button
                       type="button"
-                      onClick={() => setShowPassword(!showPassword)}
+                      onClick={() => setShowConfirmPassword(!showConfirmPassword)}
                       className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
                     >
-                      {showPassword ? (
+                      {showConfirmPassword ? (
                         <EyeOff className="h-4 w-4" />
                       ) : (
                         <Eye className="h-4 w-4" />
                       )}
                     </button>
                   </div>
-                  {signUpPassword && signUpVerifyPassword && (
-                    <p className={`text-xs ${signUpPassword === signUpVerifyPassword ? "text-green-600" : "text-red-600"}`}>
-                      {signUpPassword === signUpVerifyPassword ? "✓ Passwords match" : "✗ Passwords do not match"}
-                    </p>
-                  )}
                 </div>
 
                 <div className="space-y-2">
                   <Label htmlFor="security-question">Security Question</Label>
-                  <select
-                    id="security-question"
-                    value={signUpSecurityQuestion}
-                    onChange={(e) => setSignUpSecurityQuestion(e.target.value)}
-                    className="w-full h-10 rounded-md border border-input bg-background px-3 text-sm shadow-sm focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
-                    required
-                  >
-                    <option value="">Select a security question</option>
-                    {securityQuestions.map((question) => (
-                      <option key={question} value={question}>
-                        {question}
-                      </option>
-                    ))}
-                  </select>
+                  <Select value={securityQuestion} onValueChange={setSecurityQuestion}>
+                    <SelectTrigger id="security-question">
+                      <SelectValue placeholder="Select a security question" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {SECURITY_QUESTIONS.map((question) => (
+                        <SelectItem key={question} value={question}>
+                          {question}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
                 </div>
 
                 <div className="space-y-2">
-                  <Label htmlFor="security-answer">Answer</Label>
-                  <div className="relative">
-                    <Input
-                      id="security-answer"
-                      type="text"
-                      placeholder="Your answer"
-                      value={signUpSecurityAnswer}
-                      onChange={(e) => setSignUpSecurityAnswer(e.target.value)}
-                      className="px-3"
-                      required
-                    />
-                  </div>
+                  <Label htmlFor="security-answer">Your Answer</Label>
+                  <Input
+                    id="security-answer"
+                    type="text"
+                    placeholder="Enter your answer"
+                    value={securityAnswer}
+                    onChange={(e) => setSecurityAnswer(e.target.value)}
+                    required
+                  />
                   <p className="text-xs text-muted-foreground">
-                    (This will help you recover your account if you forget your password)
+                    You can use this answer to reset your password if needed
                   </p>
                 </div>
 
@@ -362,6 +393,56 @@ const Auth = () => {
           </div>
         </div>
       </div>
+
+      {/* Duplicate Email Dialog */}
+      {showDuplicateDialog && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-lg p-6 max-w-sm w-full shadow-xl">
+            <div className="flex items-center gap-3 mb-4">
+              <AlertCircle className="h-6 w-6 text-orange-500" />
+              <h2 className="text-xl font-bold">Account Already Exists</h2>
+            </div>
+            
+            <p className="text-gray-600 mb-6">
+              An account with this email already exists. What would you like to do?
+            </p>
+
+            <div className="space-y-3">
+              <Button
+                onClick={() => {
+                  setShowDuplicateDialog(false);
+                  // Switch to login tab - would need to use a ref or state to switch tabs
+                  const loginTab = document.querySelector('[value="login"]');
+                  if (loginTab) loginTab.click();
+                }}
+                className="w-full bg-blue-600 hover:bg-blue-700"
+              >
+                Login to Existing Account
+              </Button>
+
+              <Button
+                onClick={handleRecreateAccount}
+                disabled={loading}
+                className="w-full bg-orange-600 hover:bg-orange-700"
+              >
+                {loading ? "Recreating..." : "Create New Account (Delete Old Data)"}
+              </Button>
+
+              <Button
+                onClick={() => setShowDuplicateDialog(false)}
+                variant="outline"
+                className="w-full"
+              >
+                Cancel
+              </Button>
+            </div>
+            
+            <p className="text-xs text-gray-500 mt-4">
+              Note: Creating a new account will delete all data associated with this email.
+            </p>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

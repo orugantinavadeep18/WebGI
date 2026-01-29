@@ -39,7 +39,11 @@ export const register = async (req, res) => {
       email,
       password,
       securityQuestion,
+<<<<<<< HEAD
       securityAnswer: securityAnswer.toLowerCase().trim(),
+=======
+      securityAnswer: securityAnswer.toLowerCase().trim(), // Normalize answer
+>>>>>>> ebc258e3312e1c5293738cbb40134fc6290d16c9
     });
 
     await user.save();
@@ -108,6 +112,33 @@ export const getCurrentUser = async (req, res) => {
     }
 
     res.json(user);
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};
+
+// Get user by email (for forgot password)
+export const getUserByEmail = async (req, res) => {
+  try {
+    const { email } = req.query;
+
+    if (!email) {
+      return res.status(400).json({ message: "Email is required" });
+    }
+
+    const user = await User.findOne({ email: email.toLowerCase() });
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
+
+    res.json({
+      user: {
+        id: user._id,
+        email: user.email,
+        name: user.name,
+        securityQuestion: user.securityQuestion,
+      },
+    });
   } catch (error) {
     res.status(500).json({ message: error.message });
   }
@@ -202,6 +233,125 @@ export const deleteUser = async (req, res) => {
 
     res.json({
       message: "User and associated data deleted successfully",
+    });
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};
+
+// Verify security answer
+export const verifySecurityAnswer = async (req, res) => {
+  try {
+    const { email, securityAnswer } = req.body;
+
+    if (!email || !securityAnswer) {
+      return res.status(400).json({ message: "Email and security answer required" });
+    }
+
+    const user = await User.findOne({ email }).select("+securityAnswer");
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
+
+    // Compare security answers (case-insensitive, trimmed)
+    const normalizedAnswer = securityAnswer.toLowerCase().trim();
+    const isAnswerCorrect = user.securityAnswer === normalizedAnswer;
+
+    if (!isAnswerCorrect) {
+      return res.status(401).json({ message: "Security answer is incorrect" });
+    }
+
+    // Return a temporary token for password reset
+    const resetToken = jwt.sign(
+      { id: user._id, email: user.email, purpose: "passwordReset" },
+      process.env.JWT_SECRET,
+      { expiresIn: "15m" } // Token valid for 15 minutes
+    );
+
+    res.json({
+      message: "Security answer verified",
+      resetToken,
+      user: {
+        id: user._id,
+        email: user.email,
+        name: user.name,
+      },
+    });
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};
+
+// Reset password with security answer verification
+export const resetPassword = async (req, res) => {
+  try {
+    const { email, securityAnswer, newPassword } = req.body;
+
+    if (!email || !securityAnswer || !newPassword) {
+      return res.status(400).json({ message: "Please provide all required fields" });
+    }
+
+    if (newPassword.length < 6) {
+      return res.status(400).json({ message: "Password must be at least 6 characters" });
+    }
+
+    const user = await User.findOne({ email }).select("+securityAnswer");
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
+
+    // Verify security answer
+    const normalizedAnswer = securityAnswer.toLowerCase().trim();
+    if (user.securityAnswer !== normalizedAnswer) {
+      return res.status(401).json({ message: "Security answer is incorrect" });
+    }
+
+    // Update password
+    user.password = newPassword;
+    await user.save();
+
+    res.json({
+      message: "Password reset successfully",
+    });
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};
+
+export const recreateUserAccount = async (req, res) => {
+  try {
+    const { email, name, password, securityQuestion, securityAnswer } = req.body;
+
+    // Validate required fields
+    if (!email || !name || !password || !securityQuestion || !securityAnswer) {
+      return res.status(400).json({ message: "Please provide all required fields" });
+    }
+
+    // Delete existing user account
+    await User.deleteOne({ email: email.toLowerCase() });
+
+    // Create new user account
+    const user = new User({
+      name,
+      email,
+      password,
+      securityQuestion,
+      securityAnswer: securityAnswer.toLowerCase().trim(),
+    });
+
+    await user.save();
+
+    // Generate token
+    const token = generateToken(user);
+
+    res.status(201).json({
+      message: "Account recreated successfully",
+      token,
+      user: {
+        id: user._id,
+        name: user.name,
+        email: user.email,
+      },
     });
   } catch (error) {
     res.status(500).json({ message: error.message });

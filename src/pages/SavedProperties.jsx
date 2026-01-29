@@ -1,19 +1,22 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { Heart, MapPin, BedDouble, Bath, Trash2, ArrowLeft } from "lucide-react";
+import { Heart, ArrowLeft } from "lucide-react";
 import Layout from "@/components/layout/Layout";
-import PropertyCard from "@/components/property/PropertyCard";
+import SavedPropertyCard from "@/components/property/SavedPropertyCard";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/hooks/useAuth";
+import { useSavedProperties } from "@/hooks/useSavedProperties";
 import { toast } from "sonner";
 
 export default function SavedProperties() {
   const navigate = useNavigate();
   const { user, loading: authLoading } = useAuth();
+  const { getSavedIds, removeSaved, clearAll } = useSavedProperties();
+  
   const [savedProperties, setSavedProperties] = useState([]);
   const [loading, setLoading] = useState(true);
 
-  // Load saved properties from localStorage
+  // Load saved property IDs from localStorage
   useEffect(() => {
     if (authLoading) return;
 
@@ -22,22 +25,21 @@ export default function SavedProperties() {
       return;
     }
 
-    const saved = JSON.parse(localStorage.getItem(`saved_${user._id}`) || "[]");
-    setSavedProperties(saved);
+    const savedIds = getSavedIds();
+    setSavedProperties(savedIds);
     setLoading(false);
-  }, [user, authLoading, navigate]);
+  }, [user, authLoading, navigate, getSavedIds]);
 
-  const removeSaved = (propertyId) => {
-    const updated = savedProperties.filter((id) => id !== propertyId);
-    setSavedProperties(updated);
-    localStorage.setItem(`saved_${user._id}`, JSON.stringify(updated));
+  const handleRemoveSaved = (propertyId) => {
+    removeSaved(propertyId);
+    setSavedProperties(prev => prev.filter(id => id !== propertyId));
     toast.success("Removed from saved properties");
   };
 
-  const clearAllSaved = () => {
+  const handleClearAllSaved = () => {
     if (confirm("Are you sure you want to clear all saved properties?")) {
+      clearAll();
       setSavedProperties([]);
-      localStorage.setItem(`saved_${user._id}`, JSON.stringify([]));
       toast.success("All saved properties cleared");
     }
   };
@@ -125,7 +127,7 @@ export default function SavedProperties() {
                 <h2 className="text-xl font-bold">My Saved Properties</h2>
                 <Button
                   variant="outline"
-                  onClick={clearAllSaved}
+                  onClick={handleClearAllSaved}
                   className="text-red-600 hover:text-red-700 border-red-200"
                 >
                   Clear All
@@ -133,30 +135,13 @@ export default function SavedProperties() {
               </div>
 
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                {savedProperties.map((propertyId) => (
-                  <div key={propertyId} className="relative">
-                    {/* Note: In a real app, you'd fetch property details here */}
-                    <div className="bg-white rounded-xl border p-6 text-center">
-                      <p className="text-gray-600 mb-4">Property ID: {propertyId}</p>
-                      <div className="flex gap-2">
-                        <Button
-                          variant="outline"
-                          className="flex-1"
-                          onClick={() => navigate(`/properties/${propertyId}`)}
-                        >
-                          View
-                        </Button>
-                        <Button
-                          variant="destructive"
-                          size="sm"
-                          onClick={() => removeSaved(propertyId)}
-                          className="flex-shrink-0"
-                        >
-                          <Trash2 className="h-4 w-4" />
-                        </Button>
-                      </div>
-                    </div>
-                  </div>
+                {savedProperties.map((propertyId, index) => (
+                  <SavedPropertyCard
+                    key={propertyId}
+                    propertyId={propertyId}
+                    index={index}
+                    onRemove={handleRemoveSaved}
+                  />
                 ))}
               </div>
             </>

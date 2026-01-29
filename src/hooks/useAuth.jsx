@@ -28,7 +28,10 @@ export const AuthProvider = ({ children }) => {
   }, []);
 
   const signUp = async (email, password, fullName, securityQuestion, securityAnswer) => {
+<<<<<<< HEAD
     setLoading(true);
+=======
+>>>>>>> ebc258e3312e1c5293738cbb40134fc6290d16c9
     try {
       const response = await fetch(`${API_BASE_URL}/auth/register`, {
         method: "POST",
@@ -38,7 +41,11 @@ export const AuthProvider = ({ children }) => {
           password, 
           name: fullName,
           securityQuestion,
+<<<<<<< HEAD
           securityAnswer
+=======
+          securityAnswer,
+>>>>>>> ebc258e3312e1c5293738cbb40134fc6290d16c9
         }),
       });
 

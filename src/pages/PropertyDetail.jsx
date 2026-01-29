@@ -24,6 +24,7 @@ import { Card } from "@/components/ui/card";
 import { toast } from "sonner";
 import { useAuth } from "@/hooks/useAuth";
 import { useProperties } from "@/hooks/useProperties";
+import { useSavedProperties } from "@/hooks/useSavedProperties";
 import ReviewSystem from "@/components/property/ReviewSystem";
 import BookingModal from "@/components/property/BookingModal";
 import { getPropertyImageUrls, handleImageError } from "@/lib/imageUtils";
@@ -38,12 +39,12 @@ const PropertyDetail = () => {
   const navigate = useNavigate();
   const { user } = useAuth();
   const { getPropertyById } = useProperties();
+  const { toggleSave, isSaved: checkIsSaved } = useSavedProperties();
   
   const [property, setProperty] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
-  const [isSaved, setIsSaved] = useState(false);
   const [showContactModal, setShowContactModal] = useState(false);
   const [showBookingModal, setShowBookingModal] = useState(false);
   const [seller, setSeller] = useState(null);
@@ -152,8 +153,8 @@ const PropertyDetail = () => {
       toast.error("Please sign in to save properties");
       return;
     }
-    setIsSaved(!isSaved);
-    toast.success(isSaved ? "Removed from saved" : "Added to saved properties");
+    toggleSave(property._id);
+    toast.success(checkIsSaved(property._id) ? "Removed from saved" : "Added to saved properties");
   };
 
   const handleShare = () => {
@@ -305,9 +306,9 @@ const PropertyDetail = () => {
                     variant="outline"
                     size="icon"
                     onClick={handleSave}
-                    className={isSaved ? "text-destructive" : ""}
+                    className={checkIsSaved(property._id) ? "text-destructive" : ""}
                   >
-                    <Heart className={`h-5 w-5 ${isSaved ? "fill-current" : ""}`} />
+                    <Heart className={`h-5 w-5 ${checkIsSaved(property._id) ? "fill-current" : ""}`} />
                   </Button>
                   <Button variant="outline" size="icon" onClick={handleShare}>
                     <Share2 className="h-5 w-5" />
