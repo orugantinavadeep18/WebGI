@@ -29,12 +29,25 @@ const PropertyFilters = ({ filters, onFiltersChange, onClearFilters }) => {
 
   const amenityOptions = [
     "WiFi",
-    "AC",
+    "Food Available",
+    "Air Conditioning",
     "Parking",
+    "Laundry",
+    "Power Backup",
+    "Security",
+    "CCTV",
     "Gym",
     "Pool",
-    "Security",
+    "Garden",
+    "Balcony",
+    "Microwave",
+    "Washing Machine",
+    "Dishwasher",
+    "TV",
+    "Elevator",
+    "Pet Friendly",
   ];
+
 
   const handlePropertyTypeChange = (type, checked) => {
     const updated = checked
