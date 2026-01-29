@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { useParams, Link, useNavigate } from "react-router-dom";
+import { useParams, useNavigate } from "react-router-dom";
 import {
   MapPin,
   Phone,
@@ -11,8 +11,6 @@ import {
   MessageCircle,
   BookOpen,
   Loader2,
-  Star,
-  Check,
   AlertCircle,
   ArrowLeft,
 } from "lucide-react";
@@ -29,11 +27,6 @@ import ReviewSystem from "@/components/property/ReviewSystem";
 import BookingModal from "@/components/property/BookingModal";
 import { getPropertyImageUrls, handleImageError } from "@/lib/imageUtils";
 
-// Import demo images
-import property1 from "@/assets/property-1.jpg";
-import property2 from "@/assets/property-2.jpg";
-import property3 from "@/assets/property-3.jpg";
-
 const PropertyDetail = () => {
   const { id } = useParams();
   const navigate = useNavigate();
@@ -45,7 +38,6 @@ const PropertyDetail = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
-  const [showContactModal, setShowContactModal] = useState(false);
   const [showBookingModal, setShowBookingModal] = useState(false);
   const [seller, setSeller] = useState(null);
 
@@ -53,6 +45,7 @@ const PropertyDetail = () => {
   const loadProperty = async () => {
     try {
       setLoading(true);
+      setError(null);
       const data = await getPropertyById(id);
       
       // Check if data exists
@@ -90,7 +83,7 @@ const PropertyDetail = () => {
         phone: "+91 XXXXX XXXXX",
       });
     } catch (err) {
-      setError(err.message);
+      setError(err.message || "Failed to load property");
       setProperty(null);
       console.error("Error loading property:", err);
     } finally {
@@ -103,6 +96,11 @@ const PropertyDetail = () => {
       loadProperty();
     }
   }, [id]);
+
+  // Reset image index when property changes
+  useEffect(() => {
+    setCurrentImageIndex(0);
+  }, [property?._id]);
 
   if (loading) {
     return (
@@ -137,15 +135,19 @@ const PropertyDetail = () => {
   const currentImage = hasImages ? images[currentImageIndex] : null;
 
   const nextImage = () => {
-    setCurrentImageIndex((prev) =>
-      prev === images.length - 1 ? 0 : prev + 1
-    );
+    if (images.length > 0) {
+      setCurrentImageIndex((prev) =>
+        prev === images.length - 1 ? 0 : prev + 1
+      );
+    }
   };
 
   const prevImage = () => {
-    setCurrentImageIndex((prev) =>
-      prev === 0 ? images.length - 1 : prev - 1
-    );
+    if (images.length > 0) {
+      setCurrentImageIndex((prev) =>
+        prev === 0 ? images.length - 1 : prev - 1
+      );
+    }
   };
 
   const handleSave = () => {
@@ -153,13 +155,29 @@ const PropertyDetail = () => {
       toast.error("Please sign in to save properties");
       return;
     }
+    const wasSaved = checkIsSaved(property._id);
     toggleSave(property._id);
-    toast.success(checkIsSaved(property._id) ? "Removed from saved" : "Added to saved properties");
+    toast.success(wasSaved ? "Removed from saved" : "Added to saved properties");
   };
 
-  const handleShare = () => {
-    navigator.clipboard.writeText(window.location.href);
-    toast.success("Link copied to clipboard!");
+  const handleShare = async () => {
+    try {
+      if (navigator.share) {
+        await navigator.share({
+          title: property.title,
+          text: `Check out this property: ${property.title}`,
+          url: window.location.href
+        });
+      } else {
+        await navigator.clipboard.writeText(window.location.href);
+        toast.success("Link copied to clipboard!");
+      }
+    } catch (err) {
+      if (err.name !== 'AbortError') {
+        console.error('Error sharing:', err);
+        toast.error("Failed to share");
+      }
+    }
   };
 
   const handleContactSeller = () => {
@@ -167,7 +185,11 @@ const PropertyDetail = () => {
       toast.error("Please sign in to message seller");
       return;
     }
-    navigate(`/messages/${seller?.id}`);
+    if (seller?.id) {
+      navigate(`/messages/${seller.id}`);
+    } else {
+      toast.error("Seller information not available");
+    }
   };
 
   const handleBookNow = () => {
@@ -217,7 +239,7 @@ const PropertyDetail = () => {
                 <>
                   <img
                     src={typeof currentImage === 'string' ? currentImage : currentImage.url}
-                    alt={property.title}
+                    alt={`${property.title} - Image ${currentImageIndex + 1}`}
                     className="w-full h-full object-cover"
                     onError={(e) => handleImageError(e)}
                   />
@@ -228,12 +250,14 @@ const PropertyDetail = () => {
                       <button
                         onClick={prevImage}
                         className="absolute left-4 top-1/2 -translate-y-1/2 h-10 w-10 rounded-full bg-background/80 hover:bg-background flex items-center justify-center transition"
+                        aria-label="Previous image"
                       >
                         <ChevronLeft className="h-6 w-6" />
                       </button>
                       <button
                         onClick={nextImage}
                         className="absolute right-4 top-1/2 -translate-y-1/2 h-10 w-10 rounded-full bg-background/80 hover:bg-background flex items-center justify-center transition"
+                        aria-label="Next image"
                       >
                         <ChevronRight className="h-6 w-6" />
                       </button>
@@ -251,6 +275,7 @@ const PropertyDetail = () => {
                             ? "bg-background w-6"
                             : "bg-background/60"
                         }`}
+                        aria-label={`Go to image ${index + 1}`}
                       />
                     ))}
                   </div>
@@ -307,10 +332,16 @@ const PropertyDetail = () => {
                     size="icon"
                     onClick={handleSave}
                     className={checkIsSaved(property._id) ? "text-destructive" : ""}
+                    aria-label={checkIsSaved(property._id) ? "Remove from saved" : "Save property"}
                   >
                     <Heart className={`h-5 w-5 ${checkIsSaved(property._id) ? "fill-current" : ""}`} />
                   </Button>
-                  <Button variant="outline" size="icon" onClick={handleShare}>
+                  <Button 
+                    variant="outline" 
+                    size="icon" 
+                    onClick={handleShare}
+                    aria-label="Share property"
+                  >
                     <Share2 className="h-5 w-5" />
                   </Button>
                 </div>
@@ -324,9 +355,8 @@ const PropertyDetail = () => {
 
             {/* Tabs */}
             <Tabs defaultValue="overview" className="space-y-6">
-              <TabsList className="grid w-full grid-cols-5">
+              <TabsList className="grid w-full grid-cols-4">
                 <TabsTrigger value="overview">Overview</TabsTrigger>
-                <TabsTrigger value="amenities">Amenities</TabsTrigger>
                 <TabsTrigger value="details">Details</TabsTrigger>
                 <TabsTrigger value="ai-score">AI Score</TabsTrigger>
                 <TabsTrigger value="reviews">Reviews</TabsTrigger>
@@ -339,15 +369,29 @@ const PropertyDetail = () => {
                     {property.description || property.about || "No description provided"}
                   </p>
                 </div>
+
+                {/* Amenities Section */}
+                {property.amenities && property.amenities.length > 0 && (
+                  <div>
+                    <h3 className="font-heading font-semibold text-lg mb-3">✨ Amenities</h3>
+                    <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
+                      {property.amenities.map((amenity, idx) => (
+                        <div key={idx} className="flex items-center gap-2 p-3 bg-secondary rounded-lg">
+                          <span className="text-sm capitalize">{amenity}</span>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
                 
                 {property.rules && (
                   <div>
                     <h3 className="font-heading font-semibold text-lg mb-3">📋 House Rules</h3>
-                    <ul className="text-muted-foreground leading-relaxed list-disc pl-5">
+                    <ul className="text-muted-foreground leading-relaxed list-disc pl-5 space-y-1">
                       {property.rules
-                        ?.split(",")
-                        .map((doc, idx) => (
-                          <li key={idx}>{doc.trim()}</li>
+                        .split(",")
+                        .map((rule, idx) => (
+                          <li key={idx}>{rule.trim()}</li>
                         ))}
                     </ul>
                   </div>
@@ -356,14 +400,13 @@ const PropertyDetail = () => {
                 {property.required_documents && (
                   <div>
                     <h3 className="font-heading font-semibold text-lg mb-3">📄 Required Documents</h3>
-                    <ul className="text-muted-foreground leading-relaxed list-disc pl-5">
+                    <ul className="text-muted-foreground leading-relaxed list-disc pl-5 space-y-1">
                       {property.required_documents
-                        ?.split(",")
+                        .split(",")
                         .map((doc, idx) => (
                           <li key={idx}>{doc.trim()}</li>
                         ))}
                     </ul>
-
                   </div>
                 )}
               </TabsContent>
@@ -428,10 +471,12 @@ const PropertyDetail = () => {
                       <p className="text-xl font-semibold">{property.city}</p>
                     </div>
                   )}
-                  <div className="p-4 rounded-lg bg-secondary">
-                    <p className="text-sm text-muted-foreground">State</p>
-                    <p className="text-xl font-semibold">{property.state}</p>
-                  </div>
+                  {property.state && (
+                    <div className="p-4 rounded-lg bg-secondary">
+                      <p className="text-sm text-muted-foreground">State</p>
+                      <p className="text-xl font-semibold">{property.state}</p>
+                    </div>
+                  )}
                 </div>
               </TabsContent>
 
@@ -449,80 +494,20 @@ const PropertyDetail = () => {
                       <div className="flex-1">
                         <div className="w-full bg-gray-300 rounded-full h-4 mb-2">
                           <div
-                            className="bg-gradient-to-r from-green-400 to-green-600 h-4 rounded-full"
-                            style={{width: `${Math.min((property.recommendation_score || 0) / 100 * 100, 100)}%`}}
+                            className="bg-gradient-to-r from-green-400 to-green-600 h-4 rounded-full transition-all"
+                            style={{width: `${Math.min((property.recommendation_score || 0), 100)}%`}}
                           ></div>
                         </div>
-                        <p className="text-sm text-gray-600">{property.recommendation_score > 75 ? '⭐⭐⭐ Excellent Match' : property.recommendation_score > 50 ? '⭐⭐ Good Match' : '⭐ Fair Match'}</p>
+                        <p className="text-sm text-gray-600">
+                          {(property.recommendation_score || 0) > 75 
+                            ? '⭐⭐⭐ Excellent Match' 
+                            : (property.recommendation_score || 0) > 50 
+                            ? '⭐⭐ Good Match' 
+                            : '⭐ Fair Match'}
+                        </p>
                       </div>
                     </div>
                   </div>
-
-                  {/* Scoring Breakdown */}
-                  {/* <div className="grid md:grid-cols-2 gap-4 mb-8">
-                    {/* Price Factor */}
-                    <div className="bg-white p-4 rounded-lg border-l-4 border-blue-500">
-                      <div className="flex justify-between items-center mb-2">
-                        <p className="font-semibold text-gray-800">💰 Price Factor</p>
-                        <span className="text-lg font-bold text-blue-600">25%</span>
-                      </div>
-                      <p className="text-sm text-gray-600">₹{property.price?.toLocaleString()} /month</p>
-                      <div className="mt-2 bg-blue-100 h-2 rounded-full"></div>
-                    </div>
-
-                    {/* Rating Factor */}
-                    <div className="bg-white p-4 rounded-lg border-l-4 border-yellow-500">
-                      <div className="flex justify-between items-center mb-2">
-                        <p className="font-semibold text-gray-800">⭐ Rating Factor</p>
-                        <span className="text-lg font-bold text-yellow-600">30%</span>
-                      </div>
-                      <p className="text-sm text-gray-600">Rating: {property.rating?.toFixed(1) || 'N/A'} stars</p>
-                      <div className="mt-2 bg-yellow-100 h-2 rounded-full" style={{width: `${Math.min((property.rating || 0) / 5 * 100, 100)}%`}}></div>
-                    </div>
-
-                    {/* Amenities Factor */}
-                    <div className="bg-white p-4 rounded-lg border-l-4 border-green-500">
-                      <div className="flex justify-between items-center mb-2">
-                        <p className="font-semibold text-gray-800">✨ Amenities Factor</p>
-                        <span className="text-lg font-bold text-green-600">25%</span>
-                      </div>
-                      <p className="text-sm text-gray-600">{property.amenities?.length || 0} amenities available</p>
-                      <div className="mt-2 bg-green-100 h-2 rounded-full" style={{width: `${Math.min((property.amenities?.length || 0) / 8 * 100, 100)}%`}}></div>
-                    </div>
-
-                    {/* Availability Factor */}
-                    <div className="bg-white p-4 rounded-lg border-l-4 border-purple-500">
-                      <div className="flex justify-between items-center mb-2">
-                        <p className="font-semibold text-gray-800">🔑 Availability Factor</p>
-                        <span className="text-lg font-bold text-purple-600">15%</span>
-                      </div>
-                      <p className="text-sm text-gray-600">{property.vacancies || 0} rooms available</p>
-                      <div className="mt-2 bg-purple-100 h-2 rounded-full" style={{width: `${Math.min((property.vacancies || 0) / 5 * 100, 100)}%`}}></div>
-                    </div>
-
-                    {/* Capacity Factor */}
-                    <div className="bg-white p-4 rounded-lg border-l-4 border-orange-500">
-                      <div className="flex justify-between items-center mb-2">
-                        <p className="font-semibold text-gray-800">👥 Capacity Factor</p>
-                        <span className="text-lg font-bold text-orange-600">5%</span>
-                      </div>
-                      <p className="text-sm text-gray-600">Capacity: {property.capacity || 'N/A'} people</p>
-                      <div className="mt-2 bg-orange-100 h-2 rounded-full"></div>
-                    </div>
-                  </div>
-
-                  {/* Why This Property Was Recommended */}
-                  <div className="bg-white p-6 rounded-lg border-2 border-green-200">
-                    <h4 className="font-semibold text-gray-800 mb-4">✅ Why This Property Matches Your Preferences</h4>
-                    <ul className="space-y-2 text-sm text-gray-700">
-                      {property.price ? <li>✓ Price point fits your budget</li> : null}
-                      {property.capacity ? <li>✓ Capacity meets your requirements</li> : null}
-                      {property.vacancies ? <li>✓ Currently has available rooms</li> : null}
-                      {property.rating > 3 ? <li>✓ Well-rated by previous tenants</li> : null}
-                      {property.amenities?.length > 0 ? <li>✓ Offers essential amenities</li> : null}
-                      <li>✓ Located in your preferred area</li>
-                    </ul>
-                  </div>*/}
                 </div> 
               </TabsContent>
 
@@ -530,8 +515,7 @@ const PropertyDetail = () => {
                 <ReviewSystem 
                   propertyId={property._id}
                   onReviewsUpdated={() => {
-                    // Optional: Do nothing or add any cleanup logic here
-                    // No need to reload property on review updates
+                    // Optional: Add any cleanup logic here
                   }}
                 />
               </TabsContent>
@@ -600,53 +584,46 @@ const PropertyDetail = () => {
                   </div>
 
                   {/* Quick Details */}
-                  <div className="grid grid-cols-2 gap-3 py-4 border-y text-sm">
-                    <div>
-                      <p className="text-muted-foreground">Bedrooms</p>
-                      <p className="font-semibold text-lg">{property.bedrooms}</p>
+                  {(property.bedrooms || property.bathrooms) && (
+                    <div className="grid grid-cols-2 gap-3 py-4 border-y text-sm">
+                      {property.bedrooms && (
+                        <div>
+                          <p className="text-muted-foreground">Bedrooms</p>
+                          <p className="font-semibold text-lg">{property.bedrooms}</p>
+                        </div>
+                      )}
+                      {property.bathrooms && (
+                        <div>
+                          <p className="text-muted-foreground">Bathrooms</p>
+                          <p className="font-semibold text-lg">{property.bathrooms}</p>
+                        </div>
+                      )}
                     </div>
-                    <div>
-                      <p className="text-muted-foreground">Bathrooms</p>
-                      <p className="font-semibold text-lg">{property.bathrooms}</p>
-                    </div>
-                  </div>
+                  )}
 
                   <p className="text-xs text-muted-foreground">
                     {property.status === 'available' 
                       ? '✓ Available Now' 
-                      : `Status: ${property.status}`}
+                      : `Status: ${property.status || 'Unknown'}`}
                   </p>
                 </div>
               </Card>
-
-              {/* Safety & Trust */}
-              {/* <Card className="p-4 bg-green-50 border-green-200">
-                <div className="flex items-start gap-3">
-                  <Check className="h-5 w-5 text-green-600 flex-shrink-0 mt-0.5" />
-                  <div>
-                    <p className="font-medium text-green-800 text-sm">
-                      Verified Property
-                    </p>
-                    <p className="text-xs text-green-700 mt-1">
-                      This property has been verified for authenticity and safety.
-                    </p>
-                  </div>
-                </div>
-              </Card> */}
             </div>
           </div>
         </div>
 
         {/* Booking Modal */}
-        <BookingModal 
-          property={property}
-          isOpen={showBookingModal}
-          onClose={() => setShowBookingModal(false)}
-          onSuccess={() => {
-            setShowBookingModal(false);
-            toast.success("Booking request sent! The owner will review it shortly.");
-          }}
-        />
+        {showBookingModal && (
+          <BookingModal 
+            property={property}
+            isOpen={showBookingModal}
+            onClose={() => setShowBookingModal(false)}
+            onSuccess={() => {
+              setShowBookingModal(false);
+              toast.success("Booking request sent! The owner will review it shortly.");
+            }}
+          />
+        )}
       </div>
     </Layout>
   );

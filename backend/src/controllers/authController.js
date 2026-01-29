@@ -39,11 +39,7 @@ export const register = async (req, res) => {
       email,
       password,
       securityQuestion,
-<<<<<<< HEAD
-      securityAnswer: securityAnswer.toLowerCase().trim(),
-=======
       securityAnswer: securityAnswer.toLowerCase().trim(), // Normalize answer
->>>>>>> ebc258e3312e1c5293738cbb40134fc6290d16c9
     });
 
     await user.save();
