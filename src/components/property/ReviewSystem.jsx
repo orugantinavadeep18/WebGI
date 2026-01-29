@@ -23,20 +23,13 @@ export default function ReviewSystem({ propertyId, onReviewsUpdated }) {
   const fetchReviews = async () => {
     try {
       setLoading(true);
-      // Try rentals endpoint first, then fallback to properties endpoint
-      let data = null;
-      try {
-        data = await apiCall(`/rentals/${propertyId}/reviews`, {
-          method: "GET",
-        });
-      } catch (err) {
-        // If rentals fails, try properties endpoint
-        console.log("Rentals endpoint failed, trying properties endpoint...");
-        data = await apiCall(`/properties/${propertyId}/reviews`, {
-          method: "GET",
-        });
-      }
+      console.log(`📖 Fetching reviews for property: ${propertyId}`);
+      
+      const data = await apiCall(`/rentals/${propertyId}/reviews`, {
+        method: "GET",
+      });
 
+      console.log(`✓ Reviews fetched:`, data);
       setReviews(data.reviews || []);
 
       // Calculate average rating
@@ -49,7 +42,8 @@ export default function ReviewSystem({ propertyId, onReviewsUpdated }) {
         setAvgRating(0);
       }
     } catch (error) {
-      console.error("Error fetching reviews:", error);
+      console.error("❌ Error fetching reviews:", error);
+      toast.error("Failed to load reviews");
       setReviews([]);
       setAvgRating(0);
     } finally {
@@ -71,35 +65,26 @@ export default function ReviewSystem({ propertyId, onReviewsUpdated }) {
     }
 
     try {
-      // Try rentals endpoint first, then fallback to properties endpoint
-      try {
-        await apiCall(`/rentals/${propertyId}/reviews`, {
-          method: "POST",
-          body: JSON.stringify({
-            rating,
-            comment,
-          }),
-        });
-      } catch (err) {
-        // If rentals fails, try properties endpoint
-        console.log("Rentals endpoint failed, trying properties endpoint...");
-        await apiCall(`/properties/${propertyId}/reviews`, {
-          method: "POST",
-          body: JSON.stringify({
-            rating,
-            comment,
-          }),
-        });
-      }
+      console.log(`📝 Submitting review for property: ${propertyId}`);
+      console.log(`User: ${user?.email}, Rating: ${rating}, Comment: ${comment}`);
+      
+      await apiCall(`/rentals/${propertyId}/reviews`, {
+        method: "POST",
+        body: JSON.stringify({
+          rating,
+          comment,
+        }),
+      });
 
+      console.log(`✓ Review submitted successfully!`);
       toast.success("Review submitted successfully!");
       setComment("");
       setRating(5);
       fetchReviews();
       onReviewsUpdated?.();
     } catch (error) {
-      toast.error("Failed to submit review");
-      console.error("Error submitting review:", error);
+      console.error("❌ Error submitting review:", error);
+      toast.error(error.message || "Failed to submit review");
     }
   };
 
@@ -107,25 +92,19 @@ export default function ReviewSystem({ propertyId, onReviewsUpdated }) {
     if (!confirm("Delete this review?")) return;
 
     try {
-      // Try rentals endpoint first, then fallback to properties endpoint
-      try {
-        await apiCall(`/rentals/${propertyId}/reviews/${reviewId}`, {
-          method: "DELETE",
-        });
-      } catch (err) {
-        // If rentals fails, try properties endpoint
-        console.log("Rentals endpoint failed, trying properties endpoint...");
-        await apiCall(`/properties/${propertyId}/reviews/${reviewId}`, {
-          method: "DELETE",
-        });
-      }
+      console.log(`🗑️ Deleting review: ${reviewId} from property: ${propertyId}`);
+      
+      await apiCall(`/rentals/${propertyId}/reviews/${reviewId}`, {
+        method: "DELETE",
+      });
 
+      console.log(`✓ Review deleted successfully!`);
       toast.success("Review deleted");
       fetchReviews();
       onReviewsUpdated?.();
     } catch (error) {
-      toast.error("Failed to delete review");
-      console.error("Error deleting review:", error);
+      console.error("❌ Error deleting review:", error);
+      toast.error(error.message || "Failed to delete review");
     }
   };
 

@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import {
   Users, BarChart3, MessageCircle, Home, Settings, Trash2, Edit, Eye,
-  Search, Filter, Download, LogOut, ArrowLeft
+  Search, Filter, Download, LogOut, ArrowLeft, RefreshCw
 } from "lucide-react";
 import Layout from "@/components/layout/Layout";
 import { Button } from "@/components/ui/button";
@@ -151,17 +151,28 @@ export default function Admin() {
                   <p className="text-gray-600 text-sm">System Administration Panel</p>
                 </div>
               </div>
-              <Button
-                variant="outline"
-                onClick={() => {
-                  signOut();
-                  navigate("/");
-                }}
-                className="gap-2"
-              >
-                <LogOut className="h-4 w-4" />
-                Logout
-              </Button>
+              <div className="flex gap-2">
+                <Button
+                  variant="outline"
+                  onClick={fetchAdminData}
+                  disabled={loading}
+                  className="gap-2"
+                >
+                  <RefreshCw className={`h-4 w-4 ${loading ? "animate-spin" : ""}`} />
+                  Refresh
+                </Button>
+                <Button
+                  variant="outline"
+                  onClick={() => {
+                    signOut();
+                    navigate("/");
+                  }}
+                  className="gap-2"
+                >
+                  <LogOut className="h-4 w-4" />
+                  Logout
+                </Button>
+              </div>
             </div>
           </div>
         </div>

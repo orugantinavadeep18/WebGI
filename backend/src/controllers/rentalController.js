@@ -11,32 +11,45 @@ export const getRecommendations = async (req, res) => {
       property_type,
       location,
       min_rating = 0,
+      min_capacity = 1,
+      min_vacancies = 0,
       limit = 10,
     } = req.body;
 
-    // Build filter query
+    console.log("🔍 RECOMMENDATION REQUEST:");
+    console.log("  Max Budget:", max_budget);
+    console.log("  Location:", location);
+    console.log("  Gender Preference:", gender_preference);
+    console.log("  Sharing Type:", sharing_type);
+    console.log("  Property Type:", property_type);
+    console.log("  Min Capacity:", min_capacity);
+    console.log("  Min Vacancies:", min_vacancies);
+    console.log("  Required Amenities:", required_amenities);
+
+    // Build filter query - be flexible with missing fields
     let filter = {};
 
     if (max_budget) {
       filter.price = { $lte: max_budget };
     }
 
-    if (location) {
+    if (location && location.toLowerCase() !== "all") {
       filter.$or = [
         { location: { $regex: location, $options: "i" } },
         { city: { $regex: location, $options: "i" } },
+        { address: { $regex: location, $options: "i" } },
       ];
     }
 
-    if (gender_preference) {
+    if (gender_preference && gender_preference !== "all") {
       filter.gender_preference = { $in: [gender_preference, "unisex"] };
     }
 
-    if (sharing_type) {
+    if (sharing_type && sharing_type !== "all") {
       filter.sharing_type = sharing_type;
     }
 
-    if (property_type) {
+    if (property_type && property_type !== "all") {
       filter.$or = filter.$or || [];
       filter.$or.push(
         { property_type: property_type },
@@ -48,7 +61,26 @@ export const getRecommendations = async (req, res) => {
       filter.rating = { $gte: min_rating };
     }
 
-    // Filter by amenities - must have all required amenities
+    // Be flexible with capacity - if not specified or doesn't exist, include anyway
+    if (min_capacity > 1) {
+      filter.$or = filter.$or || [];
+      filter.$or.push(
+        { capacity: { $gte: min_capacity } },
+        { capacity: { $exists: false } }, // Include properties without capacity field
+        { bedrooms: { $gte: min_capacity } } // Fallback to bedrooms
+      );
+    }
+
+    // Be flexible with vacancies - if not specified, include anyway
+    if (min_vacancies > 0) {
+      filter.$or = filter.$or || [];
+      filter.$or.push(
+        { vacancies: { $gte: min_vacancies } },
+        { vacancies: { $exists: false } } // Include properties without vacancies field
+      );
+    }
+
+    // Filter by amenities - optional, don't exclude if missing
     if (required_amenities.length > 0) {
       const amenityFilters = required_amenities.map((amenity) => ({
         [`amenities_object.${amenity}`]: true,
@@ -58,21 +90,23 @@ export const getRecommendations = async (req, res) => {
 
     // Get filtered properties
     let candidates = await Property.find(filter);
+    console.log(`📊 Found ${candidates.length} candidate properties after filtering`);
 
     // Calculate recommendation scores
     candidates = candidates.map((property) => {
       let score = 0;
 
       // Price score (lower is better, max 25 points)
-      if (max_budget) {
+      if (max_budget && property.price) {
         const priceScore = Math.max(0, (1 - property.price / max_budget) * 25);
         score += priceScore;
       } else {
-        score += 20;
+        score += 20; // Default score if no price or budget specified
       }
 
-      // Rating score (max 30 points)
-      score += (property.rating || 0) * 6;
+      // Rating score (max 30 points) - use rating or default to 3
+      const propertyRating = property.rating || 3;
+      score += propertyRating * 6;
 
       // Amenity match score (max 25 points)
       let amenityMatch = 0;
@@ -86,19 +120,26 @@ export const getRecommendations = async (req, res) => {
       } else {
         // If no specific amenities required, give bonus points based on how many amenities are available
         const availableAmenities = Object.values(property.amenities_object || {}).filter(v => v === true).length;
-        score += Math.min(availableAmenities, 8) * 2; // Max 16 points
+        const amenityArray = property.amenities || [];
+        const totalAmenities = availableAmenities + amenityArray.length;
+        score += Math.min(totalAmenities, 15) * 1.5; // Max 22.5 points
       }
 
-      // Vacancy score (max 15 points)
-      if (property.vacancies > 0) {
-        score += Math.min(property.vacancies, 5) * 3;
-      } else {
-        score += 0; // No vacancy means no bonus
-      }
-
-      // Capacity match score (max 5 points)
-      if (property.capacity >= 2) {
+      // Vacancy score (max 15 points) - be lenient if missing
+      const propertyVacancies = property.vacancies || 0;
+      if (propertyVacancies > 0) {
+        score += Math.min(propertyVacancies, 5) * 3;
+      } else if (property.vacancies === undefined) {
+        // If vacancies field doesn't exist, assume available (give partial bonus)
         score += 5;
+      }
+
+      // Capacity match score (max 5 points) - be lenient if missing
+      const propertyCapacity = property.capacity || property.bedrooms || 1;
+      if (propertyCapacity >= min_capacity) {
+        score += 5;
+      } else if (propertyCapacity > 0) {
+        score += 3; // Partial score if capacity is less than required
       }
 
       return {
@@ -108,11 +149,66 @@ export const getRecommendations = async (req, res) => {
       };
     });
 
+    // If no candidates found with filters, fallback to all properties for scoring
+    if (candidates.length === 0) {
+      console.log("⚠️  No properties matched filters. Falling back to all properties...");
+      candidates = await Property.find({});
+      
+      // Still apply scoring to all properties
+      candidates = candidates.map((property) => {
+        let score = 0;
+
+        // Price score (lower is better, max 25 points)
+        if (max_budget && property.price) {
+          const priceScore = Math.max(0, (1 - property.price / max_budget) * 25);
+          score += priceScore;
+        } else {
+          score += 20;
+        }
+
+        // Rating score (max 30 points)
+        const propertyRating = property.rating || 3;
+        score += propertyRating * 6;
+
+        // Amenity bonus (max 22.5 points)
+        const availableAmenities = Object.values(property.amenities_object || {}).filter(v => v === true).length;
+        const amenityArray = property.amenities || [];
+        const totalAmenities = availableAmenities + amenityArray.length;
+        score += Math.min(totalAmenities, 15) * 1.5;
+
+        // Vacancy score (max 15 points)
+        const propertyVacancies = property.vacancies || 0;
+        if (propertyVacancies > 0) {
+          score += Math.min(propertyVacancies, 5) * 3;
+        } else if (property.vacancies === undefined) {
+          score += 5;
+        }
+
+        // Capacity score (max 5 points)
+        const propertyCapacity = property.capacity || property.bedrooms || 1;
+        if (propertyCapacity >= min_capacity) {
+          score += 5;
+        } else if (propertyCapacity > 0) {
+          score += 3;
+        }
+
+        return {
+          ...property.toObject(),
+          score: parseFloat(score.toFixed(2)),
+          recommendation_score: parseFloat(score.toFixed(2)),
+        };
+      });
+    }
+
+    console.log(`✅ Total candidates after scoring: ${candidates.length}`);
+
     // Sort by recommendation score
     candidates.sort((a, b) => b.recommendation_score - a.recommendation_score);
 
     // Return top recommendations
     const recommendations = candidates.slice(0, limit);
+
+    console.log(`📤 Returning ${recommendations.length} recommendations from ${candidates.length} total`);
 
     res.json({
       message: "Recommendations retrieved successfully",

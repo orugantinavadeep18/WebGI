@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { Heart, Wifi, UtensilsCrossed, Zap, Wind, Shirt, Users, ArrowLeft } from "lucide-react";
+import { Heart, Wifi, UtensilsCrossed, Zap, Wind, Shirt, Users, ArrowLeft, RefreshCw } from "lucide-react";
 import { Button } from "../components/ui/button";
 import { Input } from "../components/ui/input";
 import { Slider } from "../components/ui/slider";
@@ -7,6 +7,10 @@ import { Card } from "../components/ui/card";
 import Layout from "../components/layout/Layout";
 import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
+import { apiCall } from "../lib/api";
+import { getPropertyImageUrl, handleImageError } from "../lib/imageUtils";
+
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || "http://localhost:5000/api";
 
 export default function Recommendations() {
   const navigate = useNavigate();
@@ -22,6 +26,8 @@ export default function Recommendations() {
     sharing_type: "all",
     property_type: "all",
     min_rating: 0,
+    min_capacity: 1,
+    min_vacancies: 0,
     required_amenities: [],
     limit: 12,
   });
@@ -37,6 +43,27 @@ export default function Recommendations() {
     { id: "cctv", label: "CCTV", icon: "📹" },
   ];
 
+  const propertyTypeOptions = [
+    { value: "all", label: "All Types" },
+    { value: "hostel", label: "Hostel" },
+    { value: "pg", label: "PG/Shared" },
+    { value: "others", label: "Others" },
+  ];
+
+  const sharingTypeOptions = [
+    { value: "all", label: "All Sharing" },
+    { value: "single", label: "Single Room" },
+    { value: "double", label: "Double Occupancy" },
+    { value: "triple", label: "Triple Occupancy" },
+    { value: "shared", label: "Shared" },
+  ];
+
+  const genderOptions = [
+    { value: "unisex", label: "Anyone" },
+    { value: "male", label: "Male Only" },
+    { value: "female", label: "Female Only" },
+  ];
+
   // Load saved rentals from localStorage
   useEffect(() => {
     const saved = JSON.parse(localStorage.getItem("savedRentals") || "[]");
@@ -45,22 +72,25 @@ export default function Recommendations() {
 
   // Fetch recommendations
   const fetchRecommendations = async () => {
+    console.log("📡 Fetching recommendations with filters:", filters);
     setLoading(true);
     try {
-      const response = await fetch("http://localhost:5000/api/rentals/recommend", {
+      const data = await apiCall("/rentals/recommend", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
         body: JSON.stringify(filters),
       });
 
-      if (!response.ok) throw new Error("Failed to fetch recommendations");
-
-      const data = await response.json();
+      console.log("✅ Response received:", data);
       setRentals(data.recommendations || []);
-      toast.success(`Found ${data.count} recommendations!`);
+      console.log(`✓ Found ${data.count} recommendations out of ${data.total_available} total!`);
+      if (data.count > 0) {
+        toast.success(`Found ${data.count} recommendations!`);
+      } else {
+        toast.info("No rentals match your filters. Try adjusting them!");
+      }
     } catch (error) {
-      console.error("Error:", error);
-      toast.error("Failed to load recommendations");
+      console.error("❌ Error fetching recommendations:", error);
+      toast.error(error.message || "Failed to load recommendations");
     } finally {
       setLoading(false);
     }
@@ -70,6 +100,27 @@ export default function Recommendations() {
   useEffect(() => {
     fetchRecommendations();
   }, []);
+
+  // Fetch when filters change (with debounce)
+  useEffect(() => {
+    const timeoutId = setTimeout(() => {
+      console.log("🔍 Filters changed, fetching recommendations...", filters);
+      fetchRecommendations();
+    }, 500); // 500ms debounce
+
+    return () => clearTimeout(timeoutId);
+  }, [
+    filters.max_budget,
+    filters.location,
+    filters.gender_preference,
+    filters.sharing_type,
+    filters.property_type,
+    filters.min_rating,
+    filters.min_capacity,
+    filters.min_vacancies,
+    filters.required_amenities,
+    filters.limit,
+  ]);
 
   const toggleAmenity = (amenityId) => {
     setFilters((prev) => ({
@@ -115,12 +166,43 @@ export default function Recommendations() {
 
           {/* Header */}
           <div className="mb-8">
-            <h1 className="text-4xl font-bold text-gray-800 mb-2">
-              🎯 AI Rental Recommendations
-            </h1>
-            <p className="text-gray-600">
-              Discover perfect rentals tailored to your preferences
-            </p>
+            <div className="flex justify-between items-start mb-4">
+              <div>
+                <h1 className="text-4xl font-bold text-gray-800 mb-2">
+                  🎯 AI Rental Recommendations
+                </h1>
+                <p className="text-gray-600">
+                  Discover perfect rentals tailored to your preferences
+                </p>
+              </div>
+              <Button
+                onClick={() => {
+                  setRentals([]);
+                  setFilters({
+                    max_budget: 5000,
+                    location: "hyderabad",
+                    gender_preference: "unisex",
+                    sharing_type: "all",
+                    property_type: "all",
+                    min_rating: 0,
+                    min_capacity: 1,
+                    min_vacancies: 0,
+                    required_amenities: [],
+                    limit: 12,
+                  });
+                  toast.success("Filters reset");
+                  // Fetch immediately after reset
+                  setTimeout(() => {
+                    fetchRecommendations();
+                  }, 100);
+                }}
+                variant="outline"
+                className="flex items-center gap-2"
+              >
+                <RefreshCw size={20} />
+                Clear Filters
+              </Button>
+            </div>
           </div>
 
           <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
@@ -219,6 +301,57 @@ export default function Recommendations() {
                   </select>
                 </div>
 
+                {/* Minimum Capacity */}
+                <div className="mb-6">
+                  <label className="block text-sm font-semibold mb-2 text-gray-700">
+                    Minimum Capacity: {filters.min_capacity}
+                  </label>
+                  <Slider
+                    value={[filters.min_capacity]}
+                    onValueChange={(value) =>
+                      setFilters({ ...filters, min_capacity: value[0] })
+                    }
+                    min={1}
+                    max={10}
+                    step={1}
+                    className="w-full"
+                  />
+                </div>
+
+                {/* Minimum Vacancies */}
+                <div className="mb-6">
+                  <label className="block text-sm font-semibold mb-2 text-gray-700">
+                    Minimum Vacancies: {filters.min_vacancies}
+                  </label>
+                  <Slider
+                    value={[filters.min_vacancies]}
+                    onValueChange={(value) =>
+                      setFilters({ ...filters, min_vacancies: value[0] })
+                    }
+                    min={0}
+                    max={10}
+                    step={1}
+                    className="w-full"
+                  />
+                </div>
+
+                {/* Minimum Rating */}
+                <div className="mb-6">
+                  <label className="block text-sm font-semibold mb-2 text-gray-700">
+                    Minimum Rating: {filters.min_rating.toFixed(1)} ⭐
+                  </label>
+                  <Slider
+                    value={[filters.min_rating]}
+                    onValueChange={(value) =>
+                      setFilters({ ...filters, min_rating: value[0] })
+                    }
+                    min={0}
+                    max={5}
+                    step={0.5}
+                    className="w-full"
+                  />
+                </div>
+
                 {/* Amenities */}
                 <div className="mb-6">
                   <label className="block text-sm font-semibold mb-3 text-gray-700">
@@ -267,41 +400,71 @@ export default function Recommendations() {
                   {rentals.map((rental) => (
                     <Card
                       key={rental._id}
-                      className="overflow-hidden shadow-lg hover:shadow-xl transition-shadow"
+                      className="overflow-hidden shadow-lg hover:shadow-xl transition-shadow cursor-pointer hover:scale-105 transform"
+                      onClick={() => navigate(`/properties/${rental._id}`)}
                     >
-                      <div className="bg-gradient-to-r from-blue-500 to-indigo-600 p-4 text-white">
-                        <div className="flex justify-between items-start mb-2">
-                          <h3 className="text-lg font-bold">{rental.name}</h3>
-                          <button
-                            onClick={() => toggleSaveRental(rental)}
-                            className="focus:outline-none"
-                          >
-                            <Heart
-                              size={20}
-                              fill={isSaved(rental._id) ? "currentColor" : "none"}
-                              className={
-                                isSaved(rental._id)
-                                  ? "text-red-400"
-                                  : "text-white hover:text-red-300"
-                              }
-                            />
-                          </button>
+                      {/* Image Section */}
+                      <div className="relative h-48 bg-gray-200 overflow-hidden">
+                        <img
+                          src={getPropertyImageUrl(rental, 0)}
+                          alt={rental.name || rental.title}
+                          className="w-full h-full object-cover"
+                          onError={(e) => handleImageError(e, 'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" width="400" height="300"%3E%3Crect fill="%235B7C99" width="400" height="300"/%3E%3Ctext x="50%" y="50%" font-size="32" fill="white" text-anchor="middle" dominant-baseline="middle" font-family="Arial, sans-serif"%3E🏠%3C/text%3E%3C/svg%3E')}
+                        />
+                        <button
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            toggleSaveRental(rental);
+                          }}
+                          className="absolute top-3 right-3 bg-white rounded-full p-2 shadow-md hover:shadow-lg"
+                        >
+                          <Heart
+                            size={20}
+                            fill={isSaved(rental._id) ? "currentColor" : "none"}
+                            className={
+                              isSaved(rental._id)
+                                ? "text-red-500"
+                                : "text-gray-400 hover:text-red-500"
+                            }
+                          />
+                        </button>
+                        <div className="absolute top-3 left-3 bg-green-500 text-white px-2 py-1 rounded-lg text-xs font-bold">
+                          Match: {rental.recommendation_score?.toFixed(0) || 0}%
                         </div>
-                        <p className="text-sm opacity-90">{rental.location}</p>
                       </div>
 
                       <div className="p-4">
+                        {/* Title and Location */}
+                        <h3 className="text-lg font-bold text-gray-800 mb-1 truncate">
+                          {rental.name || rental.title}
+                        </h3>
+                        <p className="text-sm text-gray-600 mb-3 flex items-center">
+                          <MapPin size={16} className="mr-1" />
+                          {rental.location || rental.city}
+                        </p>
+
                         {/* Price and Rating */}
-                        <div className="flex justify-between items-center mb-3">
+                        <div className="flex justify-between items-center mb-4">
                           <span className="text-2xl font-bold text-blue-600">
-                            ₹{rental.price.toLocaleString()}
+                            ₹{rental.price?.toLocaleString() || 'N/A'}/mo
                           </span>
-                          <span className="flex items-center">
-                            <span className="text-yellow-400 mr-1">⭐</span>
+                          <span className="flex items-center bg-yellow-100 px-2 py-1 rounded-full">
+                            <span className="text-yellow-500 mr-1">⭐</span>
                             <span className="font-semibold text-gray-700">
-                              {rental.rating > 0 ? rental.rating : "New"}
+                              {rental.rating > 0 ? rental.rating.toFixed(1) : "N/A"}
                             </span>
                           </span>
+                        </div>
+
+                        {/* Detailed Recommendation Breakdown */}
+                        <div className="bg-gradient-to-r from-green-50 to-emerald-50 p-3 rounded-lg mb-4 text-xs border border-green-200">
+                          <p className="font-bold text-green-800 mb-2">✨ Why Recommended ({rental.recommendation_score?.toFixed(1) || 0}/100):</p>
+                          <div className="space-y-1 text-gray-700">
+                            <p>💰 Price Match: {rental.price <= filters.max_budget ? '✓' : '✗'}</p>
+                            <p>👥 Capacity: {rental.capacity >= filters.min_capacity ? `✓ (${rental.capacity} people)` : `✗ (${rental.capacity}/${filters.min_capacity})`}</p>
+                            <p>🔑 Available: {rental.vacancies >= filters.min_vacancies ? `✓ (${rental.vacancies} rooms)` : `✗ (${rental.vacancies}/${filters.min_vacancies})`}</p>
+                            {rental.rating >= filters.min_rating ? <p>⭐ Rating: ✓ ({rental.rating})</p> : null}
+                          </div>
                         </div>
 
                         {/* Recommendation Score */}

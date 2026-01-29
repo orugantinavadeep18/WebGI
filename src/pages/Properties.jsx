@@ -7,6 +7,7 @@ import PropertyCard from "@/components/property/PropertyCard";
 import PropertyFilters from "@/components/property/PropertyFilters";
 import { Button } from "@/components/ui/button";
 import { useProperties } from "@/hooks/useProperties";
+import { apiCall } from "@/lib/api";
 import {
   Select,
   SelectContent,
@@ -46,30 +47,25 @@ const Properties = () => {
         setError(null);
         
         // Fetch from rentals API instead of properties
-        const response = await fetch("http://localhost:5000/api/rentals");
-        if (response.ok) {
-          const data = await response.json();
-          const rentals = data.rentals || [];
-          // Map rentals to match property format
-          const mappedRentals = rentals.map(r => ({
-            _id: r._id,
-            title: r.name,
-            address: r.location,
-            city: r.location,
-            price: r.price,
-            rating: r.rating,
-            images: r.images || [],
-            propertyType: r.property_type,
-            // Convert amenities object to array of keys where value is true
-            amenities: Object.keys(r.amenities || {})
-              .filter(k => r.amenities[k] === true)
-              .map(k => k.replace(/_/g, ' ')),
-            ...r
-          }));
-          setAllProperties(mappedRentals);
-        } else {
-          throw new Error("Failed to fetch rentals");
-        }
+        const data = await apiCall("/rentals");
+        const rentals = data.rentals || [];
+        // Map rentals to match property format
+        const mappedRentals = rentals.map(r => ({
+          _id: r._id,
+          title: r.name,
+          address: r.location,
+          city: r.location,
+          price: r.price,
+          rating: r.rating,
+          images: r.images || [],
+          propertyType: r.property_type,
+          // Convert amenities object to array of keys where value is true
+          amenities: Object.keys(r.amenities || {})
+            .filter(k => r.amenities[k] === true)
+            .map(k => k.replace(/_/g, ' ')),
+          ...r
+        }));
+        setAllProperties(mappedRentals);
       } catch (err) {
         setError(err.message);
         console.error("Error fetching properties:", err);
@@ -109,32 +105,26 @@ const Properties = () => {
           params.required_amenities = filters.amenities;
         }
         
-        const response = await fetch("http://localhost:5000/api/rentals/recommend", {
+        const data = await apiCall("/rentals/recommend", {
           method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
           body: JSON.stringify(params),
         });
-        if (response.ok) {
-          const data = await response.json();
-          // Map rentals to match property format
-          const recommendations = (data.recommendations || []).map(r => ({
-            _id: r._id,
-            title: r.name,
-            city: r.location,
-            price: r.price,
-            rating: r.rating,
-            score: r.recommendation_score || r.score || 0,
-            images: r.images || [],
-            propertyType: r.property_type,
-            amenities: Object.keys(r.amenities || {})
-              .filter(k => r.amenities[k] === true)
-              .map(k => k.replace(/_/g, ' ')),
-            ...r
-          }));
-          setAiRecommendations(recommendations);
-        }
+        // Map rentals to match property format
+        const recommendations = (data.recommendations || []).map(r => ({
+          _id: r._id,
+          title: r.name,
+          city: r.location,
+          price: r.price,
+          rating: r.rating,
+          score: r.recommendation_score || r.score || 0,
+          images: r.images || [],
+          propertyType: r.property_type,
+          amenities: Object.keys(r.amenities || {})
+            .filter(k => r.amenities[k] === true)
+            .map(k => k.replace(/_/g, ' ')),
+          ...r
+        }));
+        setAiRecommendations(recommendations);
       } catch (err) {
         console.error("Error fetching AI recommendations:", err);
       } finally {

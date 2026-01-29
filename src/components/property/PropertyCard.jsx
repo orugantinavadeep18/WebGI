@@ -4,6 +4,7 @@ import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
+import { getPropertyImageUrl, handleImageError } from "@/lib/imageUtils";
 
 // Import property images
 import property1 from "@/assets/property-1.jpg";
@@ -13,13 +14,8 @@ import property3 from "@/assets/property-3.jpg";
 const defaultImages = [property1, property2, property3];
 
 const PropertyCard = ({ property, isSaved, onToggleSave }) => {
-  // Handle both image formats: string URL or object with url property
-  let imageUrl;
-  if (property.images && property.images.length > 0) {
-    const firstImage = property.images[0];
-    imageUrl = typeof firstImage === 'string' ? firstImage : firstImage.url;
-  }
-  imageUrl = imageUrl || defaultImages[Math.floor(Math.random() * 3)];
+  // Get image URL with automatic fallback
+  const imageUrl = getPropertyImageUrl(property, 0);
 
   // Handle amenities - convert object to array if needed
   const amenitiesArray = Array.isArray(property.amenities)
@@ -56,6 +52,7 @@ const PropertyCard = ({ property, isSaved, onToggleSave }) => {
           src={imageUrl}
           alt={property.title}
           className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+          onError={(e) => handleImageError(e, defaultImages[0])}
         />
         
         {/* Badges overlay */}

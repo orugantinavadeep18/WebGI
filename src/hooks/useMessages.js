@@ -63,16 +63,22 @@ export const useMessages = () => {
       const response = await apiCall("/messages/conversations/all", {
         method: "GET",
       });
-      if (!response.ok) {
+      
+      // Check if response has success flag
+      if (response && response.success === false) {
         throw new Error(response.message || "Failed to fetch conversations");
       }
+      
       // Handle both { conversations: [...] } and [ ... ] response formats
-      const conversationsData = response.data.conversations || response.data || [];
+      const conversationsData = response?.conversations || response?.data || [];
       setConversations(conversationsData);
       return conversationsData;
     } catch (err) {
-      setError(err.message);
-      throw err;
+      console.error("Error in getConversations:", err);
+      setError(err.message || "Failed to load conversations");
+      // Return empty array instead of throwing
+      setConversations([]);
+      return [];
     } finally {
       setLoading(false);
     }

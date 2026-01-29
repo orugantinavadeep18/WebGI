@@ -43,17 +43,38 @@ export default function CreateProperty() {
   const [previews, setPreviews] = useState([]);
   const [formData, setFormData] = useState({
     title: "",
+    name: "",
     description: "",
+    about: "",
     price: "",
-    propertyType: "",
+    property_type: "hostel",
+    propertyType: "hostel",
     bedrooms: "",
     bathrooms: "",
     squareFeet: "",
     address: "",
+    location: "",
     city: "",
     state: "",
     zipCode: "",
+    capacity: 1,
+    vacancies: 1,
     amenities: [],
+    amenities_object: {
+      wifi: false,
+      food: false,
+      ac: false,
+      parking: false,
+      laundry: false,
+      power_backup: false,
+      security: false,
+      cctv: false,
+    },
+    rules: "",
+    required_documents: "",
+    owner_details: "",
+    gender_preference: "unisex",
+    sharing_type: "shared",
     status: "available",
   });
 
@@ -118,16 +139,16 @@ export default function CreateProperty() {
       !formData.title ||
       !formData.description ||
       !formData.price ||
-      !formData.propertyType ||
-      !formData.bedrooms ||
-      !formData.bathrooms ||
-      !formData.squareFeet ||
+      !formData.property_type ||
+      !formData.capacity ||
+      !formData.vacancies ||
       !formData.address ||
       !formData.city ||
       !formData.state ||
-      !formData.zipCode
+      !formData.zipCode ||
+      selectedFiles.length === 0
     ) {
-      toast.error("Please fill in all required fields");
+      toast.error("Please fill in all required fields and upload at least one image");
       return;
     }
 
@@ -136,18 +157,29 @@ export default function CreateProperty() {
 
       const propertyData = {
         title: formData.title,
+        name: formData.title,
         description: formData.description,
+        about: formData.about,
         price: parseFloat(formData.price),
-        propertyType: formData.propertyType,
-        bedrooms: parseInt(formData.bedrooms),
-        bathrooms: parseInt(formData.bathrooms),
-        squareFeet: parseInt(formData.squareFeet),
+        property_type: formData.property_type,
+        capacity: parseInt(formData.capacity),
+        vacancies: parseInt(formData.vacancies),
         address: formData.address,
+        location: formData.location || formData.address,
         city: formData.city,
         state: formData.state,
         zipCode: formData.zipCode,
         amenities: formData.amenities,
+        amenities_object: formData.amenities_object,
+        rules: formData.rules,
+        required_documents: formData.required_documents,
+        owner_details: formData.owner_details,
+        gender_preference: formData.gender_preference,
+        sharing_type: formData.sharing_type,
         status: formData.status,
+        bedrooms: parseInt(formData.bedrooms || 0),
+        bathrooms: parseInt(formData.bathrooms || 0),
+        squareFeet: parseInt(formData.squareFeet || 0),
       };
 
       const response = await createProperty(propertyData);
@@ -393,10 +425,128 @@ export default function CreateProperty() {
             </div>
           </div>
 
-          {/* Amenities and Status */}
+          {/* About and Additional Details */}
           <div className="space-y-4">
             <div>
-              <Label>Amenities</Label>
+              <Label htmlFor="about">About This Property</Label>
+              <textarea
+                id="about"
+                name="about"
+                value={formData.about}
+                onChange={handleChange}
+                placeholder="Tell us more about this property, its unique features, and highlights..."
+                rows={3}
+                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+              />
+            </div>
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div>
+                <Label htmlFor="capacity">Capacity (No. of People) *</Label>
+                <Input
+                  id="capacity"
+                  name="capacity"
+                  type="number"
+                  value={formData.capacity}
+                  onChange={handleChange}
+                  placeholder="Total capacity"
+                  required
+                />
+              </div>
+
+              <div>
+                <Label htmlFor="vacancies">Available Vacancies *</Label>
+                <Input
+                  id="vacancies"
+                  name="vacancies"
+                  type="number"
+                  value={formData.vacancies}
+                  onChange={handleChange}
+                  placeholder="Number of rooms available"
+                  required
+                />
+              </div>
+            </div>
+          </div>
+
+          {/* Sharing Type and Gender Preference */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div>
+              <Label htmlFor="sharing_type">Sharing Type</Label>
+              <Select
+                value={formData.sharing_type}
+                onValueChange={(value) => handleSelectChange("sharing_type", value)}
+              >
+                <SelectTrigger>
+                  <SelectValue placeholder="Select sharing type" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="single">Single Room</SelectItem>
+                  <SelectItem value="double">Double Sharing</SelectItem>
+                  <SelectItem value="triple">Triple Sharing</SelectItem>
+                  <SelectItem value="shared">Shared Dormitory</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+
+            <div>
+              <Label htmlFor="gender_preference">Gender Preference</Label>
+              <Select
+                value={formData.gender_preference}
+                onValueChange={(value) => handleSelectChange("gender_preference", value)}
+              >
+                <SelectTrigger>
+                  <SelectValue placeholder="Select preference" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="unisex">Unisex (All Welcome)</SelectItem>
+                  <SelectItem value="male">Males Only</SelectItem>
+                  <SelectItem value="female">Females Only</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+          </div>
+
+          {/* Amenities and Facilities */}
+          <div className="space-y-4 border-t pt-6">
+            <div>
+              <Label>Amenities & Facilities</Label>
+              <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mt-2 p-4 bg-gray-50 rounded-lg">
+                {[
+                  { id: 'wifi', label: '📡 WiFi', icon: '🌐' },
+                  { id: 'food', label: '🍱 Food Available', icon: '🍽️' },
+                  { id: 'ac', label: '❄️ Air Conditioning', icon: '🌡️' },
+                  { id: 'parking', label: '🚗 Parking', icon: '🅿️' },
+                  { id: 'laundry', label: '👔 Laundry', icon: '🧺' },
+                  { id: 'power_backup', label: '⚡ Power Backup', icon: '🔋' },
+                  { id: 'security', label: '🔒 Security', icon: '🛡️' },
+                  { id: 'cctv', label: '📹 CCTV', icon: '📽️' },
+                ].map((amenity) => (
+                  <div key={amenity.id} className="flex items-center space-x-2">
+                    <Checkbox
+                      id={amenity.id}
+                      checked={formData.amenities_object?.[amenity.id] || false}
+                      onCheckedChange={(checked) => {
+                        setFormData({
+                          ...formData,
+                          amenities_object: {
+                            ...formData.amenities_object,
+                            [amenity.id]: checked
+                          }
+                        });
+                      }}
+                    />
+                    <label htmlFor={amenity.id} className="text-sm cursor-pointer">
+                      {amenity.label}
+                    </label>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            {/* Old Amenities Selection */}
+            <div>
+              <Label>Additional Amenities (Tags)</Label>
               <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3 mt-2 p-4 bg-gray-50 rounded-lg">
                 {AVAILABLE_AMENITIES.map((amenity) => (
                   <div key={amenity} className="flex items-center space-x-2">
@@ -426,23 +576,66 @@ export default function CreateProperty() {
                 ))}
               </div>
             </div>
+          </div>
+
+          {/* Rules and Documents */}
+          <div className="space-y-4 border-t pt-6">
+            <div>
+              <Label htmlFor="rules">House Rules</Label>
+              <textarea
+                id="rules"
+                name="rules"
+                value={formData.rules}
+                onChange={handleChange}
+                placeholder="e.g., No smoking, Quiet hours after 10 PM, No guests after 11 PM, etc."
+                rows={3}
+                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+              />
+            </div>
 
             <div>
-              <Label htmlFor="status">Status *</Label>
-              <Select
-                value={formData.status}
-                onValueChange={(value) => handleSelectChange("status", value)}
-              >
-                <SelectTrigger>
-                  <SelectValue placeholder="Select status" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="available">Available</SelectItem>
-                  <SelectItem value="sold">Sold</SelectItem>
-                  <SelectItem value="pending">Pending</SelectItem>
-                </SelectContent>
-              </Select>
+              <Label htmlFor="required_documents">Required Documents</Label>
+              <textarea
+                id="required_documents"
+                name="required_documents"
+                value={formData.required_documents}
+                onChange={handleChange}
+                placeholder="e.g., ID Proof, Aadhaar Card, Previous Rental Agreement, Deposit Receipt, etc."
+                rows={3}
+                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+              />
             </div>
+
+            <div>
+              <Label htmlFor="owner_details">Owner/Manager Details</Label>
+              <textarea
+                id="owner_details"
+                name="owner_details"
+                value={formData.owner_details}
+                onChange={handleChange}
+                placeholder="Your name, phone number, email, and preferred contact method..."
+                rows={3}
+                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+              />
+            </div>
+          </div>
+
+          {/* Status */}
+          <div>
+            <Label htmlFor="status">Status *</Label>
+            <Select
+              value={formData.status}
+              onValueChange={(value) => handleSelectChange("status", value)}
+            >
+              <SelectTrigger>
+                <SelectValue placeholder="Select status" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="available">Available</SelectItem>
+                <SelectItem value="sold">Sold</SelectItem>
+                <SelectItem value="pending">Pending</SelectItem>
+              </SelectContent>
+            </Select>
           </div>
 
           {/* Images */}

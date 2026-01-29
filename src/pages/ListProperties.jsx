@@ -4,9 +4,10 @@ import { useAuth } from "@/hooks/useAuth";
 import { useProperties } from "../hooks/useProperties";
 import { Button } from "../components/ui/button";
 import { Card } from "../components/ui/card";
-import { Edit2, Trash2, Plus, Upload, Eye, MapPin, ArrowLeft } from "lucide-react";
+import { Edit2, Trash2, Plus, Upload, Eye, MapPin, ArrowLeft, RefreshCw } from "lucide-react";
 import PropertyImageUpload from "../components/property/PropertyImageUpload";
 import PropertyEditForm from "../components/property/PropertyEditForm";
+import { getPropertyImageUrl, handleImageError } from "@/lib/imageUtils";
 
 export default function ListProperties() {
   const navigate = useNavigate();
@@ -123,13 +124,24 @@ export default function ListProperties() {
               Manage and showcase your listings
             </p>
           </div>
-          <Button
-            onClick={() => navigate("/create-property")}
-            className="bg-blue-600 hover:bg-blue-700 text-white flex items-center gap-2"
-          >
-            <Plus size={20} />
-            List New Property
-          </Button>
+          <div className="flex gap-2">
+            <Button
+              onClick={fetchProperties}
+              variant="outline"
+              className="flex items-center gap-2"
+              disabled={loading}
+            >
+              <RefreshCw size={20} className={loading ? "animate-spin" : ""} />
+              Refresh
+            </Button>
+            <Button
+              onClick={() => navigate("/create-property")}
+              className="bg-blue-600 hover:bg-blue-700 text-white flex items-center gap-2"
+            >
+              <Plus size={20} />
+              List New Property
+            </Button>
+          </div>
         </div>
 
         {/* Stats */}
@@ -266,89 +278,165 @@ export default function ListProperties() {
   );
 }
 
-// Property Card Component
+// Property Card Component - Admin View with Full Details
 function PropertyCard({ property, onEdit, onUploadImages, onDelete, onView }) {
+  const propertyTypeLabels = {
+    hostel: "Hostel",
+    pg: "PG",
+    others: "Other",
+    apartment: "Apartment",
+    house: "House",
+    villa: "Villa",
+  };
+
+  // Get image URL with fallback
+  const imageUrl = getPropertyImageUrl(property, 0);
+
   return (
     <Card className="overflow-hidden hover:shadow-lg transition-shadow">
       {/* Image */}
-      <div className="relative h-40 bg-gray-200 overflow-hidden">
-        {property.images && property.images.length > 0 ? (
-          <img
-            src={property.images[0].url}
-            alt={property.title}
-            className="w-full h-full object-cover hover:scale-105 transition-transform"
-          />
-        ) : (
-          <div className="w-full h-full flex items-center justify-center bg-gray-300">
-            <Upload className="text-gray-400" size={32} />
-          </div>
-        )}
+      <div className="relative h-48 bg-gray-200 overflow-hidden">
+        <img
+          src={imageUrl}
+          alt={property.title}
+          className="w-full h-full object-cover hover:scale-105 transition-transform"
+          onError={(e) => handleImageError(e, 'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" width="400" height="300"%3E%3Crect fill="%23E5E7EB" width="400" height="300"/%3E%3C/svg%3E')}
+        />
         <div className="absolute top-2 right-2 bg-blue-600 text-white px-3 py-1 rounded-full text-sm font-semibold">
-          ₹{(property.price / 100000).toFixed(1)}L
+          ₹{property.price?.toLocaleString() || 'N/A'}/mo
         </div>
-        <div className="absolute bottom-2 left-2 bg-black bg-opacity-60 text-white px-2 py-1 rounded text-xs">
+        <div className="absolute bottom-2 left-2 bg-black bg-opacity-70 text-white px-2 py-1 rounded text-xs font-semibold">
           {property.images?.length || 0} photos
         </div>
+        {property.status && (
+          <div className="absolute top-2 left-2 bg-green-500 text-white px-2 py-1 rounded text-xs font-bold uppercase">
+            {property.status}
+          </div>
+        )}
       </div>
 
       {/* Content */}
-      <div className="p-4">
-        <h3 className="text-lg font-bold text-gray-900 mb-1 truncate">
-          {property.title}
-        </h3>
-        <p className="text-sm text-gray-600 mb-3 flex items-center gap-1">
-          <MapPin size={14} />
-          {property.city}, {property.state}
-        </p>
+      <div className="p-4 space-y-3">
+        {/* Title and ID */}
+        <div>
+          <h3 className="text-lg font-bold text-gray-900 truncate">
+            {property.title || property.name}
+          </h3>
+          <p className="text-xs text-gray-500 font-mono">ID: {property._id?.slice(-8)}</p>
+        </div>
 
-        {/* Property Details */}
-        <div className="grid grid-cols-3 gap-2 mb-4 text-center text-sm">
-          <div className="bg-gray-50 p-2 rounded">
-            <p className="text-gray-600">Beds</p>
-            <p className="font-semibold">{property.bedrooms}</p>
+        {/* Location and About */}
+        <div>
+          <p className="text-sm text-gray-700 font-semibold flex items-center gap-1 mb-1">
+            <MapPin size={14} />
+            {property.city}, {property.state || 'N/A'}
+          </p>
+          <p className="text-xs text-gray-600 line-clamp-2">
+            📍 {property.location || property.address || 'Address not specified'}
+          </p>
+        </div>
+
+        {/* Description/About */}
+        {property.description && (
+          <p className="text-xs text-gray-600 line-clamp-2 bg-gray-50 p-2 rounded">
+            {property.description}
+          </p>
+        )}
+
+        {/* Key Details Grid */}
+        <div className="grid grid-cols-3 gap-2 text-center text-xs">
+          <div className="bg-blue-50 p-2 rounded border border-blue-200">
+            <p className="text-gray-600 text-xs">Type</p>
+            <p className="font-bold text-gray-800 capitalize">
+              {propertyTypeLabels[property.property_type] || propertyTypeLabels[property.propertyType] || 'N/A'}
+            </p>
           </div>
-          <div className="bg-gray-50 p-2 rounded">
-            <p className="text-gray-600">Bath</p>
-            <p className="font-semibold">{property.bathrooms}</p>
+          <div className="bg-purple-50 p-2 rounded border border-purple-200">
+            <p className="text-gray-600 text-xs">Capacity</p>
+            <p className="font-bold text-gray-800">
+              {property.capacity ? `${property.capacity} ppl` : 'N/A'}
+            </p>
           </div>
-          <div className="bg-gray-50 p-2 rounded">
-            <p className="text-gray-600">Views</p>
-            <p className="font-semibold">{property.views || 0}</p>
+          <div className="bg-orange-50 p-2 rounded border border-orange-200">
+            <p className="text-gray-600 text-xs">Vacancies</p>
+            <p className="font-bold text-gray-800">
+              {property.vacancies !== undefined ? property.vacancies : 'N/A'}
+            </p>
           </div>
         </div>
 
-        {/* Description */}
-        <p className="text-sm text-gray-600 mb-4 line-clamp-2">
-          {property.description}
-        </p>
+        {/* Amenities */}
+        {property.amenities && property.amenities.length > 0 && (
+          <div>
+            <p className="text-xs font-semibold text-gray-700 mb-1">🏠 Amenities</p>
+            <div className="flex flex-wrap gap-1">
+              {(Array.isArray(property.amenities) 
+                ? property.amenities 
+                : Object.keys(property.amenities || {})
+                    .filter(k => property.amenities[k] === true)
+                    .map(k => k.replace(/_/g, ' '))
+              ).slice(0, 4).map((amenity, idx) => (
+                <span key={idx} className="bg-green-100 text-green-800 text-xs px-2 py-1 rounded">
+                  {amenity}
+                </span>
+              ))}
+              {(Array.isArray(property.amenities) ? property.amenities.length : Object.values(property.amenities || {}).filter(v => v).length) > 4 && (
+                <span className="text-xs text-gray-600">+more</span>
+              )}
+            </div>
+          </div>
+        )}
 
-        {/* Status */}
-        <div className="mb-4">
-          <span
-            className={`inline-block px-3 py-1 rounded-full text-xs font-semibold ${
-              property.status === "available"
-                ? "bg-green-100 text-green-800"
-                : "bg-yellow-100 text-yellow-800"
-            }`}
-          >
-            {property.status || "Available"}
-          </span>
+        {/* Rules & Documents */}
+        <div className="grid grid-cols-2 gap-2 text-xs">
+          {property.rules && (
+            <div className="bg-yellow-50 p-2 rounded border border-yellow-200">
+              <p className="text-gray-700">📋 Rules: {property.rules.substring(0, 20)}...</p>
+            </div>
+          )}
+          {property.required_documents && (
+            <div className="bg-red-50 p-2 rounded border border-red-200">
+              <p className="text-gray-700">📄 Docs: {property.required_documents.substring(0, 20)}...</p>
+            </div>
+          )}
+        </div>
+
+        {/* Owner Details & Rating */}
+        <div className="grid grid-cols-2 gap-2 text-xs">
+          {property.owner_details && (
+            <div className="bg-indigo-50 p-2 rounded border border-indigo-200">
+              <p className="text-gray-600">👤 Owner</p>
+              <p className="font-semibold text-gray-800 truncate">{property.owner_details.substring(0, 20)}</p>
+            </div>
+          )}
+          {property.rating !== undefined && (
+            <div className="bg-yellow-50 p-2 rounded border border-yellow-200">
+              <p className="text-gray-600">⭐ Rating</p>
+              <p className="font-bold text-yellow-700">{property.rating > 0 ? property.rating.toFixed(1) : 'N/A'}</p>
+            </div>
+          )}
+        </div>
+
+        {/* Views Counter */}
+        <div className="text-xs text-center text-gray-500 bg-gray-50 p-2 rounded">
+          👁️ {property.views || 0} views
         </div>
 
         {/* Actions */}
-        <div className="grid grid-cols-2 gap-2">
+        <div className="grid grid-cols-2 gap-2 pt-2 border-t">
           <Button
             onClick={onView}
             variant="outline"
-            className="text-xs"
+            className="text-xs h-8"
             size="sm"
           >
+            <Eye size={14} className="mr-1" />
             View
           </Button>
           <Button
             onClick={onUploadImages}
             variant="outline"
-            className="text-xs"
+            className="text-xs h-8"
             size="sm"
           >
             <Upload size={14} className="mr-1" />
@@ -357,7 +445,7 @@ function PropertyCard({ property, onEdit, onUploadImages, onDelete, onView }) {
           <Button
             onClick={onEdit}
             variant="outline"
-            className="text-xs"
+            className="text-xs h-8"
             size="sm"
           >
             <Edit2 size={14} className="mr-1" />
@@ -366,7 +454,7 @@ function PropertyCard({ property, onEdit, onUploadImages, onDelete, onView }) {
           <Button
             onClick={onDelete}
             variant="outline"
-            className="text-xs text-red-600 hover:bg-red-50"
+            className="text-xs h-8 text-red-600 hover:bg-red-50"
             size="sm"
           >
             <Trash2 size={14} className="mr-1" />
