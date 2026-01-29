@@ -17,16 +17,11 @@ import { ArrowLeft, Upload, X } from "lucide-react";
 import { toast } from "sonner";
 
 const AVAILABLE_AMENITIES = [
-  "WiFi",
-  "Parking",
   "Gym",
   "Pool",
   "Garden",
   "Balcony",
-  "AC",
   "Microwave",
-  "Washing Machine",
-  "Dishwasher",
   "TV",
   "Security",
   "Elevator",
