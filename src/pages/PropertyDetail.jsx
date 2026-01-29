@@ -25,6 +25,7 @@ import { toast } from "sonner";
 import { useAuth } from "@/hooks/useAuth";
 import { useProperties } from "@/hooks/useProperties";
 import ReviewSystem from "@/components/property/ReviewSystem";
+import BookingModal from "@/components/property/BookingModal";
 import { getPropertyImageUrls, handleImageError } from "@/lib/imageUtils";
 
 // Import demo images
@@ -44,6 +45,7 @@ const PropertyDetail = () => {
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const [isSaved, setIsSaved] = useState(false);
   const [showContactModal, setShowContactModal] = useState(false);
+  const [showBookingModal, setShowBookingModal] = useState(false);
   const [seller, setSeller] = useState(null);
 
   // Fetch property data
@@ -161,19 +163,18 @@ const PropertyDetail = () => {
 
   const handleContactSeller = () => {
     if (!user) {
-      toast.error("Please sign in to contact seller");
+      toast.error("Please sign in to message seller");
       return;
     }
-    // Navigate to messaging/chat page
     navigate(`/messages/${seller?.id}`);
   };
 
-  const handleInquiry = () => {
+  const handleBookNow = () => {
     if (!user) {
-      toast.error("Please sign in to send inquiry");
+      toast.error("Please sign in to book property");
       return;
     }
-    setShowContactModal(true);
+    setShowBookingModal(true);
   };
 
   const propertyTypeLabels = {
@@ -364,24 +365,6 @@ const PropertyDetail = () => {
 
                   </div>
                 )}
-              </TabsContent>
-
-              <TabsContent value="amenities" className="space-y-6">
-                <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
-                  {property.amenities && property.amenities.length > 0 ? (
-                    property.amenities.map((amenity, index) => (
-                      <div
-                        key={index}
-                        className="flex items-center gap-3 p-4 rounded-lg bg-secondary"
-                      >
-                        <Check className="h-5 w-5 text-accent" />
-                        <span className="font-medium capitalize">{amenity}</span>
-                      </div>
-                    ))
-                  ) : (
-                    <p className="text-muted-foreground col-span-full">No amenities listed</p>
-                  )}
-                </div>
               </TabsContent>
 
               <TabsContent value="details" className="space-y-6">
@@ -582,18 +565,18 @@ const PropertyDetail = () => {
                   <div className="space-y-3">
                     <Button 
                       className="w-full gap-2"
-                      onClick={handleContactSeller}
+                      onClick={handleBookNow}
                     >
-                      <MessageCircle className="h-4 w-4" />
-                      Message Seller
+                      <BookOpen className="h-4 w-4" />
+                      Book This Property
                     </Button>
                     <Button 
                       variant="outline"
                       className="w-full gap-2"
-                      onClick={handleInquiry}
+                      onClick={handleContactSeller}
                     >
-                      <BookOpen className="h-4 w-4" />
-                      Send Inquiry
+                      <MessageCircle className="h-4 w-4" />
+                      Message Seller
                     </Button>
                   </div>
                 </div>
@@ -649,6 +632,17 @@ const PropertyDetail = () => {
             </div>
           </div>
         </div>
+
+        {/* Booking Modal */}
+        <BookingModal 
+          property={property}
+          isOpen={showBookingModal}
+          onClose={() => setShowBookingModal(false)}
+          onSuccess={() => {
+            setShowBookingModal(false);
+            toast.success("Booking request sent! The owner will review it shortly.");
+          }}
+        />
       </div>
     </Layout>
   );

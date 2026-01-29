@@ -44,6 +44,16 @@ const userSchema = new mongoose.Schema(
     bio: {
       type: String,
     },
+    securityQuestion: {
+      type: String,
+      required: [true, "Please select a security question"],
+    },
+    securityAnswer: {
+      type: String,
+      required: [true, "Please provide a security answer"],
+      lowercase: true,
+      minlength: 2,
+    },
     isVerified: {
       type: Boolean,
       default: false,

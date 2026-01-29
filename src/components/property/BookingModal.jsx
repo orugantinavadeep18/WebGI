@@ -126,8 +126,14 @@ export default function BookingModal({ property, isOpen, onClose, onSuccess }) {
           {nights > 0 && (
             <div className="bg-gray-100 p-3 rounded-md">
               <div className="flex justify-between text-sm mb-2">
-                <span>₹{property?.price} × {nights} nights</span>
-                <span className="font-semibold">₹{totalPrice}</span>
+                <span>
+                  ₹{(Number(property?.price) / 30).toFixed(2)} × {Number(nights)} nights
+                </span>
+
+                <span className="font-semibold">
+                  ₹{(Number(totalPrice) / 30).toFixed(2)}
+              </span>
+
               </div>
               <p className="text-xs text-gray-600">Total price</p>
             </div>

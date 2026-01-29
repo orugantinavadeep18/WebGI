@@ -6,6 +6,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useAuth } from "@/hooks/useAuth";
+import { toast } from "sonner";
 
 const Auth = () => {
   const navigate = useNavigate();
@@ -21,6 +22,20 @@ const Auth = () => {
   const [signUpName, setSignUpName] = useState("");
   const [signUpEmail, setSignUpEmail] = useState("");
   const [signUpPassword, setSignUpPassword] = useState("");
+  const [signUpVerifyPassword, setSignUpVerifyPassword] = useState("");
+  const [signUpSecurityQuestion, setSignUpSecurityQuestion] = useState("");
+  const [signUpSecurityAnswer, setSignUpSecurityAnswer] = useState("");
+
+  const securityQuestions = [
+    "What is your mother's maiden name?",
+    "What was the name of your first pet?",
+    "In what city were you born?",
+    "What is your favorite book?",
+    "What was the name of your first school?",
+    "What is your favorite movie?",
+    "What was your first job title?",
+    "What is the name of the street you grew up on?",
+  ];
 
   const handleSignIn = async (e) => {
     e.preventDefault();
@@ -37,9 +52,39 @@ const Auth = () => {
 
   const handleSignUp = async (e) => {
     e.preventDefault();
+    
+    // Validate passwords match
+    if (signUpPassword !== signUpVerifyPassword) {
+      toast.error("Passwords do not match");
+      return;
+    }
+
+    // Validate password length
+    if (signUpPassword.length < 6) {
+      toast.error("Password must be at least 6 characters");
+      return;
+    }
+
+    // Validate security question and answer
+    if (!signUpSecurityQuestion) {
+      toast.error("Please select a security question");
+      return;
+    }
+
+    if (!signUpSecurityAnswer.trim()) {
+      toast.error("Please provide an answer to the security question");
+      return;
+    }
+
     setLoading(true);
     try {
-      await signUp(signUpEmail, signUpPassword, signUpName);
+      await signUp(
+        signUpEmail, 
+        signUpPassword, 
+        signUpName,
+        signUpSecurityQuestion,
+        signUpSecurityAnswer
+      );
       navigate("/");
     } catch (error) {
       // Error is handled in useAuth
@@ -206,10 +251,79 @@ const Auth = () => {
                   </p>
                 </div>
 
+                <div className="space-y-2">
+                  <Label htmlFor="signup-verify-password">Verify Password</Label>
+                  <div className="relative">
+                    <Lock className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                    <Input
+                      id="signup-verify-password"
+                      type={showPassword ? "text" : "password"}
+                      placeholder="••••••••"
+                      value={signUpVerifyPassword}
+                      onChange={(e) => setSignUpVerifyPassword(e.target.value)}
+                      className="pl-10 pr-10"
+                      required
+                      minLength={6}
+                    />
+                    <button
+                      type="button"
+                      onClick={() => setShowPassword(!showPassword)}
+                      className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
+                    >
+                      {showPassword ? (
+                        <EyeOff className="h-4 w-4" />
+                      ) : (
+                        <Eye className="h-4 w-4" />
+                      )}
+                    </button>
+                  </div>
+                  {signUpPassword && signUpVerifyPassword && (
+                    <p className={`text-xs ${signUpPassword === signUpVerifyPassword ? "text-green-600" : "text-red-600"}`}>
+                      {signUpPassword === signUpVerifyPassword ? "✓ Passwords match" : "✗ Passwords do not match"}
+                    </p>
+                  )}
+                </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor="security-question">Security Question</Label>
+                  <select
+                    id="security-question"
+                    value={signUpSecurityQuestion}
+                    onChange={(e) => setSignUpSecurityQuestion(e.target.value)}
+                    className="w-full h-10 rounded-md border border-input bg-background px-3 text-sm shadow-sm focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
+                    required
+                  >
+                    <option value="">Select a security question</option>
+                    {securityQuestions.map((question) => (
+                      <option key={question} value={question}>
+                        {question}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor="security-answer">Answer</Label>
+                  <div className="relative">
+                    <Input
+                      id="security-answer"
+                      type="text"
+                      placeholder="Your answer"
+                      value={signUpSecurityAnswer}
+                      onChange={(e) => setSignUpSecurityAnswer(e.target.value)}
+                      className="px-3"
+                      required
+                    />
+                  </div>
+                  <p className="text-xs text-muted-foreground">
+                    (This will help you recover your account if you forget your password)
+                  </p>
+                </div>
+
                 <Button
                   type="submit"
                   className="w-full bg-accent hover:bg-accent/90 text-accent-foreground"
-                  disabled={loading}
+                  disabled={loading || signUpPassword !== signUpVerifyPassword || !signUpPassword}
                 >
                   {loading ? "Creating account..." : "Create Account"}
                 </Button>
