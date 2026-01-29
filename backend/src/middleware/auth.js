@@ -18,7 +18,6 @@ export const authenticateToken = async (req, res, next) => {
       return res.status(401).json({ message: "Invalid token format" });
     }
 
-    console.log(`✓ Token verified successfully for user: ${decoded.email}`);
     
     // Extract user information from our JWT
     // Our tokens have 'id' and 'email' fields
@@ -27,7 +26,6 @@ export const authenticateToken = async (req, res, next) => {
         id: decoded.id,
         email: decoded.email,
       };
-      console.log(`✓ User authenticated: ${req.user.email} (${req.user.id})`);
       return next();
     }
 

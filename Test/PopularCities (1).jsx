@@ -25,20 +25,18 @@ const PopularCities = () => {
         
         if (response.ok) {
           const data = await response.json();
-          console.log("✅ Raw city counts from API:", data);
+          console.log("✅ City counts from API:", data);
           
-          // Create a case-insensitive map by storing lowercase keys
+          // Create a case-insensitive map
           const countsMap = {};
           data.forEach(item => {
             if (item.city && item.city.trim()) {
-              // Store with lowercase key for case-insensitive lookup
-              const lowerCity = item.city.toLowerCase().trim();
-              countsMap[lowerCity] = item.count;
-              console.log(`  📌 Mapping: "${lowerCity}" => ${item.count}`);
+              const normalizedCity = item.city.toLowerCase().trim();
+              countsMap[normalizedCity] = item.count;
             }
           });
           
-          console.log("✅ Final counts map:", countsMap);
+          console.log("✅ Processed counts map:", countsMap);
           setCityCounts(countsMap);
         } else {
           console.error("❌ API response not OK:", response.status);

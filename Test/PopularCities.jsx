@@ -25,26 +25,25 @@ const PopularCities = () => {
         
         if (response.ok) {
           const data = await response.json();
-          console.log("✅ Raw city counts from API:", data);
+          console.log("City counts from API:", data); // Debug log
           
-          // Create a case-insensitive map by storing lowercase keys
+          // Convert array of {city, count} to object {cityName: count}
+          // Make it case-insensitive by converting to lowercase keys
           const countsMap = {};
           data.forEach(item => {
-            if (item.city && item.city.trim()) {
-              // Store with lowercase key for case-insensitive lookup
-              const lowerCity = item.city.toLowerCase().trim();
-              countsMap[lowerCity] = item.count;
-              console.log(`  📌 Mapping: "${lowerCity}" => ${item.count}`);
-            }
+            // Store with both original and lowercase versions
+            countsMap[item.city] = item.count;
+            countsMap[item.city.toLowerCase()] = item.count;
+            // Also handle capitalized version
+            const capitalized = item.city.charAt(0).toUpperCase() + item.city.slice(1).toLowerCase();
+            countsMap[capitalized] = item.count;
           });
           
-          console.log("✅ Final counts map:", countsMap);
+          console.log("Processed city counts:", countsMap); // Debug log
           setCityCounts(countsMap);
-        } else {
-          console.error("❌ API response not OK:", response.status);
         }
       } catch (error) {
-        console.error("❌ Error fetching city counts:", error);
+        console.error("Error fetching city counts:", error);
       } finally {
         setLoading(false);
       }
@@ -76,11 +75,7 @@ const PopularCities = () => {
 
         <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
           {popularCities.map((city, index) => {
-            // Normalize city name for lookup
-            const normalizedCityName = city.name.toLowerCase().trim();
-            const propertyCount = cityCounts[normalizedCityName] || 0;
-            
-            console.log(`🔍 Checking ${city.name} (${normalizedCityName}): ${propertyCount} properties`);
+            const propertyCount = cityCounts[city.name] || 0;
             
             return (
               <motion.div
