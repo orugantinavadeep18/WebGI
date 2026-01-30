@@ -75,6 +75,27 @@ def health():
         "mongo_connected": collection is not None
     }
 
+@app.get("/test-demo-data")
+def test_demo_data():
+    """Test endpoint to check demo data generation"""
+    try:
+        bangalore = get_demo_data("Bangalore")
+        hyderabad = get_demo_data("Hyderabad")
+        mumbai = get_demo_data("Mumbai")
+        
+        all_demo = bangalore + hyderabad + mumbai
+        
+        return {
+            "bangalore_count": len(bangalore),
+            "hyderabad_count": len(hyderabad),
+            "mumbai_count": len(mumbai),
+            "total_demo": len(all_demo),
+            "sample": all_demo[:2] if all_demo else []
+        }
+    except Exception as e:
+        logger.error(f"Error in test demo data: {e}")
+        return {"error": str(e)}
+
 def get_demo_data(city: str):
     """Return demo property data for testing without MongoDB"""
     demo_properties = {
@@ -178,81 +199,164 @@ def get_demo_data(city: str):
 
 @app.get("/recommend")
 def recommend(
-    city: str = "Bangalore",
-    max_budget: int = 10000,
+    city: str = "all",
+    max_budget: int = 500000,
     top_k: int = 5
 ):
-    """Get recommendations for properties based on budget from entire database"""
+    """Score ALL properties in MongoDB using best_model.pkl, save to recommendations.json"""
     try:
-        # Fetch from entire database, not just the specified city
-        # This gives better recommendations by considering all properties
-        if collection is not None:
-            raw_data = list(collection.find(
-                {},  # No city filter - query all properties
-                {"_id": 1, "price": 1, "rating": 1, "capacity": 1, "amenities": 1, "name": 1, "city": 1}
-            ).limit(500))  # Increased limit to query more properties from entire DB
-            
-            # Convert ObjectId to string immediately
-            for item in raw_data:
-                if "_id" in item:
-                    item["_id"] = str(item["_id"])
-            
-            data = raw_data
+        # Handle "all cities" case
+        if city.lower() in ["all", "all cities", "*", ""]:
+            city_display = "All Cities"
+            logger.info(f"🎯 Scoring ALL properties from ALL CITIES (budget: ₹{max_budget}, top_k: {top_k}) using best_model.pkl")
+            city_filter = {}  # No filter = get all cities
         else:
+            city_display = city
+            logger.info(f"🎯 Scoring ALL properties in {city} (budget: ₹{max_budget}, top_k: {top_k}) using best_model.pkl")
+            city_filter = {"city": {"$regex": city, "$options": "i"}}
+        
+        # Fetch ALL properties from MongoDB
+        if collection is not None:
+            try:
+                logger.info(f"🔍 Querying MongoDB with filter: {city_filter}")
+                raw_data = list(collection.find(city_filter).limit(5000))
+                
+                logger.info(f"📊 Found {len(raw_data)} properties in MongoDB for: {city_display}")
+                
+                # Convert ObjectId to string immediately
+                for item in raw_data:
+                    if "_id" in item:
+                        item["_id"] = str(item["_id"])
+                
+                data = raw_data
+            except Exception as db_error:
+                logger.error(f"❌ Database error: {db_error}")
+                data = []
+        else:
+            logger.warning("⚠️ MongoDB not connected, will use demo data")
             data = []
         
         # Fallback to demo data if no data found
         if len(data) == 0:
-            logger.info(f"No data found in MongoDB, using demo data")
-            data = get_demo_data(city)
+            logger.info(f"📌 No data in MongoDB, generating demo data for: {city_display}")
+            if city.lower() in ["all", "all cities", "*", ""]:
+                # Demo data for all cities
+                logger.info("📝 Creating demo data for all cities")
+                demo_bangalore = get_demo_data("Bangalore")
+                demo_hyderabad = get_demo_data("Hyderabad")
+                demo_mumbai = get_demo_data("Mumbai")
+                
+                logger.info(f"   - Bangalore: {len(demo_bangalore)} properties")
+                logger.info(f"   - Hyderabad: {len(demo_hyderabad)} properties")
+                logger.info(f"   - Mumbai: {len(demo_mumbai)} properties")
+                
+                data = demo_bangalore + demo_hyderabad + demo_mumbai
+                logger.info(f"✅ Total demo data: {len(data)} properties")
+            else:
+                data = get_demo_data(city)
+                logger.info(f"✅ Generated {len(data)} demo properties for: {city}")
 
         if len(data) == 0:
-            return {"recommendations": [], "message": f"No properties found", "mode": "demo"}
+            logger.warning(f"❌ No properties available for: {city_display}")
+            return {
+                "recommendations": [],
+                "all_scored_properties": [],
+                "total_properties_scored": 0,
+                "message": f"No properties found for: {city_display}",
+                "mode": "error"
+            }
 
         df = pd.DataFrame(data)
+        logger.info(f"📊 Processing {len(df)} properties for: {city_display}")
 
-        # Fast filtering using numpy - filter by budget only
-        if "price" in df.columns:
-            mask = df["price"].fillna(0) <= max_budget
-            df = df[mask]
-        
-        if df.empty:
-            return {"recommendations": [], "message": "No properties match your budget", "mode": "demo"}
+        # Use the pre-trained model if available
+        if model is not None:
+            try:
+                logger.info("🤖 Using best_model.pkl for scoring")
+                # Preprocess data for model
+                df_processed = preprocess(df.copy())
+                
+                # Select features for model
+                available_features = [f for f in feature_names if f in df_processed.columns]
+                if available_features:
+                    X = df_processed.copy()
+                    # Ensure all required features exist
+                    for feat in feature_names:
+                        if feat not in X.columns:
+                            X[feat] = 0
+                    
+                    X = X[feature_names]
+                    df["score"] = model.predict(X)
+                    logger.info(f"✅ Model scoring completed - scores range: {df['score'].min():.2f} to {df['score'].max():.2f}")
+                else:
+                    # Fallback to simple scoring
+                    logger.warning("No matching features found, using fallback scoring")
+                    df["score"] = (
+                        df.get("rating", pd.Series([0]*len(df))).fillna(0) * 0.7 +
+                        (df.get("capacity", pd.Series([1]*len(df))).fillna(1) / 10) * 0.3
+                    )
+            except Exception as e:
+                logger.warning(f"Model scoring failed: {e}, using fallback scoring")
+                # Fallback to simple scoring
+                df["score"] = (
+                    df.get("rating", pd.Series([0]*len(df))).fillna(0) * 0.7 +
+                    (df.get("capacity", pd.Series([1]*len(df))).fillna(1) / 10) * 0.3
+                )
+        else:
+            logger.info("📉 Model not loaded, using fallback scoring formula")
+            # Fallback scoring: rating (70%) + capacity (30%)
+            df["score"] = (
+                df.get("rating", pd.Series([0]*len(df))).fillna(0) * 0.7 +
+                (df.get("capacity", pd.Series([1]*len(df))).fillna(1) / 10) * 0.3
+            )
 
-        # Fast scoring without model (vectorized)
-        df["score"] = (
-            df.get("rating", pd.Series([0]*len(df))).fillna(0) * 0.7 +
-            (df.get("capacity", pd.Series([1]*len(df))).fillna(1) / 10) * 0.3
-        )
-
-        # Sort and get top K
-        result = df.nlargest(top_k, "score")
+        # Sort by score descending
+        df_sorted = df.sort_values("score", ascending=False)
         
         # Ensure _id exists for all results
-        if "_id" not in result.columns:
-            # For demo data, create fake but consistent IDs
-            result = result.copy()
-            result["_id"] = ["demo-" + str(i) for i in range(len(result))]
+        if "_id" not in df_sorted.columns:
+            df_sorted = df_sorted.copy()
+            df_sorted["_id"] = ["demo-" + str(i) for i in range(len(df_sorted))]
         
-        # Select only available columns to avoid KeyError
-        available_cols = ["_id", "name", "price", "rating", "capacity", "amenities", "score"]
-        cols_to_select = [col for col in available_cols if col in result.columns]
-        recommendations = result[cols_to_select].to_dict(orient="records")
+        # Select columns to include in results
+        available_cols = ["_id", "name", "price", "rating", "capacity", "amenities", "score", "city", "location"]
+        cols_to_select = [col for col in available_cols if col in df_sorted.columns]
         
-        # Auto-save recommendations
-        saved_file = save_recommendations(city, max_budget, recommendations)
+        # Get ALL scored properties
+        all_scored_properties = df_sorted[cols_to_select].to_dict(orient="records")
+        
+        # Get top K for quick access
+        top_recommendations = df_sorted.head(top_k)[cols_to_select].to_dict(orient="records")
+        
+        logger.info(f"📝 Prepared {len(all_scored_properties)} scored properties, top {len(top_recommendations)} recommendations")
+        logger.info(f"   - Top recommendations sample: {[r.get('name', 'N/A') for r in top_recommendations[:2]]}")
+        logger.info(f"   - All scored properties count: {len(all_scored_properties)}")
+        
+        # Save ALL scored properties to recommendations.json
+        saved_file = save_all_scored_properties(city_display, max_budget, top_recommendations, all_scored_properties)
 
-        return {
-            "recommendations": recommendations,
-            "total_found": len(df),
+        logger.info(f"✅ Saved {len(all_scored_properties)} scored properties to recommendations.json")
+        
+        response_data = {
+            "recommendations": top_recommendations,
+            "all_scored_properties": all_scored_properties,
+            "total_properties_scored": len(all_scored_properties),
             "mode": "mongodb" if collection is not None else "demo",
             "saved": saved_file is not None,
             "saved_file": saved_file.split('\\')[-1] if saved_file else None
         }
+        
+        logger.info(f"✅ Response prepared with {len(response_data['all_scored_properties'])} properties")
+        return response_data
     
     except Exception as e:
-        logger.error(f"Error in recommend: {e}")
-        return {"error": str(e)}
+        logger.error(f"❌ Error in recommend: {e}", exc_info=True)
+        return {
+            "error": str(e),
+            "recommendations": [],
+            "all_scored_properties": [],
+            "total_properties_scored": 0
+        }
 
 @app.get("/get-recommendations-json")
 def get_recommendations_json():
@@ -379,6 +483,58 @@ def save_recommendations(city: str, max_budget: int, recommendations: list):
         return filepath
     except Exception as e:
         logger.error(f"Error saving recommendations: {e}")
+        return None
+
+def save_recommendations_with_scores(city: str, max_budget: int, top_recommendations: list, all_scored_properties: list):
+    """Save both top recommendations and all scored properties to recommendations.json"""
+    try:
+        # Always save to the same file: recommendations.json
+        filepath = os.path.join(RECOMMENDATIONS_DIR, "recommendations.json")
+        
+        data = {
+            "city": city,
+            "max_budget": max_budget,
+            "timestamp": datetime.now().isoformat(),
+            "recommendations": top_recommendations,
+            "all_scored_properties": all_scored_properties,
+            "total_properties_scored": len(all_scored_properties),
+            "top_k": len(top_recommendations)
+        }
+        
+        with open(filepath, 'w') as f:
+            json.dump(data, f, indent=2)
+        
+        logger.info(f"Saved {len(all_scored_properties)} scored properties and {len(top_recommendations)} top recommendations to {filepath}")
+        return filepath
+    except Exception as e:
+        logger.error(f"Error saving recommendations with scores: {e}")
+        return None
+
+def save_all_scored_properties(city: str, max_budget: int, recommendations: list, all_scored_properties: list):
+    """Save all scored properties to recommendations.json with proper structure"""
+    try:
+        filepath = os.path.join(RECOMMENDATIONS_DIR, "recommendations.json")
+        
+        data = {
+            "city": city,
+            "max_budget": max_budget,
+            "timestamp": datetime.now().isoformat(),
+            "recommendations": recommendations,
+            "all_scored_properties": all_scored_properties,
+            "stats": {
+                "total_properties_scored": len(all_scored_properties),
+                "top_recommendations": len(recommendations),
+                "total_returned": len(recommendations) + len(all_scored_properties)
+            }
+        }
+        
+        with open(filepath, 'w') as f:
+            json.dump(data, f, indent=2)
+        
+        logger.info(f"✅ Saved ALL {len(all_scored_properties)} scored properties to recommendations.json")
+        return filepath
+    except Exception as e:
+        logger.error(f"Error saving all scored properties: {e}")
         return None
 
 def preprocess(df):

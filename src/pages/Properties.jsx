@@ -83,71 +83,111 @@ const Properties = () => {
       try {
         setLoadingRecommendations(true);
         
-        const recommendationCity = city || "Bangalore";
-        const maxBudget = budget ? parseInt(budget) : (filters.priceRange[1] || 100000);
+        // If no city is selected, use "all" to get recommendations for all cities
+        const recommendationCity = city || "all";
+        const maxBudget = budget ? parseInt(budget) : (filters.priceRange[1] || 500000);
         const topK = 5;
         
-        // Call ML recommendation server to get recommendations
-        await fetch(
-          `http://localhost:8001/recommend?city=${encodeURIComponent(recommendationCity)}&max_budget=${maxBudget}&top_k=${topK}`,
-          {
-            method: "GET",
-            headers: {
-              "Content-Type": "application/json",
-            },
-          }
-        );
+        const cityDisplay = recommendationCity === "all" ? "All Cities" : recommendationCity;
+        console.log(`📌 Fetching recommendations for ${cityDisplay} with max budget ₹${maxBudget}`);
+        
+        // Call ML recommendation server to score ALL properties
+        const mlUrl = `http://localhost:8001/recommend?city=${encodeURIComponent(recommendationCity)}&max_budget=${maxBudget}&top_k=${topK}`;
+        console.log(`🌐 ML Server URL: ${mlUrl}`);
+        
+        const mlResponse = await fetch(mlUrl, {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+          },
+        });
+        
+        console.log(`📡 ML Response Status: ${mlResponse.status}`);
+        
+        if (!mlResponse.ok) {
+          throw new Error(`ML server error: ${mlResponse.statusText}`);
+        }
+        
+        const mlData = await mlResponse.json();
+        console.log(`✅ ML Server response:`, mlData);
+        console.log(`📊 Response structure:`, {
+          hasRecommendations: !!mlData.recommendations,
+          recommendationsCount: mlData.recommendations?.length || 0,
+          hasAllScored: !!mlData.all_scored_properties,
+          allScoredCount: mlData.all_scored_properties?.length || 0,
+          totalScored: mlData.total_properties_scored,
+          mode: mlData.mode,
+          saved: mlData.saved
+        });
+        console.log(`📈 First 3 all_scored_properties:`, mlData.all_scored_properties?.slice(0, 3) || []);
 
-        // Fetch the recommendations JSON and get property IDs
-        const jsonResponse = await fetch('http://localhost:8001/get-recommendations-json');
-        const recommendationData = await jsonResponse.json();
-        const recommendationIds = (recommendationData.recommendations || []).map(r => r._id).filter(Boolean);
-
-        console.log("📌 Recommendation IDs from ML server:", recommendationIds);
-
-        // Fetch full property details from database using the IDs
+        // Fetch all properties from backend
         let recommendations = [];
+        
+        try {
+          const allPropertiesResponse = await apiCall("/rentals");
+          const allRentals = allPropertiesResponse.rentals || [];
+          console.log(`🏠 Got ${allRentals.length} properties from backend`);
 
-        if (recommendationIds.length > 0) {
-          try {
-            // Fetch all properties from backend
-            const allPropertiesResponse = await apiCall("/rentals");
-            const allRentals = allPropertiesResponse.rentals || [];
+          // Map rentals to property format
+          const mappedRentals = allRentals.map(r => ({
+            _id: r._id.toString ? r._id.toString() : r._id,
+            title: r.name,
+            address: r.location,
+            city: r.location,
+            price: r.price,
+            rating: r.rating,
+            images: r.images || [],
+            propertyType: r.property_type,
+            amenities: Object.keys(r.amenities || {})
+              .filter(k => r.amenities[k] === true)
+              .map(k => k.replace(/_/g, ' ')),
+            ...r
+          }));
 
-            // Map rentals to property format
-            const mappedRentals = allRentals.map(r => ({
-              _id: r._id,
-              title: r.name,
-              address: r.location,
-              city: r.location,
-              price: r.price,
-              rating: r.rating,
-              images: r.images || [],
-              propertyType: r.property_type,
-              amenities: Object.keys(r.amenities || {})
-                .filter(k => r.amenities[k] === true)
-                .map(k => k.replace(/_/g, ' ')),
-              ...r
-            }));
+          console.log(`📊 Got ${mappedRentals.length} properties from database`);
 
-            // Filter to only include recommended property IDs
-            recommendations = mappedRentals.filter(p => recommendationIds.includes(p._id.toString()));
+          // Match all scored properties with database properties
+          const allScoredIds = (mlData.all_scored_properties || []).map(p => p._id.toString?.() || p._id);
+          console.log(`🔍 Matching ${allScoredIds.length} scored property IDs with ${mappedRentals.length} database properties`);
+          
+          recommendations = mappedRentals
+            .filter(p => allScoredIds.includes(p._id.toString ? p._id.toString() : p._id))
+            .map(p => {
+              // Find the corresponding scored property to get the ML score
+              const scoredProp = (mlData.all_scored_properties || []).find(sp => 
+                (sp._id.toString?.() || sp._id) === (p._id.toString ? p._id.toString() : p._id)
+              );
+              
+              return {
+                ...p,
+                mlScore: scoredProp?.score || 0  // Add ML score to property
+              };
+            })
+            // Sort by ML score descending
+            .sort((a, b) => (b.mlScore || 0) - (a.mlScore || 0));
 
-            console.log("✅ Fetched full property details for recommendations:", recommendations.length);
-          } catch (fetchErr) {
-            console.error("Error fetching full property details:", fetchErr);
-            // Fallback to basic recommendations
-            recommendations = recommendationIds.map((id, index) => ({
-              _id: id,
-              title: `Property ${index + 1}`,
-              city: recommendationCity,
-              price: 0,
-              rating: 0,
-              images: [],
-              propertyType: 'Shared',
-              amenities: []
-            }));
-          }
+          console.log(`✅ Matched ${recommendations.length} recommendations with database properties`);
+          console.log(`📋 Top recommendations:`, recommendations.slice(0, 5).map(r => ({ name: r.title, score: r.mlScore })));
+        } catch (fetchErr) {
+          console.error("Error matching recommendations with database:", fetchErr);
+          // Fallback: use scored properties directly
+          console.log("⚠️ Using fallback - direct scored properties");
+          recommendations = (mlData.all_scored_properties || []).map((r, index) => ({
+            _id: r._id,
+            title: r.name || `Property ${index + 1}`,
+            city: r.city || cityDisplay,
+            price: r.price || 0,
+            rating: r.rating || 0,
+            mlScore: r.score || 0,
+            images: r.images || [],
+            propertyType: r.propertyType || 'Shared',
+            amenities: typeof r.amenities === 'string' 
+              ? r.amenities.split(',').map(a => a.trim())
+              : r.amenities || [],
+            location: r.location || cityDisplay,
+            ...r
+          }));
         }
 
         // Apply page filters to recommendations
@@ -170,7 +210,6 @@ const Properties = () => {
         // Filter by amenities
         if (filters.amenities.length > 0) {
           recommendations = recommendations.filter((r) => {
-            // Convert amenities to array if needed
             const amenitiesArray = Array.isArray(r.amenities)
               ? r.amenities
               : r.amenities
@@ -185,10 +224,11 @@ const Properties = () => {
           });
         }
         
+        console.log(`📌 Final recommendations after filtering: ${recommendations.length}`);
         setAiRecommendations(recommendations);
       } catch (err) {
-        console.error("Error fetching AI recommendations:", err);
-        // Fallback: show empty state instead of crashing
+        console.error("❌ Error fetching AI recommendations:", err);
+        console.error("Error details:", err.message);
         setAiRecommendations([]);
       } finally {
         setLoadingRecommendations(false);
@@ -436,14 +476,14 @@ const Properties = () => {
                             <div className="flex-1 min-w-0">
                               <div className="flex items-center gap-2 mb-1">
                                 <span className="text-xs font-bold bg-blue-100 text-blue-700 px-2 py-0.5 rounded">
-                                  Score: {rec.score?.toFixed(1) || 0}/100
+                                  ML Score: {rec.mlScore?.toFixed(2) || 0}
                                 </span>
                               </div>
                               <h4 className="font-semibold text-sm line-clamp-1 text-gray-900">
-                                {rec.name}
+                                {rec.title || rec.name}
                               </h4>
                               <p className="text-xs text-gray-500 line-clamp-1">
-                                {rec.location}
+                                {rec.location || rec.city}
                               </p>
                             </div>
                             <div onClick={(e) => e.stopPropagation()}>
