@@ -230,6 +230,9 @@ const Header = () => {
                           variant="ghost"
                           size="sm"
                           onClick={() => {
+                            if (city !== "All Cities") {
+                              trackCityClick(city);
+                            }
                             navigate(`/properties?city=${city.toLowerCase()}`);
                             setMobileMenuOpen(false);
                           }}
@@ -294,7 +297,12 @@ const Header = () => {
             {cities.map((city) => (
               <button
                 key={city}
-                        onClick={() => {
+                onClick={() => {
+                  // Track city click
+                  if (city !== "All Cities") {
+                    trackCityClick(city);
+                  }
+                  
                   if (city === "All Cities") {
                     navigate("/properties");
                   } else {
@@ -314,6 +322,24 @@ const Header = () => {
       </motion.div>
     </>
   );
+};
+
+// Track city click helper function
+const trackCityClick = async (city) => {
+  try {
+    await fetch(
+      `${import.meta.env.VITE_API_BASE_URL}/rentals/track-city-click`,
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ city }),
+      }
+    );
+  } catch (error) {
+    console.error("Error tracking city click:", error);
+  }
 };
 
 export default Header;

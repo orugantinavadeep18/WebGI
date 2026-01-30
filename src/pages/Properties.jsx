@@ -87,7 +87,7 @@ const Properties = () => {
         const maxBudget = budget ? parseInt(budget) : (filters.priceRange[1] || 100000);
         const topK = 5;
         
-        // Step 1: Call ML recommendation server to trigger generation and save to JSON
+        // Call ML recommendation server to get recommendations
         await fetch(
           `http://localhost:8001/recommend?city=${encodeURIComponent(recommendationCity)}&max_budget=${maxBudget}&top_k=${topK}`,
           {
@@ -97,33 +97,58 @@ const Properties = () => {
             },
           }
         );
-        
-        // Step 2: Fetch the saved recommendations from ML server endpoint
+
+        // Fetch the recommendations JSON and get property IDs
         const jsonResponse = await fetch('http://localhost:8001/get-recommendations-json');
-        
-        if (!jsonResponse.ok) {
-          throw new Error(`Failed to fetch recommendations JSON: ${jsonResponse.statusText}`);
+        const recommendationData = await jsonResponse.json();
+        const recommendationIds = (recommendationData.recommendations || []).map(r => r._id).filter(Boolean);
+
+        console.log("📌 Recommendation IDs from ML server:", recommendationIds);
+
+        // Fetch full property details from database using the IDs
+        let recommendations = [];
+
+        if (recommendationIds.length > 0) {
+          try {
+            // Fetch all properties from backend
+            const allPropertiesResponse = await apiCall("/rentals");
+            const allRentals = allPropertiesResponse.rentals || [];
+
+            // Map rentals to property format
+            const mappedRentals = allRentals.map(r => ({
+              _id: r._id,
+              title: r.name,
+              address: r.location,
+              city: r.location,
+              price: r.price,
+              rating: r.rating,
+              images: r.images || [],
+              propertyType: r.property_type,
+              amenities: Object.keys(r.amenities || {})
+                .filter(k => r.amenities[k] === true)
+                .map(k => k.replace(/_/g, ' ')),
+              ...r
+            }));
+
+            // Filter to only include recommended property IDs
+            recommendations = mappedRentals.filter(p => recommendationIds.includes(p._id.toString()));
+
+            console.log("✅ Fetched full property details for recommendations:", recommendations.length);
+          } catch (fetchErr) {
+            console.error("Error fetching full property details:", fetchErr);
+            // Fallback to basic recommendations
+            recommendations = recommendationIds.map((id, index) => ({
+              _id: id,
+              title: `Property ${index + 1}`,
+              city: recommendationCity,
+              price: 0,
+              rating: 0,
+              images: [],
+              propertyType: 'Shared',
+              amenities: []
+            }));
+          }
         }
-        
-        const data = await jsonResponse.json();
-        
-        // Map recommendations to property format
-        let recommendations = (data.recommendations || []).map((r, index) => ({
-          _id: r._id,
-          title: r.name || `Property ${index + 1}`,
-          name: r.name || `Property ${index + 1}`,
-          city: data.city || recommendationCity,
-          price: r.price,
-          rating: r.rating,
-          score: (r.score * 20).toFixed(1), // Convert 0-4 scale to 0-100
-          images: r.images || [],
-          propertyType: r.propertyType,
-          amenities: typeof r.amenities === 'string' 
-            ? r.amenities.split(',').map(a => a.trim())
-            : r.amenities || [],
-          location: data.city || recommendationCity,
-          ...r
-        }));
 
         // Apply page filters to recommendations
         // Filter by price range
