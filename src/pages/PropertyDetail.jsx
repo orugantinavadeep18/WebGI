@@ -352,13 +352,13 @@ const PropertyDetail = () => {
             </div>
 
             {/* Tabs */}
-            <Tabs defaultValue=" overview " className="space-y-6">
+            <Tabs defaultValue="overview" className="space-y-6">
               <TabsList className="grid w-full grid-cols-5">
-                <TabsTrigger value=" overview ">Overview</TabsTrigger>
-                <TabsTrigger value=" amenities ">Amenities</TabsTrigger>
-                <TabsTrigger value=" details ">Details</TabsTrigger>
+                <TabsTrigger value="overview">Overview</TabsTrigger>
+                <TabsTrigger value="amenities">Amenities</TabsTrigger>
+                <TabsTrigger value="details">Details</TabsTrigger>
                 {/* <TabsTrigger value="ai-score">AI Score</TabsTrigger> */}
-                <TabsTrigger value=" reviews ">Reviews</TabsTrigger>
+                <TabsTrigger value="reviews">Reviews</TabsTrigger>
               </TabsList>
 
               <TabsContent value="overview" className="space-y-6">
