@@ -8,7 +8,7 @@ const popularCities = [
   { name: "Mumbai", image: "https://images.unsplash.com/photo-1570168007204-dfb528c6958f?w=400&h=300&fit=crop" },
   { name: "Delhi", image: "https://images.unsplash.com/photo-1587474260584-136574528ed5?w=400&h=300&fit=crop" },
   { name: "Pune", image: "https://images.unsplash.com/photo-1588416936097-41850ab3d86d?w=400&h=300&fit=crop" },
-  { name: "Hyderabad", image: "https://images.unsplash.com/photo-1576502200916-3808e07386a5?w=400&h=300&fit=crop" },
+  { name: "Hyderabad", image: "https://upload.wikimedia.org/wikipedia/commons/thumb/7/71/Charminar_Hyderabad_1.jpg/960px-Charminar_Hyderabad_1.jpg" },
   { name: "Chennai", image: "https://images.unsplash.com/photo-1582510003544-4d00b7f74220?w=400&h=300&fit=crop" },
 ];
 

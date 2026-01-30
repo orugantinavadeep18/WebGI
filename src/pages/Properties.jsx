@@ -78,19 +78,20 @@ const Properties = () => {
     loadAllProperties();
   }, []);
 
-  // Fetch AI recommendations on mount and when URL params change
+  // Fetch AI recommendations on mount and when filters change
   useEffect(() => {
     const fetchAiRecommendations = async () => {
       try {
         setLoadingRecommendations(true);
         
-        // If no city is selected, use "all" to get recommendations for all cities
+        // Use filters from state for recommendations
         const recommendationCity = city || "all";
         const maxBudget = budget ? parseInt(budget) : (filters.priceRange[1] || 500000);
         const topK = 100;  // Fetch top 100 recommendations to show all
         
         const cityDisplay = recommendationCity === "all" ? "All Cities" : recommendationCity;
-        console.log(`📌 Fetching ALL recommendations for ${cityDisplay} with max budget ₹${maxBudget}`);
+        console.log(`📌 Fetching recommendations for ${cityDisplay} with budget ₹${maxBudget}`);
+        console.log(`🔧 Current filters:`, filters);
         
         // Call ML recommendation server to score ALL properties
         const mlUrl = `http://localhost:8001/recommend?city=${encodeURIComponent(recommendationCity)}&max_budget=${maxBudget}&top_k=${topK}`;
@@ -197,10 +198,19 @@ const Properties = () => {
           console.log(`✅ Using ${recommendations.length} demo properties from ML server`);
         }
 
-        // Apply page filters to recommendations
-        // Filter by price range
+        // Apply client-side filters to recommendations
+        let filteredRecommendations = recommendations;
+        
+        // Filter by city if URL param exists
+        if (city) {
+          filteredRecommendations = filteredRecommendations.filter((p) =>
+            p.city.toLowerCase().includes(city.toLowerCase())
+          );
+        }
+
+        // Filter by price range from sidebar
         if (filters.priceRange[0] > 0 || filters.priceRange[1] < 500000) {
-          recommendations = recommendations.filter(
+          filteredRecommendations = filteredRecommendations.filter(
             (r) =>
               r.price >= filters.priceRange[0] &&
               r.price <= filters.priceRange[1]
@@ -209,14 +219,14 @@ const Properties = () => {
 
         // Filter by property type
         if (filters.propertyTypes.length > 0) {
-          recommendations = recommendations.filter((r) =>
+          filteredRecommendations = filteredRecommendations.filter((r) =>
             filters.propertyTypes.includes(r.propertyType)
           );
         }
 
         // Filter by amenities
         if (filters.amenities.length > 0) {
-          recommendations = recommendations.filter((r) => {
+          filteredRecommendations = filteredRecommendations.filter((r) => {
             const amenitiesArray = Array.isArray(r.amenities)
               ? r.amenities
               : r.amenities
@@ -231,8 +241,8 @@ const Properties = () => {
           });
         }
         
-        console.log(`📌 Final recommendations after filtering: ${recommendations.length}`);
-        setAiRecommendations(recommendations);
+        console.log(`📌 Final recommendations after filtering: ${filteredRecommendations.length}`);
+        setAiRecommendations(filteredRecommendations);
       } catch (err) {
         console.error("❌ Error fetching AI recommendations:", err);
         console.error("Error details:", err.message);
@@ -242,9 +252,9 @@ const Properties = () => {
       }
     };
 
-    // Always fetch recommendations on mount and when city/budget change
+    // Fetch recommendations when filters change
     fetchAiRecommendations();
-  }, [city, budget]);
+  }, [city, budget, filters]);
 
   // Apply client-side filtering whenever filters or data changes
   useEffect(() => {

@@ -354,7 +354,7 @@ const Auth = () => {
                 <Button
                   type="submit"
                   className="w-full bg-accent hover:bg-accent/90 text-accent-foreground"
-                  disabled={loading || signUpPassword !== signUpVerifyPassword || !signUpPassword}
+                  disabled={loading || signUpPassword !== signUpConfirmPassword || !signUpPassword}
                 >
                   {loading ? "Creating account..." : "Create Account"}
                 </Button>
