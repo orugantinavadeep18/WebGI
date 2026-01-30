@@ -78,45 +78,20 @@ const Properties = () => {
     loadAllProperties();
   }, []);
 
-<<<<<<< HEAD
-<<<<<<< HEAD
-  // Fetch AI recommendations on mount and when filters change
-=======
-  // Fetch AI recommendations on mount and when URL params change
->>>>>>> 52ec31373959a2928f522c7ce2d018147615478b
-=======
-  // Fetch AI recommendations on mount and when filters change
->>>>>>> kittu
   useEffect(() => {
     const fetchAiRecommendations = async () => {
       try {
         setLoadingRecommendations(true);
-        
-<<<<<<< HEAD
-<<<<<<< HEAD
-        // Use filters from state for recommendations
-=======
-        // If no city is selected, use "all" to get recommendations for all cities
->>>>>>> 52ec31373959a2928f522c7ce2d018147615478b
-=======
-        // Use filters from state for recommendations
->>>>>>> kittu
         const recommendationCity = city || "all";
         const maxBudget = budget ? parseInt(budget) : (filters.priceRange[1] || 500000);
         const topK = 100;  // Fetch top 100 recommendations to show all
         
         const cityDisplay = recommendationCity === "all" ? "All Cities" : recommendationCity;
-<<<<<<< HEAD
-<<<<<<< HEAD
         console.log(`📌 Fetching recommendations for ${cityDisplay} with budget ₹${maxBudget}`);
         console.log(`🔧 Current filters:`, filters);
-=======
         console.log(`📌 Fetching ALL recommendations for ${cityDisplay} with max budget ₹${maxBudget}`);
->>>>>>> 52ec31373959a2928f522c7ce2d018147615478b
-=======
         console.log(`📌 Fetching recommendations for ${cityDisplay} with budget ₹${maxBudget}`);
         console.log(`🔧 Current filters:`, filters);
->>>>>>> kittu
         
         // Call ML recommendation server to score ALL properties
         const mlUrl = `http://localhost:8001/recommend?city=${encodeURIComponent(recommendationCity)}&max_budget=${maxBudget}&top_k=${topK}`;
@@ -222,11 +197,6 @@ const Properties = () => {
           }));
           console.log(`✅ Using ${recommendations.length} demo properties from ML server`);
         }
-
-<<<<<<< HEAD
-<<<<<<< HEAD
-=======
->>>>>>> kittu
         // Apply client-side filters to recommendations
         let filteredRecommendations = recommendations;
         
@@ -238,19 +208,13 @@ const Properties = () => {
         }
 
         // Filter by price range from sidebar
-<<<<<<< HEAD
-        if (filters.priceRange[0] > 0 || filters.priceRange[1] < 500000) {
-          filteredRecommendations = filteredRecommendations.filter(
-=======
         // Apply page filters to recommendations
         // Filter by price range
         if (filters.priceRange[0] > 0 || filters.priceRange[1] < 500000) {
           recommendations = recommendations.filter(
->>>>>>> 52ec31373959a2928f522c7ce2d018147615478b
 =======
         if (filters.priceRange[0] > 0 || filters.priceRange[1] < 500000) {
           filteredRecommendations = filteredRecommendations.filter(
->>>>>>> kittu
             (r) =>
               r.price >= filters.priceRange[0] &&
               r.price <= filters.priceRange[1]
