@@ -1458,12 +1458,16 @@ const ChatBot = () => {
 
   return (
     <>
-      {/* Floating Button - Small - Hidden on mobile, visible on md+ screens */}
+      {/* Floating Button - Hidden on mobile, visible on md+ */}
       <button
         onClick={() => setIsOpen(!isOpen)}
-        className="hidden md:flex fixed bottom-6 right-6 z-40 items-center justify-center cursor-pointer hover:opacity-90 transition-all duration-300 group"
+        className="hidden md:flex fixed z-40 items-center justify-center cursor-pointer hover:opacity-90 transition-all duration-300 group bottom-6 right-6"
         title={isOpen ? "Close chat" : "Open chat"}
-        style={{ background: "none", border: "none", padding: 0 }}
+        style={{ 
+          background: "none", 
+          border: "none", 
+          padding: 0
+        }}
       >
         {isOpen ? (
           <div className="w-14 h-14 rounded-full shadow-lg bg-white border-2 border-primary flex items-center justify-center text-primary hover:scale-110 transition-transform">
@@ -1475,7 +1479,7 @@ const ChatBot = () => {
               ref={lottieRef} 
               style={{ 
                 width: "180px", 
-                height: "180px", 
+                height: "180px",
                 display: "flex", 
                 alignItems: "center", 
                 justifyContent: "center",
@@ -1490,101 +1494,102 @@ const ChatBot = () => {
         )}
       </button>
 
-      {/* Chatbot Container - Large - Hidden on mobile, visible on md+ screens */}
+      {/* Chatbot Container - Hidden on mobile, visible on md+ */}
       {isOpen && (
         <div className="hidden md:flex fixed bottom-20 right-6 z-50 w-96 h-[600px] bg-white rounded-xl shadow-2xl flex-col border border-border animate-slide-up overflow-hidden">
-          {/* Header */}
-          <div className="bg-gradient-to-r from-primary via-primary/95 to-primary/90 text-white p-5 rounded-t-xl">
-            <div className="flex items-center justify-between">
-              <div>
-                <h3 className="text-xl font-bold">WebGI Assistant</h3>
-                <p className="text-sm text-white/80">
-                  {isLoading ? "⏳ Typing..." : "✅ Online - Always here to help"}
-                </p>
+            
+            {/* Header */}
+            <div className="bg-gradient-to-r from-primary via-primary/95 to-primary/90 text-white p-5 rounded-t-xl flex-shrink-0">
+              <div className="flex items-center justify-between">
+                <div>
+                  <h3 className="text-xl font-bold">WebGI Assistant</h3>
+                  <p className="text-sm text-white/80">
+                    {isLoading ? "⏳ Typing..." : "✅ Online - Always here to help"}
+                  </p>
+                </div>
+                <div className="w-3 h-3 bg-green-400 rounded-full animate-pulse" />
               </div>
-              <div className="w-3 h-3 bg-green-400 rounded-full animate-pulse" />
             </div>
-          </div>
 
-          {/* Messages Container */}
-          <div
-            ref={chatMessagesRef}
-            className="flex-1 overflow-y-auto p-5 space-y-4 bg-gradient-to-b from-gray-50 to-white"
-          >
-            {messages.map((message) => (
-              <div
-                key={message.id}
-                className={`flex ${
-                  message.sender === "user" ? "justify-end" : "justify-start"
-                }`}
-              >
+            {/* Messages Container */}
+            <div
+              ref={chatMessagesRef}
+              className="flex-1 overflow-y-auto p-5 space-y-4 bg-gradient-to-b from-gray-50 to-white"
+            >
+              {messages.map((message) => (
                 <div
-                  className={`max-w-xs px-4 py-3 rounded-lg text-sm leading-relaxed ${
-                    message.sender === "user"
-                      ? "bg-primary text-white rounded-br-none shadow-md"
-                      : "bg-white text-foreground border border-border rounded-bl-none shadow-sm"
+                  key={message.id}
+                  className={`flex ${
+                    message.sender === "user" ? "justify-end" : "justify-start"
                   }`}
                 >
-                  <p className="whitespace-pre-wrap break-words">{message.text}</p>
-                  <span className={`text-xs opacity-70 mt-2 block ${
-                    message.sender === "user" ? "text-white/80" : ""
-                  }`}>
-                    {message.timestamp.toLocaleTimeString([], {
-                      hour: "2-digit",
-                      minute: "2-digit",
-                    })}
-                  </span>
-                </div>
-              </div>
-            ))}
-
-            {/* Loading indicator */}
-            {isLoading && (
-              <div className="flex justify-start">
-                <div className="bg-white text-foreground border border-border px-4 py-3 rounded-lg rounded-bl-none shadow-sm">
-                  <div className="flex space-x-2">
-                    <div className="w-2 h-2 bg-primary rounded-full animate-bounce" />
-                    <div className="w-2 h-2 bg-primary rounded-full animate-bounce delay-100" />
-                    <div className="w-2 h-2 bg-primary rounded-full animate-bounce delay-200" />
+                  <div
+                    className={`max-w-xs px-4 py-3 rounded-lg text-sm leading-relaxed break-words ${
+                      message.sender === "user"
+                        ? "bg-primary text-white rounded-br-none shadow-md"
+                        : "bg-white text-foreground border border-border rounded-bl-none shadow-sm"
+                    }`}
+                  >
+                    <p className="whitespace-pre-wrap break-words">{message.text}</p>
+                    <span className={`text-xs opacity-70 mt-1 sm:mt-2 block ${
+                      message.sender === "user" ? "text-white/80" : ""
+                    }`}>
+                      {message.timestamp.toLocaleTimeString([], {
+                        hour: "2-digit",
+                        minute: "2-digit",
+                      })}
+                    </span>
                   </div>
                 </div>
-              </div>
-            )}
-          </div>
+              ))}
 
-          {/* Input Area */}
-          <form
-            onSubmit={handleSendMessage}
-            className="p-4 border-t border-border bg-white"
-          >
-            <div className="flex gap-2">
-              <input
-                type="text"
-                value={inputValue}
-                onChange={(e) => setInputValue(e.target.value)}
-                placeholder="Ask about properties, booking, or features..."
-                disabled={isLoading}
-                className="flex-1 px-4 py-3 border border-border rounded-full focus:outline-none focus:ring-2 focus:ring-primary disabled:opacity-50 text-sm"
-              />
-              <button
-                type="submit"
-                disabled={isLoading || inputValue.trim() === ""}
-                className="bg-primary text-white p-3 rounded-full hover:bg-primary/90 disabled:opacity-50 disabled:cursor-not-allowed transition-colors shadow-md"
-                title="Send message"
-              >
-                <Send className="w-5 h-5" />
-              </button>
+              {/* Loading indicator */}
+              {isLoading && (
+                <div className="flex justify-start">
+                  <div className="bg-white text-foreground border border-border px-4 py-3 rounded-lg rounded-bl-none shadow-sm">
+                    <div className="flex space-x-2">
+                      <div className="w-2 h-2 bg-primary rounded-full animate-bounce" />
+                      <div className="w-2 h-2 bg-primary rounded-full animate-bounce delay-100" />
+                      <div className="w-2 h-2 bg-primary rounded-full animate-bounce delay-200" />
+                    </div>
+                  </div>
+                </div>
+              )}
             </div>
-          </form>
 
-          {/* Footer Note */}
-          <div className="px-4 py-3 text-center text-xs text-muted-foreground bg-gray-50 border-t border-border">
-            💡 Tip: Ask about property count, types, locations, or booking process
+            {/* Input Area */}
+            <form
+              onSubmit={handleSendMessage}
+              className="p-4 border-t border-border bg-white flex-shrink-0"
+            >
+              <div className="flex gap-2">
+                <input
+                  type="text"
+                  value={inputValue}
+                  onChange={(e) => setInputValue(e.target.value)}
+                  placeholder="Ask about properties, booking, or features..."
+                  disabled={isLoading}
+                  className="flex-1 px-4 py-3 border border-border rounded-full focus:outline-none focus:ring-2 focus:ring-primary disabled:opacity-50 text-sm"
+                />
+                <button
+                  type="submit"
+                  disabled={isLoading || inputValue.trim() === ""}
+                  className="bg-primary text-white p-3 rounded-full hover:bg-primary/90 disabled:opacity-50 disabled:cursor-not-allowed transition-colors shadow-md flex-shrink-0"
+                  title="Send message"
+                >
+                  <Send className="w-5 h-5" />
+                </button>
+              </div>
+            </form>
+
+            {/* Footer Note */}
+            <div className="px-4 py-3 text-center text-xs text-muted-foreground bg-gray-50 border-t border-border flex-shrink-0">
+              💡 Tip: Ask about property count, types, locations, or booking process
+            </div>
           </div>
-        </div>
-      )}
-    </>
-  );
-};
+        )}
+      </>
+    );
+  };
 
-export default ChatBot;
+  export default ChatBot;

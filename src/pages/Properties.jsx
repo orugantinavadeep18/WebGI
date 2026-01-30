@@ -352,32 +352,32 @@ const Properties = () => {
         </button>
 
         {/* Results Header */}
-        <div className="flex items-center justify-between mb-6">
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 sm:gap-6 mb-4 sm:mb-6">
           <div className="flex-1">
-            <h1 className="font-heading text-2xl font-bold">
+            <h1 className="font-heading text-xl sm:text-2xl font-bold">
               {city ? `Properties in ${city}` : "All Properties"}
             </h1>
-            <p className="text-muted-foreground text-sm">
+            <p className="text-muted-foreground text-xs sm:text-sm">
               {filteredProperties.length} properties found
             </p>
           </div>
 
-          <div className="flex items-center gap-3">
-            {/* Toggle Sidebar Button */}
+          <div className="flex flex-col sm:flex-row items-start sm:items-center gap-2 sm:gap-3">
+            {/* Toggle Sidebar Button - Mobile */}
             <Button
               variant="outline"
               size="sm"
               onClick={() => setShowSidebar(!showSidebar)}
-              className="gap-2"
+              className="gap-2 w-full sm:w-auto text-xs sm:text-sm"
               title={showSidebar ? "Hide filters" : "Show filters"}
             >
               <SlidersHorizontal className="h-4 w-4" />
               {showSidebar ? "Hide" : "Show"} Filters
             </Button>
 
-            {/* Sort */}
+            {/* Sort - Responsive */}
             <Select value={sortBy} onValueChange={setSortBy}>
-              <SelectTrigger className="w-44">
+              <SelectTrigger className="w-full sm:w-44 text-xs sm:text-sm h-9 sm:h-10">
                 <SelectValue placeholder="Sort by" />
               </SelectTrigger>
               <SelectContent>
@@ -392,12 +392,12 @@ const Properties = () => {
 
 
 
-        {/* Main Layout: Sidebar | Content | Right Panel */}
-        <div className="flex gap-6">
-          {/* LEFT SIDEBAR - Filters */}
+        {/* Main Layout: Sidebar | Content | Right Panel - Responsive */}
+        <div className="flex flex-col lg:flex-row gap-3 sm:gap-6">
+          {/* LEFT SIDEBAR - Filters - Hidden on mobile, visible on large screens */}
           {showSidebar && (
-            <aside className="w-80 flex-shrink-0 h-[calc(100vh-200px)] sticky top-24 overflow-y-auto">
-              <div className="bg-white rounded-xl border p-4">
+            <aside className="w-full sm:w-80 lg:w-80 flex-shrink-0 h-fit lg:h-[calc(100vh-200px)] lg:sticky lg:top-24 lg:overflow-y-auto">
+              <div className="bg-white rounded-xl border p-3 sm:p-4">
                 <PropertyFilters
                   filters={filters}
                   onFiltersChange={setFilters}
@@ -415,15 +415,15 @@ const Properties = () => {
               </div>
             ) : filteredProperties.length === 0 ? (
               <div className="text-center py-20 bg-white rounded-xl border">
-                <p className="text-lg text-muted-foreground mb-4">
+                <p className="text-base sm:text-lg text-muted-foreground mb-4">
                   No properties found matching your criteria
                 </p>
-                <Button variant="outline" onClick={clearFilters}>
+                <Button variant="outline" onClick={clearFilters} size="sm">
                   Clear Filters
                 </Button>
               </div>
             ) : (
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 gap-3 sm:gap-6">
                 {filteredProperties.map((property) => (
                   <PropertyCard
                     key={property._id}
@@ -436,12 +436,12 @@ const Properties = () => {
             )}
           </div>
 
-          {/* RIGHT SIDEBAR - AI Recommendations */}
-          <aside className="w-80 flex-shrink-0 h-fit sticky top-24">
-            <div className="bg-gradient-to-br from-blue-50 to-indigo-50 rounded-xl border border-blue-200 p-5 space-y-4">
+          {/* RIGHT SIDEBAR - AI Recommendations - Hidden on mobile, visible on large screens */}
+          <aside className="hidden lg:block w-full lg:w-80 flex-shrink-0 h-fit lg:sticky lg:top-24">
+            <div className="bg-gradient-to-br from-blue-50 to-indigo-50 rounded-xl border border-blue-200 p-4 sm:p-5 space-y-4">
               <div className="flex items-center gap-2">
-                <Brain className="h-5 w-5 text-blue-600" />
-                <h3 className="font-heading font-bold text-lg text-blue-900">Top AI Recommendations</h3>
+                <Brain className="h-4 w-4 sm:h-5 sm:w-5 text-blue-600" />
+                <h3 className="font-heading font-bold text-sm sm:text-lg text-blue-900">Top AI Recommendations</h3>
               </div>
               <p className="text-xs text-blue-700">
                 AI-powered suggestions.
@@ -449,14 +449,14 @@ const Properties = () => {
 
               {loadingRecommendations ? (
                 <div className="flex items-center justify-center py-8">
-                  <Loader2 className="h-5 w-5 animate-spin text-blue-600" />
+                  <Loader2 className="h-4 w-4 sm:h-5 sm:w-5 animate-spin text-blue-600" />
                 </div>
               ) : aiRecommendations.length > 0 ? (
-                <div className="space-y-3 max-h-[calc(100vh-200px)] overflow-y-auto">
+                <div className="space-y-2 sm:space-y-3 max-h-[calc(100vh-200px)] overflow-y-auto">
                   {aiRecommendations.map((rec, index) => (
                     <div
                       key={rec._id || index}
-                      className="bg-white p-3 rounded-lg border border-blue-100 hover:border-blue-300 transition-colors cursor-pointer hover:shadow-md"
+                      className="bg-white p-2 sm:p-3 rounded-lg border border-blue-100 hover:border-blue-300 transition-colors cursor-pointer hover:shadow-md"
                       role="button"
                       tabIndex={0}
                       onKeyDown={(e) => {
@@ -467,13 +467,13 @@ const Properties = () => {
                     >
                       {/* Clickable content area */}
                       <div 
-                        className="flex gap-3"
+                        className="flex gap-2 sm:gap-3"
                         onClick={() => {
                           console.log('Navigating to property:', rec._id);
                           navigate(`/properties/${rec._id}`);
                         }}
                       >
-                        <div className="flex-shrink-0 w-16 h-16 rounded-lg overflow-hidden bg-gray-100">
+                        <div className="flex-shrink-0 w-12 h-12 sm:w-16 sm:h-16 rounded-lg overflow-hidden bg-gray-100">
                           {rec.images && rec.images[0] && (
                             <img
                               src={typeof rec.images[0] === 'string' ? rec.images[0] : rec.images[0].url}
@@ -485,12 +485,12 @@ const Properties = () => {
                         <div className="flex-1 min-w-0">
                           <div className="flex items-start justify-between gap-2">
                             <div className="flex-1 min-w-0">
-                              <div className="flex items-center gap-2 mb-1">
-                                <span className="text-xs font-bold bg-blue-100 text-blue-700 px-2 py-0.5 rounded">
-                                  ML Score: {rec.mlScore?.toFixed(2) || 0}
+                              <div className="flex items-center gap-1 mb-0.5 sm:mb-1">
+                                <span className="text-xs font-bold bg-blue-100 text-blue-700 px-1.5 py-0.5 rounded">
+                                  ML: {rec.mlScore?.toFixed(2) || 0}
                                 </span>
                               </div>
-                              <h4 className="font-semibold text-sm line-clamp-1 text-gray-900">
+                              <h4 className="font-semibold text-xs sm:text-sm line-clamp-1 text-gray-900">
                                 {rec.title || rec.name}
                               </h4>
                               <p className="text-xs text-gray-500 line-clamp-1">
@@ -505,19 +505,19 @@ const Properties = () => {
                                   e.stopPropagation();
                                   handleToggleSave(rec._id);
                                 }}
-                                className="p-1 h-auto"
+                                className="p-0.5 h-auto text-sm sm:text-base"
                               >
                                 {isSaved(rec._id) ? "❤️" : "🤍"}
                               </Button>
                             </div>
                           </div>
-                          <div className="flex items-center justify-between mt-2">
-                            <p className="text-sm font-bold text-blue-600">
+                          <div className="flex items-center justify-between mt-1 sm:mt-2">
+                            <p className="text-xs sm:text-sm font-bold text-blue-600">
                               ₹{rec.price?.toLocaleString()}/mo
                             </p>
-                            <div className="flex items-center gap-1 text-xs">
+                            <div className="flex items-center gap-0.5 sm:gap-1 text-xs">
                               <span className="text-yellow-500">⭐</span>
-                              <span className="text-gray-600">{rec.rating || 'N/A'}</span>
+                              <span className="text-gray-600 text-xs">{rec.rating || 'N/A'}</span>
                             </div>
                           </div>
                         </div>
@@ -526,7 +526,7 @@ const Properties = () => {
                   ))}
                 </div>
               ) : (
-                <p className="text-sm text-blue-600 text-center py-4">
+                <p className="text-xs sm:text-sm text-blue-600 text-center py-4">
                   No recommendations available yet
                 </p>
               )}

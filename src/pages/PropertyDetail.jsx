@@ -209,31 +209,31 @@ const PropertyDetail = () => {
 
   return (
     <Layout>
-      <div className="container mx-auto px-4 py-8">
+      <div className="container mx-auto px-2 sm:px-4 py-4 sm:py-8">
         {/* Back Button */}
         <button
           onClick={() => navigate(-1)}
-          className="mb-4 p-2 hover:bg-gray-100 rounded-lg transition inline-flex items-center gap-2 text-gray-700"
+          className="mb-3 sm:mb-4 p-1.5 sm:p-2 hover:bg-gray-100 rounded-lg transition inline-flex items-center gap-2 text-gray-700 text-xs sm:text-sm"
           title="Go back"
         >
-          <ArrowLeft className="h-5 w-5" />
-          <span className="text-sm font-medium">Back</span>
+          <ArrowLeft className="h-4 w-4 sm:h-5 sm:w-5" />
+          <span className="font-medium">Back</span>
         </button>
 
         {/* Breadcrumb */}
-        <nav className="flex items-center gap-2 text-sm text-muted-foreground mb-6">
-          <button onClick={() => navigate("/")} className="hover:text-foreground">Home</button>
+        <nav className="flex items-center gap-2 text-xs sm:text-sm text-muted-foreground mb-4 sm:mb-6 overflow-x-auto">
+          <button onClick={() => navigate("/")} className="hover:text-foreground whitespace-nowrap">Home</button>
           <span>/</span>
-          <button onClick={() => navigate("/properties")} className="hover:text-foreground">Properties</button>
+          <button onClick={() => navigate("/properties")} className="hover:text-foreground whitespace-nowrap">Properties</button>
           <span>/</span>
-          <span className="text-foreground">{property.title}</span>
+          <span className="text-foreground whitespace-nowrap truncate">{property.title}</span>
         </nav>
 
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 sm:gap-8">
           {/* Main Content */}
-          <div className="lg:col-span-2 space-y-8">
+          <div className="lg:col-span-2 space-y-6 sm:space-y-8">
             {/* Image Gallery */}
-            <div className="relative rounded-2xl overflow-hidden aspect-video bg-muted">
+            <div className="relative rounded-lg sm:rounded-2xl overflow-hidden aspect-video bg-muted">
               {hasImages ? (
                 <>
                   <img
@@ -248,30 +248,30 @@ const PropertyDetail = () => {
                     <>
                       <button
                         onClick={prevImage}
-                        className="absolute left-4 top-1/2 -translate-y-1/2 h-10 w-10 rounded-full bg-background/80 hover:bg-background flex items-center justify-center transition"
+                        className="absolute left-2 sm:left-4 top-1/2 -translate-y-1/2 h-8 w-8 sm:h-10 sm:w-10 rounded-full bg-background/80 hover:bg-background flex items-center justify-center transition"
                         aria-label="Previous image"
                       >
-                        <ChevronLeft className="h-6 w-6" />
+                        <ChevronLeft className="h-5 w-5 sm:h-6 sm:w-6" />
                       </button>
                       <button
                         onClick={nextImage}
-                        className="absolute right-4 top-1/2 -translate-y-1/2 h-10 w-10 rounded-full bg-background/80 hover:bg-background flex items-center justify-center transition"
+                        className="absolute right-2 sm:right-4 top-1/2 -translate-y-1/2 h-8 w-8 sm:h-10 sm:w-10 rounded-full bg-background/80 hover:bg-background flex items-center justify-center transition"
                         aria-label="Next image"
                       >
-                        <ChevronRight className="h-6 w-6" />
+                        <ChevronRight className="h-5 w-5 sm:h-6 sm:w-6" />
                       </button>
                     </>
                   )}
 
                   {/* Image indicators */}
-                  <div className="absolute bottom-4 left-1/2 -translate-x-1/2 flex gap-2">
+                  <div className="absolute bottom-2 sm:bottom-4 left-1/2 -translate-x-1/2 flex gap-1 sm:gap-2">
                     {images.map((_, index) => (
                       <button
                         key={index}
                         onClick={() => setCurrentImageIndex(index)}
-                        className={`h-2 w-2 rounded-full transition-all ${
+                        className={`h-1.5 w-1.5 sm:h-2 sm:w-2 rounded-full transition-all ${
                           index === currentImageIndex
-                            ? "bg-background w-6"
+                            ? "bg-background w-4 sm:w-6"
                             : "bg-background/60"
                         }`}
                         aria-label={`Go to image ${index + 1}`}
@@ -281,20 +281,20 @@ const PropertyDetail = () => {
                 </>
               ) : (
                 <div className="w-full h-full flex flex-col items-center justify-center bg-gradient-to-br from-gray-100 to-gray-200">
-                  <div className="text-center">
-                    <p className="text-2xl font-bold text-gray-600 mb-2">No Preview Available</p>
-                    <p className="text-gray-500">Images will be available once the owner uploads them</p>
+                  <div className="text-center px-4">
+                    <p className="text-lg sm:text-2xl font-bold text-gray-600 mb-2">No Preview Available</p>
+                    <p className="text-xs sm:text-sm text-gray-500">Images will be available once the owner uploads them</p>
                   </div>
                 </div>
               )}
 
               {/* Badges */}
-              <div className="absolute top-4 left-4 flex gap-2">
-                <Badge className="bg-primary/90 text-primary-foreground">
+              <div className="absolute top-2 sm:top-4 left-2 sm:left-4 flex gap-2">
+                <Badge className="bg-primary/90 text-primary-foreground text-xs sm:text-sm">
                   {propertyTypeLabels[property.propertyType] || property.propertyType}
                 </Badge>
                 {property.status && (
-                  <Badge variant="secondary" className="capitalize">
+                  <Badge variant="secondary" className="capitalize text-xs sm:text-sm">
                     {property.status}
                   </Badge>
                 )}
@@ -302,37 +302,37 @@ const PropertyDetail = () => {
             </div>
 
             {/* Title Section */}
-            <div className="space-y-4">
-              <div className="flex items-start justify-between">
-                <div>
-                  <div className="flex items-center gap-2 mb-2">
-                    <Badge className="bg-primary/90 text-primary-foreground">
+            <div className="space-y-3 sm:space-y-4">
+              <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-3">
+                <div className="flex-1">
+                  <div className="flex items-center gap-2 mb-2 flex-wrap">
+                    <Badge className="bg-primary/90 text-primary-foreground text-xs sm:text-sm">
                       {propertyTypeLabels[property.propertyType] || property.propertyType}
                     </Badge>
                     {property.status && (
-                      <Badge variant="outline" className="capitalize">
+                      <Badge variant="outline" className="capitalize text-xs sm:text-sm">
                         {property.status}
                       </Badge>
                     )}
                   </div>
-                  <h1 className="font-heading text-3xl font-bold">
+                  <h1 className="font-heading text-2xl sm:text-3xl font-bold leading-tight">
                     {property.title}
                   </h1>
-                  <div className="flex items-center gap-2 text-muted-foreground mt-2">
-                    <MapPin className="h-4 w-4" />
-                    <span>
+                  <div className="flex items-center gap-2 text-muted-foreground mt-2 text-xs sm:text-base">
+                    <MapPin className="h-3 w-3 sm:h-4 sm:w-4 flex-shrink-0" />
+                    <span className="break-words">
                       {property.address}, {property.city}
                     </span>
                   </div>
                 </div>
-                <div className="flex gap-2">
+                <div className="flex gap-2 flex-shrink-0">
                   <Button
                     variant="outline"
                     size="icon"
                     onClick={handleSave}
                     className={isSaved ? "text-destructive" : ""}
                   >
-                    <Heart className={`h-5 w-5 ${isSaved ? "fill-current" : ""}`} />
+                    <Heart className={`h-4 w-4 sm:h-5 sm:w-5 ${isSaved ? "fill-current" : ""}`} />
                   </Button>
                   <Button 
                     variant="outline" 
@@ -340,14 +340,14 @@ const PropertyDetail = () => {
                     onClick={handleShare}
                     aria-label="Share property"
                   >
-                    <Share2 className="h-5 w-5" />
+                    <Share2 className="h-4 w-4 sm:h-5 sm:w-5" />
                   </Button>
                 </div>
               </div>
 
               {/* Price Info */}
-              <div className="text-lg font-semibold text-foreground">
-                ₹{property.price?.toLocaleString()}<span className="text-sm text-muted-foreground">/month</span>
+              <div className="text-base sm:text-lg font-semibold text-foreground">
+                ₹{property.price?.toLocaleString()}<span className="text-xs sm:text-sm text-muted-foreground">/month</span>
               </div>
             </div>
 
@@ -411,69 +411,69 @@ const PropertyDetail = () => {
               </TabsContent>
 
               <TabsContent value="details" className="space-y-6">
-                <div className="grid grid-cols-2 gap-4">
+                <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-2 gap-3 sm:gap-4">
                   {property.bedrooms && (
-                    <div className="p-4 rounded-lg bg-secondary">
-                      <p className="text-sm text-muted-foreground">Bedrooms</p>
-                      <p className="text-2xl font-semibold">{property.bedrooms}</p>
+                    <div className="p-3 sm:p-4 rounded-lg bg-secondary">
+                      <p className="text-xs sm:text-sm text-muted-foreground">Bedrooms</p>
+                      <p className="text-lg sm:text-2xl font-semibold">{property.bedrooms}</p>
                     </div>
                   )}
                   {property.bathrooms && (
-                    <div className="p-4 rounded-lg bg-secondary">
-                      <p className="text-sm text-muted-foreground">Bathrooms</p>
-                      <p className="text-2xl font-semibold">{property.bathrooms}</p>
+                    <div className="p-3 sm:p-4 rounded-lg bg-secondary">
+                      <p className="text-xs sm:text-sm text-muted-foreground">Bathrooms</p>
+                      <p className="text-lg sm:text-2xl font-semibold">{property.bathrooms}</p>
                     </div>
                   )}
                   {property.squareFeet && (
-                    <div className="p-4 rounded-lg bg-secondary">
-                      <p className="text-sm text-muted-foreground">Square Feet</p>
-                      <p className="text-2xl font-semibold">{property.squareFeet?.toLocaleString()}</p>
+                    <div className="p-3 sm:p-4 rounded-lg bg-secondary">
+                      <p className="text-xs sm:text-sm text-muted-foreground">Square Feet</p>
+                      <p className="text-lg sm:text-2xl font-semibold">{property.squareFeet?.toLocaleString()}</p>
                     </div>
                   )}
                   {property.propertyType && (
-                    <div className="p-4 rounded-lg bg-secondary">
-                      <p className="text-sm text-muted-foreground">Property Type</p>
-                      <p className="text-2xl font-semibold capitalize">{property.property_type || property.propertyType}</p>
+                    <div className="p-3 sm:p-4 rounded-lg bg-secondary">
+                      <p className="text-xs sm:text-sm text-muted-foreground">Property Type</p>
+                      <p className="text-lg sm:text-2xl font-semibold capitalize">{property.property_type || property.propertyType}</p>
                     </div>
                   )}
                   {property.capacity && (
-                    <div className="p-4 rounded-lg bg-secondary">
-                      <p className="text-sm text-muted-foreground">Capacity</p>
-                      <p className="text-2xl font-semibold">{property.capacity} people</p>
+                    <div className="p-3 sm:p-4 rounded-lg bg-secondary">
+                      <p className="text-xs sm:text-sm text-muted-foreground">Capacity</p>
+                      <p className="text-lg sm:text-2xl font-semibold">{property.capacity} people</p>
                     </div>
                   )}
                   {property.vacancies !== undefined && (
-                    <div className="p-4 rounded-lg bg-secondary">
-                      <p className="text-sm text-muted-foreground">Vacancies</p>
-                      <p className="text-2xl font-semibold">{property.vacancies}</p>
+                    <div className="p-3 sm:p-4 rounded-lg bg-secondary">
+                      <p className="text-xs sm:text-sm text-muted-foreground">Vacancies</p>
+                      <p className="text-lg sm:text-2xl font-semibold">{property.vacancies}</p>
                     </div>
                   )}
                   {property.sharing_type && (
-                    <div className="p-4 rounded-lg bg-secondary">
-                      <p className="text-sm text-muted-foreground">Sharing Type</p>
-                      <p className="text-2xl font-semibold capitalize">{property.sharing_type}</p>
+                    <div className="p-3 sm:p-4 rounded-lg bg-secondary">
+                      <p className="text-xs sm:text-sm text-muted-foreground">Sharing Type</p>
+                      <p className="text-lg sm:text-2xl font-semibold capitalize">{property.sharing_type}</p>
                     </div>
                   )}
                   {property.gender_preference && (
-                    <div className="p-4 rounded-lg bg-secondary">
-                      <p className="text-sm text-muted-foreground">Gender Preference</p>
-                      <p className="text-2xl font-semibold capitalize">{property.gender_preference}</p>
+                    <div className="p-3 sm:p-4 rounded-lg bg-secondary">
+                      <p className="text-xs sm:text-sm text-muted-foreground">Gender Preference</p>
+                      <p className="text-lg sm:text-2xl font-semibold capitalize">{property.gender_preference}</p>
                     </div>
                   )}
-                  <div className="p-4 rounded-lg bg-secondary col-span-2">
-                    <p className="text-sm text-muted-foreground">Address</p>
-                    <p className="text-lg font-semibold">{property.address || property.location}</p>
+                  <div className="p-3 sm:p-4 rounded-lg bg-secondary col-span-2 lg:col-span-2">
+                    <p className="text-xs sm:text-sm text-muted-foreground">Address</p>
+                    <p className="text-base sm:text-lg font-semibold">{property.address || property.location}</p>
                   </div>
                   {property.city && (
-                    <div className="p-4 rounded-lg bg-secondary">
-                      <p className="text-sm text-muted-foreground">City</p>
-                      <p className="text-xl font-semibold">{property.city}</p>
+                    <div className="p-3 sm:p-4 rounded-lg bg-secondary">
+                      <p className="text-xs sm:text-sm text-muted-foreground">City</p>
+                      <p className="text-lg sm:text-xl font-semibold">{property.city}</p>
                     </div>
                   )}
                   {property.state && (
-                    <div className="p-4 rounded-lg bg-secondary">
-                      <p className="text-sm text-muted-foreground">State</p>
-                      <p className="text-xl font-semibold">{property.state}</p>
+                    <div className="p-3 sm:p-4 rounded-lg bg-secondary">
+                      <p className="text-xs sm:text-sm text-muted-foreground">State</p>
+                      <p className="text-lg sm:text-xl font-semibold">{property.state}</p>
                     </div>
                   )}
                 </div>
@@ -490,13 +490,13 @@ const PropertyDetail = () => {
             </Tabs>
           </div>
 
-          {/* Sidebar - Seller Info & Contact Card */}
-          <div className="lg:col-span-1">
-            <div className="sticky top-24 space-y-6">
+          {/* Sidebar - Seller Info & Contact Card - Hidden on mobile, visible on lg */}
+          <div className="lg:col-span-1 mt-6 lg:mt-0">
+            <div className="sticky top-24 space-y-4 sm:space-y-6">
               {/* Seller Info Card */}
-              <Card className="p-6">
-                <h3 className="font-semibold text-lg mb-4">Hosted by</h3>
-                <div className="space-y-4">
+              <Card className="p-4 sm:p-6">
+                <h3 className="font-semibold text-base sm:text-lg mb-3 sm:mb-4">Hosted by</h3>
+                <div className="space-y-3 sm:space-y-4">
                   <div>
                     <p className="font-medium text-lg">{seller?.name || "Property Owner"}</p>
                     <p className="text-sm text-muted-foreground">Property Seller</p>

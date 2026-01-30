@@ -30,13 +30,13 @@ const Layout = ({ children }) => {
       
       {/* Main content area starts below fixed navbar and city bar */}
       <motion.div
-        className="min-h-screen flex flex-col bg-background pt-28"
+        className="min-h-screen flex flex-col bg-background pt-16 sm:pt-24"
         initial="hidden"
         animate="visible"
         variants={containerVariants}
       >
         <motion.main 
-          className="flex-1 w-full"
+          className="flex-1 w-full px-2 sm:px-4"
           variants={itemVariants}
         >
           {children}

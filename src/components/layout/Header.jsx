@@ -94,12 +94,12 @@ const Header = () => {
         {unreadCount > 0 && user && (
           <div className="h-1 w-full bg-red-500 animate-pulse"></div>
         )}
-        <nav className="container mx-auto px-4">
-          <div className="flex h-16 items-center justify-between">
-            {/* Logo */}
+        <nav className="container mx-auto px-2 sm:px-4">
+          <div className="flex h-14 sm:h-16 items-center justify-between gap-2">
+            {/* Logo - Responsive Size */}
             <Link to="/" className="flex items-center hover:opacity-90 transition-opacity">
               <div className="relative">
-                <svg className="w-36 h-16" viewBox="0 0 180 80" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <svg className="w-24 h-12 sm:w-36 sm:h-16" viewBox="0 0 180 80" fill="none" xmlns="http://www.w3.org/2000/svg">
                   <defs>
                     <filter id="logoShadow">
                       <feDropShadow dx="3" dy="3" stdDeviation="3" floodOpacity="0.25"/>
@@ -149,8 +149,8 @@ const Header = () => {
               </div>
             </Link>
 
-            {/* Desktop Actions */}
-            <div className="hidden md:flex items-center gap-4">
+            {/* Desktop Actions - Hidden on mobile */}
+            <div className="hidden sm:flex items-center gap-2 lg:gap-4">
               {/* <Button
                 variant="ghost"
                 size="sm"
@@ -165,10 +165,10 @@ const Header = () => {
                 <Button
                   size="sm"
                   onClick={() => navigate("/my-properties")}
-                  className="gap-2 bg-blue-600 hover:bg-blue-700 text-white"
+                  className="gap-1 lg:gap-2 bg-blue-600 hover:bg-blue-700 text-white text-xs lg:text-sm px-2 lg:px-4"
                 >
-                  <Plus className="h-4 w-4" />
-                  List Your Property
+                  <Plus className="h-3 w-3 lg:h-4 lg:w-4" />
+                  <span className="hidden sm:inline">List Property</span>
                 </Button>
               )}
 
@@ -177,12 +177,12 @@ const Header = () => {
                   variant="outline"
                   size="sm"
                   onClick={() => navigate("/messages")}
-                  className="gap-2 relative"
+                  className="gap-1 lg:gap-2 relative text-xs lg:text-sm px-2 lg:px-4"
                 >
-                  <Mail className="h-4 w-4" />
-                  Messages
+                  <Mail className="h-3 w-3 lg:h-4 lg:w-4" />
+                  <span className="hidden md:inline">Messages</span>
                   {unreadCount > 0 && (
-                    <Badge className="absolute -top-2 -right-2 h-5 w-5 flex items-center justify-center p-0 bg-red-500">
+                    <Badge className="absolute -top-2 -right-2 h-4 w-4 lg:h-5 lg:w-5 flex items-center justify-center p-0 bg-red-500 text-xs">
                       {unreadCount > 9 ? "9+" : unreadCount}
                     </Badge>
                   )}
@@ -192,9 +192,9 @@ const Header = () => {
               {user ? (
                 <DropdownMenu>
                   <DropdownMenuTrigger asChild>
-                    <Button variant="outline" size="sm" className="gap-2">
-                      <User className="h-4 w-4" />
-                      {user.name || 'Account'}
+                    <Button variant="outline" size="sm" className="gap-1 lg:gap-2 text-xs lg:text-sm px-2 lg:px-4">
+                      <User className="h-3 w-3 lg:h-4 lg:w-4" />
+                      <span className="hidden lg:inline max-w-[60px] truncate">{user.name || 'Account'}</span>
                     </Button>
                   </DropdownMenuTrigger>
                   <DropdownMenuContent align="end" className="w-48">
@@ -239,28 +239,28 @@ const Header = () => {
                   variant="default"
                   size="sm"
                   onClick={() => navigate("/auth")}
-                  className="gap-2 bg-accent hover:bg-accent/90 text-accent-foreground"
+                  className="gap-1 lg:gap-2 bg-accent hover:bg-accent/90 text-accent-foreground text-xs lg:text-sm px-2 lg:px-4"
                 >
-                  <LogIn className="h-4 w-4" />
-                  Sign In
+                  <LogIn className="h-3 w-3 lg:h-4 lg:w-4" />
+                  <span className="hidden sm:inline">Sign In</span>
                 </Button>
               )}
             </div>
 
             {/* Mobile menu button */}
             <button
-              className="md:hidden p-2"
+              className="sm:hidden p-1.5"
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
             >
               {mobileMenuOpen ? (
-                <X className="h-6 w-6" />
+                <X className="h-5 w-5" />
               ) : (
-                <Menu className="h-6 w-6" />
+                <Menu className="h-5 w-5" />
               )}
             </button>
           </div>
 
-          {/* Mobile Navigation */}
+          {/* Mobile Navigation - Full width */}
           <AnimatePresence>
             {mobileMenuOpen && (
               <motion.div
@@ -268,12 +268,12 @@ const Header = () => {
                 animate={{ opacity: 1, height: "auto" }}
                 exit={{ opacity: 0, height: 0 }}
                 transition={{ duration: 0.3 }}
-                className="md:hidden py-4 border-t"
+                className="sm:hidden py-3 border-t max-h-[60vh] overflow-y-auto"
               >
-                <div className="flex flex-col gap-4">
-                  {/* Cities in mobile menu */}
-                  <div className="pb-4 border-b">
-                    <p className="text-xs font-semibold text-muted-foreground mb-3 px-2">CITIES</p>
+                <div className="flex flex-col gap-3 px-2">
+                  {/* Cities in mobile menu - Grid Layout */}
+                  <div className="pb-3 border-b">
+                    <p className="text-xs font-semibold text-muted-foreground mb-2 px-1">CITIES</p>
                     <div className="grid grid-cols-2 gap-2">
                       {cities.map((city) => (
                         <Button
@@ -287,7 +287,7 @@ const Header = () => {
                             navigate(`/properties?city=${city.toLowerCase()}`);
                             setMobileMenuOpen(false);
                           }}
-                          className="justify-start text-sm"
+                          className="justify-start text-xs h-8"
                         >
                           {city}
                         </Button>
@@ -295,31 +295,102 @@ const Header = () => {
                     </div>
                   </div>
 
-                  <div className="flex flex-col gap-2">
-                    {user ? (
-                      <>
+                  {/* User-specific actions */}
+                  {user && (
+                    <div className="pb-3 border-b space-y-2">
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => {
+                          navigate("/messages");
+                          setMobileMenuOpen(false);
+                        }}
+                        className="w-full justify-start text-xs h-8 gap-2"
+                      >
+                        <Mail className="h-3 w-3" />
+                        Messages {unreadCount > 0 && `(${unreadCount})`}
+                      </Button>
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => {
+                          navigate("/my-properties");
+                          setMobileMenuOpen(false);
+                        }}
+                        className="w-full justify-start text-xs h-8 gap-2"
+                      >
+                        <Home className="h-3 w-3" />
+                        My Properties
+                      </Button>
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => {
+                          navigate("/saved");
+                          setMobileMenuOpen(false);
+                        }}
+                        className="w-full justify-start text-xs h-8 gap-2"
+                      >
+                        <Heart className="h-3 w-3" />
+                        Saved Properties
+                      </Button>
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => {
+                          navigate("/bookings");
+                          setMobileMenuOpen(false);
+                        }}
+                        className="w-full justify-start text-xs h-8 gap-2"
+                      >
+                        <Home className="h-3 w-3" />
+                        My Bookings
+                      </Button>
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => {
+                          navigate("/booking-requests");
+                          setMobileMenuOpen(false);
+                        }}
+                        className="w-full justify-start text-xs h-8 gap-2"
+                      >
+                        <Home className="h-3 w-3" />
+                        Booking Requests
+                      </Button>
+                      {user?.email === "kittu8441@gmail.com" && (
                         <Button
                           variant="outline"
+                          size="sm"
                           onClick={() => {
-                            navigate("/saved");
+                            navigate("/admin");
                             setMobileMenuOpen(false);
                           }}
+                          className="w-full justify-start text-xs h-8 gap-2 text-primary font-semibold"
                         >
-                          Saved Properties
+                          ⚙️ Admin Dashboard
                         </Button>
-                        <Button
-                          variant="ghost"
-                          onClick={() => {
-                            signOut();
-                            setMobileMenuOpen(false);
-                          }}
-                        >
-                          Log out
-                        </Button>
-                      </>
+                      )}
+                    </div>
+                  )}
+
+                  {/* Auth buttons */}
+                  <div className="flex flex-col gap-2">
+                    {user ? (
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => {
+                          signOut();
+                          setMobileMenuOpen(false);
+                        }}
+                        className="w-full text-xs h-8"
+                      >
+                        Log out
+                      </Button>
                     ) : (
                       <Button
-                        className="bg-accent hover:bg-accent/90 text-accent-foreground"
+                        className="w-full bg-accent hover:bg-accent/90 text-accent-foreground text-xs h-8"
                         onClick={() => {
                           navigate("/auth");
                           setMobileMenuOpen(false);
@@ -336,15 +407,15 @@ const Header = () => {
         </nav>
       </header>
 
-      {/* City Navigation Bar - Slides below main navbar */}
+      {/* City Navigation Bar - Hidden on small mobile, visible on sm+ screens */}
       <motion.div
         initial={{ y: 0 }}
         animate={{ y: showCityBar ? 0 : -48 }}
         transition={{ duration: 0.3 }}
-        className="fixed top-16 left-0 right-0 z-40 bg-background border-b border-border"
+        className="hidden sm:block fixed top-14 sm:top-16 left-0 right-0 z-40 bg-background border-b border-border"
       >
-        <div className="container mx-auto px-4">
-          <div className="flex items-center justify-center gap-6 h-12 overflow-x-auto scrollbar-hide">
+        <div className="container mx-auto px-2 sm:px-4">
+          <div className="flex items-center justify-start gap-2 sm:gap-6 h-10 sm:h-12 overflow-x-auto scrollbar-hide">
             {cities.map((city) => (
               <button
                 key={city}
@@ -360,7 +431,7 @@ const Header = () => {
                     navigate(`/properties?city=${city.toLowerCase()}`);
                   }
                 }}
-                className="flex items-center gap-1 text-sm font-medium text-muted-foreground hover:text-foreground transition-colors whitespace-nowrap group"
+                className="flex items-center gap-1 text-xs sm:text-sm font-medium text-muted-foreground hover:text-foreground transition-colors whitespace-nowrap group"
               >
                 {city}
                 {city !== "All Cities" && (
