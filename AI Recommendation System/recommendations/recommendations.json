@@ -3,11 +3,14 @@
   "city": "hyderabad",
   "max_budget": 500000,
   "timestamp": "2026-01-30T20:39:55.933028",
+<<<<<<< HEAD
 =======
   "city": "All Cities",
   "max_budget": 500000,
   "timestamp": "2026-01-30T18:29:34.887615",
 >>>>>>> 52ec31373959a2928f522c7ce2d018147615478b
+=======
+>>>>>>> kittu
   "recommendations": [
     {
       "_id": "697a4069c375a6be13149f6b",
