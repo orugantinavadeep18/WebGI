@@ -53,6 +53,34 @@ const PopularCities = () => {
     fetchCityCounts();
   }, []);
 
+  // Track city click
+  const handleCityClick = async (cityName) => {
+    try {
+      console.log(`📊 Tracking city click: ${cityName}`);
+      
+      const response = await fetch(
+        `${import.meta.env.VITE_API_BASE_URL}/rentals/track-city-click`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ city: cityName }),
+        }
+      );
+
+      if (response.ok) {
+        const data = await response.json();
+        console.log("✅ City click tracked:", data);
+      } else {
+        console.error("❌ Failed to track city click:", response.status);
+      }
+    } catch (error) {
+      console.error("❌ Error tracking city click:", error);
+      // Don't break navigation if tracking fails
+    }
+  };
+
   return (
     <section className="py-16 bg-secondary">
       <div className="container mx-auto px-4">
@@ -93,6 +121,7 @@ const PopularCities = () => {
               >
                 <Link
                   to={`/properties?city=${city.name.toLowerCase()}`}
+                  onClick={() => handleCityClick(city.name)}
                   className="group relative overflow-hidden rounded-xl aspect-[4/5] block"
                 >
                   <img

@@ -1,4 +1,5 @@
 import Property from "../models/Property.js";
+import CityClick from "../models/CityClick.js";
 
 // Recommendation algorithm based on user preferences
 export const getRecommendations = async (req, res) => {
@@ -326,6 +327,143 @@ export const getTrendingRentals = async (req, res) => {
     });
   } catch (error) {
     res.status(500).json({ message: "Error retrieving trending properties", error: error.message });
+  }
+};
+
+// Track city clicks for analytics
+export const trackCityClick = async (req, res) => {
+  try {
+    const { city } = req.body;
+
+    if (!city || city.trim() === "") {
+      return res.status(400).json({ message: "City name is required" });
+    }
+
+    // Get user ID from auth token if available
+    const userId = req.user ? req.user._id : null;
+    const userEmail = req.user ? req.user.email : null;
+
+    // Get IP address
+    const ipAddress =
+      req.headers["x-forwarded-for"]?.split(",")[0] ||
+      req.socket.remoteAddress ||
+      null;
+
+    const userAgent = req.headers["user-agent"] || null;
+
+    // Create and save city click record
+    const cityClick = new CityClick({
+      city: city.trim(),
+      userId,
+      userEmail,
+      ipAddress,
+      userAgent,
+    });
+
+    await cityClick.save();
+
+    console.log(`✅ Tracked city click: ${city} at ${new Date().toISOString()}`);
+
+    res.json({
+      message: "City click tracked successfully",
+      cityClick,
+    });
+  } catch (error) {
+    console.error("Error tracking city click:", error);
+    res.status(500).json({ message: "Error tracking city click", error: error.message });
+  }
+};
+
+// Get city click statistics
+export const getCityClickStats = async (req, res) => {
+  try {
+    const { startDate, endDate, limit = 10 } = req.query;
+
+    let filter = {};
+
+    // Add date range filter if provided
+    if (startDate || endDate) {
+      filter.createdAt = {};
+      if (startDate) filter.createdAt.$gte = new Date(startDate);
+      if (endDate) filter.createdAt.$lte = new Date(endDate);
+    }
+
+    // Aggregate city clicks by count
+    const stats = await CityClick.aggregate([
+      { $match: filter },
+      {
+        $group: {
+          _id: { $toLower: "$city" },
+          count: { $sum: 1 },
+          originalCity: { $first: "$city" },
+        },
+      },
+      { $sort: { count: -1 } },
+      { $limit: parseInt(limit) },
+      {
+        $project: {
+          _id: 0,
+          city: "$originalCity",
+          clicks: "$count",
+        },
+      },
+    ]);
+
+    res.json({
+      message: "City click statistics retrieved",
+      stats,
+      total: stats.reduce((sum, item) => sum + item.clicks, 0),
+    });
+  } catch (error) {
+    console.error("Error retrieving city click stats:", error);
+    res.status(500).json({ message: "Error retrieving city click statistics", error: error.message });
+  }
+};
+
+// Export city clicks to CSV
+export const exportCityClicksCSV = async (req, res) => {
+  try {
+    const { startDate, endDate } = req.query;
+
+    let filter = {};
+
+    // Add date range filter if provided
+    if (startDate || endDate) {
+      filter.createdAt = {};
+      if (startDate) filter.createdAt.$gte = new Date(startDate);
+      if (endDate) filter.createdAt.$lte = new Date(endDate);
+    }
+
+    // Get all city clicks
+    const cityClicks = await CityClick.find(filter)
+      .sort({ createdAt: -1 })
+      .limit(100000); // Safety limit
+
+    // Generate CSV content
+    const csvHeaders = ["City", "User Email", "IP Address", "Timestamp"];
+    const csvRows = cityClicks.map((click) => [
+      click.city,
+      click.userEmail || "Anonymous",
+      click.ipAddress || "Unknown",
+      click.createdAt.toISOString(),
+    ]);
+
+    // Combine headers and rows
+    const csvContent = [
+      csvHeaders.join(","),
+      ...csvRows.map((row) => row.map((col) => `"${col}"`).join(",")),
+    ].join("\n");
+
+    // Send as downloadable file
+    res.setHeader("Content-Type", "text/csv");
+    res.setHeader(
+      "Content-Disposition",
+      `attachment; filename="city-clicks-${new Date().toISOString().split("T")[0]}.csv"`
+    );
+    res.send(csvContent);
+  } catch (error) {
+    console.error("Error exporting city clicks to CSV:", error);
+    res.status(500).json({ message: "Error exporting city clicks", error: error.message });
   }
 };
 

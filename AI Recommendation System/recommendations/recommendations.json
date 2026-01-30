@@ -1,0 +1,444 @@
+{
+  "city": "hyderabad",
+  "max_budget": 500000,
+  "timestamp": "2026-01-30T18:42:36.625757",
+  "recommendations": [
+    {
+      "_id": "697a4069c375a6be13149f6b",
+      "name": "Luxury Hostel",
+      "price": 3500,
+      "rating": 4.8,
+      "capacity": 25,
+      "amenities": [
+        "WiFi",
+        "Food",
+        "AC",
+        "Laundry",
+        "Security"
+      ],
+      "score": 4.109999999999999,
+      "city": "Hyderabad",
+      "location": "Hyderabad"
+    },
+    {
+      "_id": "697a4069c375a6be13149f70",
+      "name": "Premium Single Hostel",
+      "price": 6500,
+      "rating": 4.9,
+      "capacity": 12,
+      "amenities": [
+        "WiFi",
+        "Food",
+        "AC",
+        "Parking",
+        "Laundry",
+        "Power Backup",
+        "Security",
+        "CCTV"
+      ],
+      "score": 3.79,
+      "city": "Hyderabad",
+      "location": "Hyderabad"
+    },
+    {
+      "_id": "697a441ceaeb7ac4787c759f",
+      "name": "Property 39",
+      "price": 9865,
+      "rating": 4.9,
+      "capacity": 7,
+      "amenities": [
+        "wifi",
+        "food",
+        "ac",
+        "parking"
+      ],
+      "score": 3.64,
+      "city": "Hyderabad",
+      "location": "Hyderabad"
+    },
+    {
+      "_id": "697a441ceaeb7ac4787c7563",
+      "name": "Property 19",
+      "price": 3871,
+      "rating": 4.8,
+      "capacity": 8,
+      "amenities": [
+        "wifi",
+        "food",
+        "laundry",
+        "security"
+      ],
+      "score": 3.5999999999999996,
+      "city": "Hyderabad",
+      "location": "Hyderabad"
+    },
+    {
+      "_id": "697a4069c375a6be13149f76",
+      "name": "Corporate Housing",
+      "price": 7500,
+      "rating": 4.7,
+      "capacity": 6,
+      "amenities": [
+        "WiFi",
+        "Food",
+        "AC",
+        "Parking",
+        "Laundry",
+        "Power Backup",
+        "Security",
+        "CCTV"
+      ],
+      "score": 3.47,
+      "city": "Hyderabad",
+      "location": "Hyderabad"
+    },
+    {
+      "_id": "697a4069c375a6be13149f68",
+      "name": "Modern PG",
+      "price": 4500,
+      "rating": 4.5,
+      "capacity": 10,
+      "amenities": [
+        "WiFi",
+        "Food",
+        "AC",
+        "Parking"
+      ],
+      "score": 3.4499999999999997,
+      "city": "Hyderabad",
+      "location": "Hyderabad"
+    },
+    {
+      "_id": "697a4069c375a6be13149f74",
+      "name": "Student Hostel",
+      "price": 2200,
+      "rating": 3.5,
+      "capacity": 30,
+      "amenities": [
+        "WiFi",
+        "Power Backup",
+        "Security"
+      ],
+      "score": 3.3499999999999996,
+      "city": "Hyderabad",
+      "location": "Hyderabad"
+    },
+    {
+      "_id": "697a441ceaeb7ac4787c7551",
+      "name": "Property 13",
+      "price": 9487,
+      "rating": 4.2,
+      "capacity": 7,
+      "amenities": [
+        "wifi",
+        "ac",
+        "parking",
+        "power_backup"
+      ],
+      "score": 3.15,
+      "city": "Hyderabad",
+      "location": "Hyderabad"
+    },
+    {
+      "_id": "697a441ceaeb7ac4787c7566",
+      "name": "Property 20",
+      "price": 4950,
+      "rating": 4.1,
+      "capacity": 2,
+      "amenities": [
+        "wifi",
+        "ac",
+        "parking",
+        "power_backup"
+      ],
+      "score": 2.9299999999999997,
+      "city": "Hyderabad",
+      "location": "Hyderabad"
+    },
+    {
+      "_id": "697a441ceaeb7ac4787c7596",
+      "name": "Property 36",
+      "price": 7499,
+      "rating": 4.1,
+      "capacity": 2,
+      "amenities": [
+        "wifi",
+        "food",
+        "ac",
+        "parking"
+      ],
+      "score": 2.9299999999999997,
+      "city": "Hyderabad",
+      "location": "Hyderabad"
+    },
+    {
+      "_id": "697a4069c375a6be13149f6e",
+      "name": "Budget PG",
+      "price": 2800,
+      "rating": 3.8,
+      "capacity": 8,
+      "amenities": [
+        "WiFi",
+        "Power Backup",
+        "Security"
+      ],
+      "score": 2.8999999999999995,
+      "city": "Hyderabad",
+      "location": "Hyderabad"
+    },
+    {
+      "_id": "697a441ceaeb7ac4787c75ae",
+      "name": "Property 44",
+      "price": 5553,
+      "rating": 3.7,
+      "capacity": 4,
+      "amenities": [
+        "ac",
+        "parking",
+        "power_backup",
+        "cctv"
+      ],
+      "score": 2.71,
+      "city": "Hyderabad",
+      "location": "Hyderabad"
+    },
+    {
+      "_id": "697a441ceaeb7ac4787c7545",
+      "name": "Property 9",
+      "price": 4190,
+      "rating": 3.1,
+      "capacity": 7,
+      "amenities": [
+        "wifi",
+        "food",
+        "ac",
+        "security"
+      ],
+      "score": 2.38,
+      "city": "Hyderabad",
+      "location": "Hyderabad"
+    }
+  ],
+  "all_scored_properties": [
+    {
+      "_id": "697a4069c375a6be13149f6b",
+      "name": "Luxury Hostel",
+      "price": 3500,
+      "rating": 4.8,
+      "capacity": 25,
+      "amenities": [
+        "WiFi",
+        "Food",
+        "AC",
+        "Laundry",
+        "Security"
+      ],
+      "score": 4.109999999999999,
+      "city": "Hyderabad",
+      "location": "Hyderabad"
+    },
+    {
+      "_id": "697a4069c375a6be13149f70",
+      "name": "Premium Single Hostel",
+      "price": 6500,
+      "rating": 4.9,
+      "capacity": 12,
+      "amenities": [
+        "WiFi",
+        "Food",
+        "AC",
+        "Parking",
+        "Laundry",
+        "Power Backup",
+        "Security",
+        "CCTV"
+      ],
+      "score": 3.79,
+      "city": "Hyderabad",
+      "location": "Hyderabad"
+    },
+    {
+      "_id": "697a441ceaeb7ac4787c759f",
+      "name": "Property 39",
+      "price": 9865,
+      "rating": 4.9,
+      "capacity": 7,
+      "amenities": [
+        "wifi",
+        "food",
+        "ac",
+        "parking"
+      ],
+      "score": 3.64,
+      "city": "Hyderabad",
+      "location": "Hyderabad"
+    },
+    {
+      "_id": "697a441ceaeb7ac4787c7563",
+      "name": "Property 19",
+      "price": 3871,
+      "rating": 4.8,
+      "capacity": 8,
+      "amenities": [
+        "wifi",
+        "food",
+        "laundry",
+        "security"
+      ],
+      "score": 3.5999999999999996,
+      "city": "Hyderabad",
+      "location": "Hyderabad"
+    },
+    {
+      "_id": "697a4069c375a6be13149f76",
+      "name": "Corporate Housing",
+      "price": 7500,
+      "rating": 4.7,
+      "capacity": 6,
+      "amenities": [
+        "WiFi",
+        "Food",
+        "AC",
+        "Parking",
+        "Laundry",
+        "Power Backup",
+        "Security",
+        "CCTV"
+      ],
+      "score": 3.47,
+      "city": "Hyderabad",
+      "location": "Hyderabad"
+    },
+    {
+      "_id": "697a4069c375a6be13149f68",
+      "name": "Modern PG",
+      "price": 4500,
+      "rating": 4.5,
+      "capacity": 10,
+      "amenities": [
+        "WiFi",
+        "Food",
+        "AC",
+        "Parking"
+      ],
+      "score": 3.4499999999999997,
+      "city": "Hyderabad",
+      "location": "Hyderabad"
+    },
+    {
+      "_id": "697a4069c375a6be13149f74",
+      "name": "Student Hostel",
+      "price": 2200,
+      "rating": 3.5,
+      "capacity": 30,
+      "amenities": [
+        "WiFi",
+        "Power Backup",
+        "Security"
+      ],
+      "score": 3.3499999999999996,
+      "city": "Hyderabad",
+      "location": "Hyderabad"
+    },
+    {
+      "_id": "697a441ceaeb7ac4787c7551",
+      "name": "Property 13",
+      "price": 9487,
+      "rating": 4.2,
+      "capacity": 7,
+      "amenities": [
+        "wifi",
+        "ac",
+        "parking",
+        "power_backup"
+      ],
+      "score": 3.15,
+      "city": "Hyderabad",
+      "location": "Hyderabad"
+    },
+    {
+      "_id": "697a441ceaeb7ac4787c7566",
+      "name": "Property 20",
+      "price": 4950,
+      "rating": 4.1,
+      "capacity": 2,
+      "amenities": [
+        "wifi",
+        "ac",
+        "parking",
+        "power_backup"
+      ],
+      "score": 2.9299999999999997,
+      "city": "Hyderabad",
+      "location": "Hyderabad"
+    },
+    {
+      "_id": "697a441ceaeb7ac4787c7596",
+      "name": "Property 36",
+      "price": 7499,
+      "rating": 4.1,
+      "capacity": 2,
+      "amenities": [
+        "wifi",
+        "food",
+        "ac",
+        "parking"
+      ],
+      "score": 2.9299999999999997,
+      "city": "Hyderabad",
+      "location": "Hyderabad"
+    },
+    {
+      "_id": "697a4069c375a6be13149f6e",
+      "name": "Budget PG",
+      "price": 2800,
+      "rating": 3.8,
+      "capacity": 8,
+      "amenities": [
+        "WiFi",
+        "Power Backup",
+        "Security"
+      ],
+      "score": 2.8999999999999995,
+      "city": "Hyderabad",
+      "location": "Hyderabad"
+    },
+    {
+      "_id": "697a441ceaeb7ac4787c75ae",
+      "name": "Property 44",
+      "price": 5553,
+      "rating": 3.7,
+      "capacity": 4,
+      "amenities": [
+        "ac",
+        "parking",
+        "power_backup",
+        "cctv"
+      ],
+      "score": 2.71,
+      "city": "Hyderabad",
+      "location": "Hyderabad"
+    },
+    {
+      "_id": "697a441ceaeb7ac4787c7545",
+      "name": "Property 9",
+      "price": 4190,
+      "rating": 3.1,
+      "capacity": 7,
+      "amenities": [
+        "wifi",
+        "food",
+        "ac",
+        "security"
+      ],
+      "score": 2.38,
+      "city": "Hyderabad",
+      "location": "Hyderabad"
+    }
+  ],
+  "stats": {
+    "total_properties_scored": 13,
+    "top_recommendations": 13,
+    "total_returned": 26
+  }
+}

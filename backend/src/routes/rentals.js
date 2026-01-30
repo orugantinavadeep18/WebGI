@@ -5,6 +5,9 @@ import {
   getRentalById,
   toggleRentalSelection,
   getTrendingRentals,
+  trackCityClick,
+  getCityClickStats,
+  exportCityClicksCSV,
 } from "../controllers/rentalController.js";
 import {
   getPropertyReviews,
@@ -60,6 +63,9 @@ router.get("/city-counts", async (req, res) => {
 
 // Public routes
 router.post("/recommend", getRecommendations);
+router.post("/track-city-click", trackCityClick); // Track city clicks
+router.get("/city-click-stats", getCityClickStats); // Get city click statistics
+router.get("/export-city-clicks", exportCityClicksCSV); // Export city clicks as CSV
 router.get("/", getAllRentals);
 router.get("/trending", getTrendingRentals);
 router.put("/:id/select", authenticateToken, toggleRentalSelection);

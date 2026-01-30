@@ -22,7 +22,6 @@ import { Card } from "@/components/ui/card";
 import { toast } from "sonner";
 import { useAuth } from "@/hooks/useAuth";
 import { useProperties } from "@/hooks/useProperties";
-import { useSavedProperties } from "@/hooks/useSavedProperties";
 import ReviewSystem from "@/components/property/ReviewSystem";
 import BookingModal from "@/components/property/BookingModal";
 import { getPropertyImageUrls, handleImageError } from "@/lib/imageUtils";
@@ -32,12 +31,13 @@ const PropertyDetail = () => {
   const navigate = useNavigate();
   const { user } = useAuth();
   const { getPropertyById } = useProperties();
-  const { toggleSave, isSaved: checkIsSaved } = useSavedProperties();
   
   const [property, setProperty] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
+  const [isSaved, setIsSaved] = useState(false);
+  const [showContactModal, setShowContactModal] = useState(false);
   const [showBookingModal, setShowBookingModal] = useState(false);
   const [seller, setSeller] = useState(null);
 
@@ -155,9 +155,8 @@ const PropertyDetail = () => {
       toast.error("Please sign in to save properties");
       return;
     }
-    const wasSaved = checkIsSaved(property._id);
-    toggleSave(property._id);
-    toast.success(wasSaved ? "Removed from saved" : "Added to saved properties");
+    setIsSaved(!isSaved);
+    toast.success(isSaved ? "Removed from saved" : "Added to saved properties");
   };
 
   const handleShare = async () => {
@@ -331,10 +330,9 @@ const PropertyDetail = () => {
                     variant="outline"
                     size="icon"
                     onClick={handleSave}
-                    className={checkIsSaved(property._id) ? "text-destructive" : ""}
-                    aria-label={checkIsSaved(property._id) ? "Remove from saved" : "Save property"}
+                    className={isSaved ? "text-destructive" : ""}
                   >
-                    <Heart className={`h-5 w-5 ${checkIsSaved(property._id) ? "fill-current" : ""}`} />
+                    <Heart className={`h-5 w-5 ${isSaved ? "fill-current" : ""}`} />
                   </Button>
                   <Button 
                     variant="outline" 
@@ -354,12 +352,13 @@ const PropertyDetail = () => {
             </div>
 
             {/* Tabs */}
-            <Tabs defaultValue="overview" className="space-y-6">
-              <TabsList className="grid w-full grid-cols-4">
-                <TabsTrigger value="overview">Overview</TabsTrigger>
-                <TabsTrigger value="details">Details</TabsTrigger>
-                <TabsTrigger value="ai-score">AI Score</TabsTrigger>
-                <TabsTrigger value="reviews">Reviews</TabsTrigger>
+            <Tabs defaultValue=" overview " className="space-y-6">
+              <TabsList className="grid w-full grid-cols-5">
+                <TabsTrigger value=" overview ">Overview</TabsTrigger>
+                <TabsTrigger value=" amenities ">Amenities</TabsTrigger>
+                <TabsTrigger value=" details ">Details</TabsTrigger>
+                {/* <TabsTrigger value="ai-score">AI Score</TabsTrigger> */}
+                <TabsTrigger value=" reviews ">Reviews</TabsTrigger>
               </TabsList>
 
               <TabsContent value="overview" className="space-y-6">
@@ -478,37 +477,6 @@ const PropertyDetail = () => {
                     </div>
                   )}
                 </div>
-              </TabsContent>
-
-              <TabsContent value="ai-score" className="space-y-6">
-                <div className="bg-gradient-to-br from-blue-50 to-indigo-50 p-8 rounded-lg border-2 border-blue-200">
-                  <h3 className="text-2xl font-bold text-blue-900 mb-6">🤖 AI Recommendation Analysis</h3>
-                  
-                  {/* Overall Score */}
-                  <div className="mb-8 bg-white p-6 rounded-lg shadow-md">
-                    <p className="text-gray-600 text-sm mb-2">Overall Recommendation Score</p>
-                    <div className="flex items-end gap-4">
-                      <div className="text-5xl font-bold text-green-600">
-                        {property.recommendation_score?.toFixed(1) || 'N/A'}<span className="text-2xl">/100</span>
-                      </div>
-                      <div className="flex-1">
-                        <div className="w-full bg-gray-300 rounded-full h-4 mb-2">
-                          <div
-                            className="bg-gradient-to-r from-green-400 to-green-600 h-4 rounded-full transition-all"
-                            style={{width: `${Math.min((property.recommendation_score || 0), 100)}%`}}
-                          ></div>
-                        </div>
-                        <p className="text-sm text-gray-600">
-                          {(property.recommendation_score || 0) > 75 
-                            ? '⭐⭐⭐ Excellent Match' 
-                            : (property.recommendation_score || 0) > 50 
-                            ? '⭐⭐ Good Match' 
-                            : '⭐ Fair Match'}
-                        </p>
-                      </div>
-                    </div>
-                  </div>
-                </div> 
               </TabsContent>
 
               <TabsContent value="reviews" className="space-y-6">

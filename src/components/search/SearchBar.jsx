@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useRef, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { Search, MapPin, Calendar, Users } from "lucide-react";
 import { motion } from "framer-motion";
@@ -12,11 +12,36 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 
+// Common locations for autocomplete
+const COMMON_LOCATIONS = [
+  "Mumbai",
+  "Delhi",
+  "Bangalore",
+  "Hyderabad",
+  "Chennai",
+  "Kolkata",
+  "Pune",
+  "Ahmedabad",
+  "Jaipur",
+  "Lucknow",
+  "Chandigarh",
+  "Indore",
+  "Kochi",
+  "Surat",
+  "Bhopal",
+  "Visakhapatnam",
+  "Nagpur",
+  "Vadodara",
+];
+
 const SearchBar = ({ variant = "hero", className }) => {
   const navigate = useNavigate();
   const [city, setCity] = useState("");
   const [propertyType, setPropertyType] = useState("");
   const [budget, setBudget] = useState("");
+  const [showSuggestions, setShowSuggestions] = useState(false);
+  const [filteredLocations, setFilteredLocations] = useState([]);
+  const suggestionsRef = useRef(null);
 
   const handleSearch = () => {
     const params = new URLSearchParams();
@@ -24,25 +49,72 @@ const SearchBar = ({ variant = "hero", className }) => {
     if (propertyType) params.set("type", propertyType);
     if (budget) params.set("budget", budget);
     navigate(`/properties?${params.toString()}`);
+    setShowSuggestions(false);
   };
+
+  const handleCityChange = (value) => {
+    setCity(value);
+    if (value.trim()) {
+      const filtered = COMMON_LOCATIONS.filter((location) =>
+        location.toLowerCase().includes(value.toLowerCase())
+      );
+      setFilteredLocations(filtered);
+      setShowSuggestions(true);
+    } else {
+      setFilteredLocations([]);
+      setShowSuggestions(false);
+    }
+  };
+
+  const handleSelectLocation = (location) => {
+    setCity(location);
+    setShowSuggestions(false);
+    setFilteredLocations([]);
+  };
+
+  // Close suggestions when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (suggestionsRef.current && !suggestionsRef.current.contains(event.target)) {
+        setShowSuggestions(false);
+      }
+    };
+
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
 
   if (variant === "compact") {
     return (
       <div className={`flex items-center gap-2 p-2 bg-card rounded-xl border shadow-sm relative z-40 ${className}`}>
-        <div className="flex-1 flex items-center gap-2 px-3">
+        <div className="flex-1 flex items-center gap-2 px-3 relative" ref={suggestionsRef}>
           <MapPin className="h-4 w-4 text-muted-foreground" />
           <Input
             type="text"
             placeholder="Enter city, area or locality"
             value={city}
-            onChange={(e) => setCity(e.target.value)}
+            onChange={(e) => handleCityChange(e.target.value)}
             onKeyDown={(e) => {
               if (e.key === "Enter" && city.trim()) {
-                handleSearch(city);
+                handleSearch();
               }
             }}
             className="border-0 bg-transparent focus-visible:ring-0 p-0 h-auto text-base font-medium placeholder:text-muted-foreground/60"
           />
+          {showSuggestions && filteredLocations.length > 0 && (
+            <div className="absolute top-full left-0 right-0 mt-2 bg-card border rounded-md shadow-lg z-50 max-h-60 overflow-y-auto">
+              {filteredLocations.map((location) => (
+                <button
+                  key={location}
+                  onClick={() => handleSelectLocation(location)}
+                  className="w-full text-left px-4 py-2 hover:bg-secondary/80 transition-colors text-sm flex items-center gap-2"
+                >
+                  <MapPin className="h-3 w-3 text-muted-foreground" />
+                  {location}
+                </button>
+              ))}
+            </div>
+          )}
         </div>
         <Button
           onClick={handleSearch}
@@ -63,7 +135,7 @@ const SearchBar = ({ variant = "hero", className }) => {
     >
       <div className="flex flex-col md:flex-row gap-3">
         {/* City */}
-        <div className="flex-1 flex items-center gap-3 px-4 py-3 bg-secondary/50 rounded-lg">
+        <div className="flex-1 flex items-center gap-3 px-4 py-3 bg-secondary/50 rounded-lg relative" ref={suggestionsRef}>
           <MapPin className="h-5 w-5 text-muted-foreground flex-shrink-0" />
           <div className="flex-1">
             <p className="text-xs text-muted-foreground mb-0.5">Location</p>
@@ -71,14 +143,28 @@ const SearchBar = ({ variant = "hero", className }) => {
               type="text"
               placeholder="Enter city, area or locality"
               value={city}
-              onChange={(e) => setCity(e.target.value)}
+              onChange={(e) => handleCityChange(e.target.value)}
               onKeyDown={(e) => {
                 if (e.key === "Enter" && city.trim()) {
-                  handleSearch(city);
+                  handleSearch();
                 }
               }}
               className="border-0 bg-transparent focus-visible:ring-0 p-0 h-auto text-base font-medium placeholder:text-muted-foreground/60"
             />
+            {showSuggestions && filteredLocations.length > 0 && (
+              <div className="absolute top-full left-0 right-0 mt-2 bg-card border rounded-md shadow-lg z-50 max-h-60 overflow-y-auto md:w-80">
+                {filteredLocations.map((location) => (
+                  <button
+                    key={location}
+                    onClick={() => handleSelectLocation(location)}
+                    className="w-full text-left px-4 py-2 hover:bg-secondary/80 transition-colors text-sm flex items-center gap-2"
+                  >
+                    <MapPin className="h-3 w-3 text-muted-foreground" />
+                    {location}
+                  </button>
+                ))}
+              </div>
+            )}
           </div>
         </div>
 
