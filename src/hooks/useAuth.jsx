@@ -3,7 +3,7 @@ import { toast } from "sonner";
 
 const AuthContext = createContext(undefined);
 
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || "http://localhost:5000/api";
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || "https://webgi-2-vpru.onrender.com/api";
 
 export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);

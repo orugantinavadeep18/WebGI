@@ -1,7 +1,7 @@
 {
-  "city": "hyderabad",
+  "city": "All Cities",
   "max_budget": 500000,
-  "timestamp": "2026-01-30T20:39:55.933028",
+  "timestamp": "2026-01-30T21:21:36.515653",
   "recommendations": [
     {
       "_id": "697a4069c375a6be13149f6b",
@@ -73,6 +73,86 @@
       "location": "Hyderabad"
     },
     {
+      "_id": "697a441ceaeb7ac4787c756c",
+      "name": "Property 22",
+      "price": 7802,
+      "rating": 4.8,
+      "capacity": 8,
+      "amenities": [
+        "ac",
+        "parking",
+        "power_backup",
+        "cctv"
+      ],
+      "score": 3.5999999999999996,
+      "city": "Mumbai",
+      "location": "Mumbai"
+    },
+    {
+      "_id": "697a441ceaeb7ac4787c756f",
+      "name": "Property 23",
+      "price": 3008,
+      "rating": 4.8,
+      "capacity": 8,
+      "amenities": [
+        "ac",
+        "parking",
+        "power_backup",
+        "cctv"
+      ],
+      "score": 3.5999999999999996,
+      "city": "Bangalore",
+      "location": "Bangalore"
+    },
+    {
+      "_id": "697a441ceaeb7ac4787c752d",
+      "name": "Property 1",
+      "price": 2984,
+      "rating": 4.9,
+      "capacity": 5,
+      "amenities": [
+        "ac",
+        "parking",
+        "power_backup",
+        "cctv"
+      ],
+      "score": 3.58,
+      "city": "Mumbai",
+      "location": "Mumbai"
+    },
+    {
+      "_id": "697a441ceaeb7ac4787c7572",
+      "name": "Property 24",
+      "price": 5677,
+      "rating": 4.8,
+      "capacity": 7,
+      "amenities": [
+        "wifi",
+        "ac",
+        "parking",
+        "power_backup"
+      ],
+      "score": 3.57,
+      "city": "Bangalore",
+      "location": "Bangalore"
+    },
+    {
+      "_id": "697a441ceaeb7ac4787c7590",
+      "name": "Property 34",
+      "price": 9793,
+      "rating": 4.9,
+      "capacity": 3,
+      "amenities": [
+        "ac",
+        "parking",
+        "power_backup",
+        "cctv"
+      ],
+      "score": 3.52,
+      "city": "Chennai",
+      "location": "Chennai"
+    },
+    {
       "_id": "697a4069c375a6be13149f76",
       "name": "Corporate Housing",
       "price": 7500,
@@ -109,6 +189,70 @@
       "location": "Hyderabad"
     },
     {
+      "_id": "697a441ceaeb7ac4787c7548",
+      "name": "Property 10",
+      "price": 5336,
+      "rating": 4.7,
+      "capacity": 5,
+      "amenities": [
+        "ac",
+        "parking",
+        "power_backup",
+        "cctv"
+      ],
+      "score": 3.44,
+      "city": "Mumbai",
+      "location": "Mumbai"
+    },
+    {
+      "_id": "697a441ceaeb7ac4787c7536",
+      "name": "Property 4",
+      "price": 8873,
+      "rating": 4.7,
+      "capacity": 3,
+      "amenities": [
+        "wifi",
+        "food",
+        "ac",
+        "security"
+      ],
+      "score": 3.38,
+      "city": "Delhi",
+      "location": "Delhi"
+    },
+    {
+      "_id": "697a441ceaeb7ac4787c7530",
+      "name": "Property 2",
+      "price": 9181,
+      "rating": 4.4,
+      "capacity": 9,
+      "amenities": [
+        "wifi",
+        "ac",
+        "parking",
+        "power_backup"
+      ],
+      "score": 3.35,
+      "city": "Delhi",
+      "location": "Delhi"
+    },
+    {
+      "_id": "697a441ceaeb7ac4787c7593",
+      "name": "Property 35",
+      "price": 8222,
+      "rating": 4.7,
+      "capacity": 2,
+      "amenities": [
+        "wifi",
+        "food",
+        "ac",
+        "security"
+      ],
+      "score": 3.35,
+      "city": "Mumbai",
+      "location": "Mumbai"
+    },
+    {
       "_id": "697a4069c375a6be13149f74",
       "name": "Student Hostel",
       "price": 2200,
@@ -122,6 +266,38 @@
       "score": 3.3499999999999996,
       "city": "Hyderabad",
       "location": "Hyderabad"
+    },
+    {
+      "_id": "697a441ceaeb7ac4787c7533",
+      "name": "Property 3",
+      "price": 4396,
+      "rating": 4.6,
+      "capacity": 4,
+      "amenities": [
+        "wifi",
+        "food",
+        "ac",
+        "security"
+      ],
+      "score": 3.34,
+      "city": "Chennai",
+      "location": "Chennai"
+    },
+    {
+      "_id": "697a441ceaeb7ac4787c75a8",
+      "name": "Property 42",
+      "price": 7649,
+      "rating": 4.4,
+      "capacity": 4,
+      "amenities": [
+        "wifi",
+        "food",
+        "ac",
+        "security"
+      ],
+      "score": 3.2,
+      "city": "Chennai",
+      "location": "Chennai"
     },
     {
       "_id": "697a441ceaeb7ac4787c7551",
@@ -138,6 +314,86 @@
       "score": 3.15,
       "city": "Hyderabad",
       "location": "Hyderabad"
+    },
+    {
+      "_id": "697a441ceaeb7ac4787c7539",
+      "name": "Property 5",
+      "price": 9857,
+      "rating": 4.1,
+      "capacity": 9,
+      "amenities": [
+        "ac",
+        "parking",
+        "power_backup",
+        "cctv"
+      ],
+      "score": 3.1399999999999997,
+      "city": "Mumbai",
+      "location": "Mumbai"
+    },
+    {
+      "_id": "697a441ceaeb7ac4787c7584",
+      "name": "Property 30",
+      "price": 2414,
+      "rating": 4.3,
+      "capacity": 3,
+      "amenities": [
+        "ac",
+        "parking",
+        "power_backup",
+        "cctv"
+      ],
+      "score": 3.0999999999999996,
+      "city": "Bangalore",
+      "location": "Bangalore"
+    },
+    {
+      "_id": "697a441ceaeb7ac4787c7581",
+      "name": "Property 29",
+      "price": 2063,
+      "rating": 3.9,
+      "capacity": 7,
+      "amenities": [
+        "wifi",
+        "ac",
+        "parking",
+        "power_backup"
+      ],
+      "score": 2.94,
+      "city": "Bangalore",
+      "location": "Bangalore"
+    },
+    {
+      "_id": "697a441ceaeb7ac4787c7599",
+      "name": "Property 37",
+      "price": 4779,
+      "rating": 3.9,
+      "capacity": 7,
+      "amenities": [
+        "wifi",
+        "food",
+        "ac",
+        "security"
+      ],
+      "score": 2.94,
+      "city": "Chennai",
+      "location": "Chennai"
+    },
+    {
+      "_id": "697a441ceaeb7ac4787c757b",
+      "name": "Property 27",
+      "price": 9638,
+      "rating": 3.9,
+      "capacity": 7,
+      "amenities": [
+        "wifi",
+        "food",
+        "ac",
+        "parking"
+      ],
+      "score": 2.94,
+      "city": "Bangalore",
+      "location": "Bangalore"
     },
     {
       "_id": "697a441ceaeb7ac4787c7566",
@@ -172,6 +428,22 @@
       "location": "Hyderabad"
     },
     {
+      "_id": "697a441ceaeb7ac4787c75ab",
+      "name": "Property 43",
+      "price": 6804,
+      "rating": 3.9,
+      "capacity": 6,
+      "amenities": [
+        "wifi",
+        "food",
+        "ac",
+        "security"
+      ],
+      "score": 2.91,
+      "city": "Chennai",
+      "location": "Chennai"
+    },
+    {
       "_id": "697a4069c375a6be13149f6e",
       "name": "Budget PG",
       "price": 2800,
@@ -185,6 +457,134 @@
       "score": 2.8999999999999995,
       "city": "Hyderabad",
       "location": "Hyderabad"
+    },
+    {
+      "_id": "697a441ceaeb7ac4787c7587",
+      "name": "Property 31",
+      "price": 7221,
+      "rating": 3.8,
+      "capacity": 8,
+      "amenities": [
+        "wifi",
+        "food",
+        "ac",
+        "security"
+      ],
+      "score": 2.8999999999999995,
+      "city": "Chennai",
+      "location": "Chennai"
+    },
+    {
+      "_id": "697a441ceaeb7ac4787c755d",
+      "name": "Property 17",
+      "price": 2537,
+      "rating": 3.9,
+      "capacity": 4,
+      "amenities": [
+        "wifi",
+        "ac",
+        "parking",
+        "power_backup"
+      ],
+      "score": 2.85,
+      "city": "Mumbai",
+      "location": "Mumbai"
+    },
+    {
+      "_id": "697a441ceaeb7ac4787c754b",
+      "name": "Property 11",
+      "price": 5217,
+      "rating": 3.9,
+      "capacity": 4,
+      "amenities": [
+        "wifi",
+        "food",
+        "laundry",
+        "security"
+      ],
+      "score": 2.85,
+      "city": "Bangalore",
+      "location": "Bangalore"
+    },
+    {
+      "_id": "697a441ceaeb7ac4787c7575",
+      "name": "Property 25",
+      "price": 7817,
+      "rating": 3.9,
+      "capacity": 3,
+      "amenities": [
+        "wifi",
+        "ac",
+        "parking",
+        "power_backup"
+      ],
+      "score": 2.82,
+      "city": "Chennai",
+      "location": "Chennai"
+    },
+    {
+      "_id": "697a441ceaeb7ac4787c759c",
+      "name": "Property 38",
+      "price": 8332,
+      "rating": 3.6,
+      "capacity": 9,
+      "amenities": [
+        "ac",
+        "parking",
+        "power_backup",
+        "cctv"
+      ],
+      "score": 2.79,
+      "city": "Bangalore",
+      "location": "Bangalore"
+    },
+    {
+      "_id": "697a441ceaeb7ac4787c75ba",
+      "name": "Property 48",
+      "price": 7453,
+      "rating": 3.9,
+      "capacity": 2,
+      "amenities": [
+        "ac",
+        "parking",
+        "power_backup",
+        "cctv"
+      ],
+      "score": 2.79,
+      "city": "Mumbai",
+      "location": "Mumbai"
+    },
+    {
+      "_id": "697a441ceaeb7ac4787c753c",
+      "name": "Property 6",
+      "price": 7289,
+      "rating": 3.8,
+      "capacity": 4,
+      "amenities": [
+        "wifi",
+        "ac",
+        "parking",
+        "power_backup"
+      ],
+      "score": 2.78,
+      "city": "Chennai",
+      "location": "Chennai"
+    },
+    {
+      "_id": "697a441ceaeb7ac4787c7557",
+      "name": "Property 15",
+      "price": 3596,
+      "rating": 3.6,
+      "capacity": 8,
+      "amenities": [
+        "wifi",
+        "ac",
+        "parking",
+        "power_backup"
+      ],
+      "score": 2.76,
+      "city": "Chennai",
+      "location": "Chennai"
     },
     {
       "_id": "697a441ceaeb7ac4787c75ae",
@@ -203,6 +603,150 @@
       "location": "Hyderabad"
     },
     {
+      "_id": "697a441ceaeb7ac4787c75b1",
+      "name": "Property 45",
+      "price": 9560,
+      "rating": 3.6,
+      "capacity": 5,
+      "amenities": [
+        "wifi",
+        "food",
+        "ac",
+        "parking"
+      ],
+      "score": 2.67,
+      "city": "Chennai",
+      "location": "Chennai"
+    },
+    {
+      "_id": "697a441ceaeb7ac4787c7554",
+      "name": "Property 14",
+      "price": 4374,
+      "rating": 3.4,
+      "capacity": 6,
+      "amenities": [
+        "wifi",
+        "food",
+        "laundry",
+        "security"
+      ],
+      "score": 2.56,
+      "city": "Bangalore",
+      "location": "Bangalore"
+    },
+    {
+      "_id": "697a441ceaeb7ac4787c755a",
+      "name": "Property 16",
+      "price": 6087,
+      "rating": 3.5,
+      "capacity": 3,
+      "amenities": [
+        "wifi",
+        "food",
+        "ac",
+        "security"
+      ],
+      "score": 2.5399999999999996,
+      "city": "Mumbai",
+      "location": "Mumbai"
+    },
+    {
+      "_id": "697a441ceaeb7ac4787c7542",
+      "name": "Property 8",
+      "price": 3167,
+      "rating": 3.2,
+      "capacity": 9,
+      "amenities": [
+        "wifi",
+        "ac",
+        "parking",
+        "power_backup"
+      ],
+      "score": 2.51,
+      "city": "Chennai",
+      "location": "Chennai"
+    },
+    {
+      "_id": "697a441ceaeb7ac4787c753f",
+      "name": "Property 7",
+      "price": 8019,
+      "rating": 3.2,
+      "capacity": 9,
+      "amenities": [
+        "wifi",
+        "food",
+        "ac",
+        "parking"
+      ],
+      "score": 2.51,
+      "city": "Mumbai",
+      "location": "Mumbai"
+    },
+    {
+      "_id": "697a441ceaeb7ac4787c7578",
+      "name": "Property 26",
+      "price": 6712,
+      "rating": 3.3,
+      "capacity": 5,
+      "amenities": [
+        "ac",
+        "parking",
+        "power_backup",
+        "cctv"
+      ],
+      "score": 2.4599999999999995,
+      "city": "Chennai",
+      "location": "Chennai"
+    },
+    {
+      "_id": "697a441ceaeb7ac4787c758a",
+      "name": "Property 32",
+      "price": 6454,
+      "rating": 3.3,
+      "capacity": 5,
+      "amenities": [
+        "wifi",
+        "ac",
+        "parking",
+        "power_backup"
+      ],
+      "score": 2.4599999999999995,
+      "city": "Chennai",
+      "location": "Chennai"
+    },
+    {
+      "_id": "697a441ceaeb7ac4787c758d",
+      "name": "Property 33",
+      "price": 3368,
+      "rating": 3.2,
+      "capacity": 7,
+      "amenities": [
+        "ac",
+        "parking",
+        "power_backup",
+        "cctv"
+      ],
+      "score": 2.4499999999999997,
+      "city": "Delhi",
+      "location": "Delhi"
+    },
+    {
+      "_id": "697a441ceaeb7ac4787c7569",
+      "name": "Property 21",
+      "price": 8651,
+      "rating": 3.3,
+      "capacity": 3,
+      "amenities": [
+        "ac",
+        "parking",
+        "power_backup",
+        "cctv"
+      ],
+      "score": 2.3999999999999995,
+      "city": "Chennai",
+      "location": "Chennai"
+    },
+    {
       "_id": "697a441ceaeb7ac4787c7545",
       "name": "Property 9",
       "price": 4190,
@@ -217,6 +761,210 @@
       "score": 2.38,
       "city": "Hyderabad",
       "location": "Hyderabad"
+    },
+    {
+      "_id": "697a441ceaeb7ac4787c7560",
+      "name": "Property 18",
+      "price": 9089,
+      "rating": 3.0,
+      "capacity": 8,
+      "amenities": [
+        "ac",
+        "parking",
+        "power_backup",
+        "cctv"
+      ],
+      "score": 2.34,
+      "city": "Delhi",
+      "location": "Delhi"
+    },
+    {
+      "_id": "697a441ceaeb7ac4787c75b7",
+      "name": "Property 47",
+      "price": 7968,
+      "rating": 3.0,
+      "capacity": 7,
+      "amenities": [
+        "wifi",
+        "food",
+        "laundry",
+        "security"
+      ],
+      "score": 2.3099999999999996,
+      "city": "Chennai",
+      "location": "Chennai"
+    },
+    {
+      "_id": "697a441ceaeb7ac4787c75b4",
+      "name": "Property 46",
+      "price": 5588,
+      "rating": 3.0,
+      "capacity": 7,
+      "amenities": [
+        "wifi",
+        "food",
+        "laundry",
+        "security"
+      ],
+      "score": 2.3099999999999996,
+      "city": "Mumbai",
+      "location": "Mumbai"
+    },
+    {
+      "_id": "697a441ceaeb7ac4787c75bd",
+      "name": "Property 49",
+      "price": 4171,
+      "rating": 3.2,
+      "capacity": 2,
+      "amenities": [
+        "wifi",
+        "food",
+        "laundry",
+        "security"
+      ],
+      "score": 2.3,
+      "city": "Mumbai",
+      "location": "Mumbai"
+    },
+    {
+      "_id": "697a441ceaeb7ac4787c75a2",
+      "name": "Property 40",
+      "price": 5357,
+      "rating": 3.1,
+      "capacity": 3,
+      "amenities": [
+        "wifi",
+        "food",
+        "laundry",
+        "security"
+      ],
+      "score": 2.26,
+      "city": "Bangalore",
+      "location": "Bangalore"
+    },
+    {
+      "_id": "697a441ceaeb7ac4787c757e",
+      "name": "Property 28",
+      "price": 4274,
+      "rating": 3.0,
+      "capacity": 5,
+      "amenities": [
+        "wifi",
+        "food",
+        "ac",
+        "parking"
+      ],
+      "score": 2.2499999999999996,
+      "city": "Chennai",
+      "location": "Chennai"
+    },
+    {
+      "_id": "697a441ceaeb7ac4787c754e",
+      "name": "Property 12",
+      "price": 2933,
+      "rating": 3.1,
+      "capacity": 2,
+      "amenities": [
+        "ac",
+        "parking",
+        "power_backup",
+        "cctv"
+      ],
+      "score": 2.23,
+      "city": "Delhi",
+      "location": "Delhi"
+    },
+    {
+      "_id": "697a441ceaeb7ac4787c75c0",
+      "name": "Property 50",
+      "price": 9213,
+      "rating": 3.0,
+      "capacity": 4,
+      "amenities": [
+        "wifi",
+        "food",
+        "ac",
+        "parking"
+      ],
+      "score": 2.2199999999999998,
+      "city": "Chennai",
+      "location": "Chennai"
+    },
+    {
+      "_id": "697a441ceaeb7ac4787c75a5",
+      "name": "Property 41",
+      "price": 9577,
+      "rating": 3.0,
+      "capacity": 2,
+      "amenities": [
+        "wifi",
+        "food",
+        "laundry",
+        "security"
+      ],
+      "score": 2.1599999999999997,
+      "city": "Bangalore",
+      "location": "Bangalore"
+    },
+    {
+      "_id": "697cb8decb88d79214b06a69",
+      "name": "Sai Krishna Student Hostel \u2013 Comfortable & Secure Stay in Tirupati",
+      "price": 6500,
+      "rating": 0.0,
+      "capacity": 60,
+      "amenities": [
+        "Gym",
+        "Microwave",
+        "Pet Friendly",
+        "Pool",
+        "TV",
+        "Garden",
+        "Security",
+        "Elevator"
+      ],
+      "score": 1.7999999999999998,
+      "city": "Tirupati",
+      "location": "Door No. 7-3-118, Sri Venkateswara Colony, Renigunta Road"
+    },
+    {
+      "_id": "697a4899af9186b52417d39c",
+      "name": "Krishna Pg",
+      "price": 1200,
+      "rating": 0.0,
+      "capacity": 2,
+      "amenities": [
+        "Balcony",
+        "TV",
+        "Security"
+      ],
+      "score": 0.06,
+      "city": "punE",
+      "location": "Juvvalapalem , opp vinayaka temple"
+    },
+    {
+      "_id": "697c814dd92a9c1ca32cd05e",
+      "name": "Comeetz PG'S",
+      "price": 976,
+      "rating": 0.0,
+      "capacity": 1,
+      "amenities": [],
+      "score": 0.03,
+      "city": "Tirupati",
+      "location": "Street 3"
+    },
+    {
+      "_id": "697cb673dd46f08d64df92ce",
+      "name": "Sai krishna hostels ",
+      "price": 1200,
+      "rating": 0.0,
+      "capacity": 1,
+      "amenities": [
+        "Gym",
+        "Security"
+      ],
+      "score": 0.03,
+      "city": "Tirupati",
+      "location": "Door No. 7-3-118, Sri Venkateswara Colony, Renigunta Road, Tirupati \u2013 517501, Andhra Pradesh, India"
     }
   ],
   "all_scored_properties": [
@@ -290,6 +1038,86 @@
       "location": "Hyderabad"
     },
     {
+      "_id": "697a441ceaeb7ac4787c756c",
+      "name": "Property 22",
+      "price": 7802,
+      "rating": 4.8,
+      "capacity": 8,
+      "amenities": [
+        "ac",
+        "parking",
+        "power_backup",
+        "cctv"
+      ],
+      "score": 3.5999999999999996,
+      "city": "Mumbai",
+      "location": "Mumbai"
+    },
+    {
+      "_id": "697a441ceaeb7ac4787c756f",
+      "name": "Property 23",
+      "price": 3008,
+      "rating": 4.8,
+      "capacity": 8,
+      "amenities": [
+        "ac",
+        "parking",
+        "power_backup",
+        "cctv"
+      ],
+      "score": 3.5999999999999996,
+      "city": "Bangalore",
+      "location": "Bangalore"
+    },
+    {
+      "_id": "697a441ceaeb7ac4787c752d",
+      "name": "Property 1",
+      "price": 2984,
+      "rating": 4.9,
+      "capacity": 5,
+      "amenities": [
+        "ac",
+        "parking",
+        "power_backup",
+        "cctv"
+      ],
+      "score": 3.58,
+      "city": "Mumbai",
+      "location": "Mumbai"
+    },
+    {
+      "_id": "697a441ceaeb7ac4787c7572",
+      "name": "Property 24",
+      "price": 5677,
+      "rating": 4.8,
+      "capacity": 7,
+      "amenities": [
+        "wifi",
+        "ac",
+        "parking",
+        "power_backup"
+      ],
+      "score": 3.57,
+      "city": "Bangalore",
+      "location": "Bangalore"
+    },
+    {
+      "_id": "697a441ceaeb7ac4787c7590",
+      "name": "Property 34",
+      "price": 9793,
+      "rating": 4.9,
+      "capacity": 3,
+      "amenities": [
+        "ac",
+        "parking",
+        "power_backup",
+        "cctv"
+      ],
+      "score": 3.52,
+      "city": "Chennai",
+      "location": "Chennai"
+    },
+    {
       "_id": "697a4069c375a6be13149f76",
       "name": "Corporate Housing",
       "price": 7500,
@@ -326,6 +1154,70 @@
       "location": "Hyderabad"
     },
     {
+      "_id": "697a441ceaeb7ac4787c7548",
+      "name": "Property 10",
+      "price": 5336,
+      "rating": 4.7,
+      "capacity": 5,
+      "amenities": [
+        "ac",
+        "parking",
+        "power_backup",
+        "cctv"
+      ],
+      "score": 3.44,
+      "city": "Mumbai",
+      "location": "Mumbai"
+    },
+    {
+      "_id": "697a441ceaeb7ac4787c7536",
+      "name": "Property 4",
+      "price": 8873,
+      "rating": 4.7,
+      "capacity": 3,
+      "amenities": [
+        "wifi",
+        "food",
+        "ac",
+        "security"
+      ],
+      "score": 3.38,
+      "city": "Delhi",
+      "location": "Delhi"
+    },
+    {
+      "_id": "697a441ceaeb7ac4787c7530",
+      "name": "Property 2",
+      "price": 9181,
+      "rating": 4.4,
+      "capacity": 9,
+      "amenities": [
+        "wifi",
+        "ac",
+        "parking",
+        "power_backup"
+      ],
+      "score": 3.35,
+      "city": "Delhi",
+      "location": "Delhi"
+    },
+    {
+      "_id": "697a441ceaeb7ac4787c7593",
+      "name": "Property 35",
+      "price": 8222,
+      "rating": 4.7,
+      "capacity": 2,
+      "amenities": [
+        "wifi",
+        "food",
+        "ac",
+        "security"
+      ],
+      "score": 3.35,
+      "city": "Mumbai",
+      "location": "Mumbai"
+    },
+    {
       "_id": "697a4069c375a6be13149f74",
       "name": "Student Hostel",
       "price": 2200,
@@ -339,6 +1231,38 @@
       "score": 3.3499999999999996,
       "city": "Hyderabad",
       "location": "Hyderabad"
+    },
+    {
+      "_id": "697a441ceaeb7ac4787c7533",
+      "name": "Property 3",
+      "price": 4396,
+      "rating": 4.6,
+      "capacity": 4,
+      "amenities": [
+        "wifi",
+        "food",
+        "ac",
+        "security"
+      ],
+      "score": 3.34,
+      "city": "Chennai",
+      "location": "Chennai"
+    },
+    {
+      "_id": "697a441ceaeb7ac4787c75a8",
+      "name": "Property 42",
+      "price": 7649,
+      "rating": 4.4,
+      "capacity": 4,
+      "amenities": [
+        "wifi",
+        "food",
+        "ac",
+        "security"
+      ],
+      "score": 3.2,
+      "city": "Chennai",
+      "location": "Chennai"
     },
     {
       "_id": "697a441ceaeb7ac4787c7551",
@@ -355,6 +1279,86 @@
       "score": 3.15,
       "city": "Hyderabad",
       "location": "Hyderabad"
+    },
+    {
+      "_id": "697a441ceaeb7ac4787c7539",
+      "name": "Property 5",
+      "price": 9857,
+      "rating": 4.1,
+      "capacity": 9,
+      "amenities": [
+        "ac",
+        "parking",
+        "power_backup",
+        "cctv"
+      ],
+      "score": 3.1399999999999997,
+      "city": "Mumbai",
+      "location": "Mumbai"
+    },
+    {
+      "_id": "697a441ceaeb7ac4787c7584",
+      "name": "Property 30",
+      "price": 2414,
+      "rating": 4.3,
+      "capacity": 3,
+      "amenities": [
+        "ac",
+        "parking",
+        "power_backup",
+        "cctv"
+      ],
+      "score": 3.0999999999999996,
+      "city": "Bangalore",
+      "location": "Bangalore"
+    },
+    {
+      "_id": "697a441ceaeb7ac4787c7581",
+      "name": "Property 29",
+      "price": 2063,
+      "rating": 3.9,
+      "capacity": 7,
+      "amenities": [
+        "wifi",
+        "ac",
+        "parking",
+        "power_backup"
+      ],
+      "score": 2.94,
+      "city": "Bangalore",
+      "location": "Bangalore"
+    },
+    {
+      "_id": "697a441ceaeb7ac4787c7599",
+      "name": "Property 37",
+      "price": 4779,
+      "rating": 3.9,
+      "capacity": 7,
+      "amenities": [
+        "wifi",
+        "food",
+        "ac",
+        "security"
+      ],
+      "score": 2.94,
+      "city": "Chennai",
+      "location": "Chennai"
+    },
+    {
+      "_id": "697a441ceaeb7ac4787c757b",
+      "name": "Property 27",
+      "price": 9638,
+      "rating": 3.9,
+      "capacity": 7,
+      "amenities": [
+        "wifi",
+        "food",
+        "ac",
+        "parking"
+      ],
+      "score": 2.94,
+      "city": "Bangalore",
+      "location": "Bangalore"
     },
     {
       "_id": "697a441ceaeb7ac4787c7566",
@@ -389,6 +1393,22 @@
       "location": "Hyderabad"
     },
     {
+      "_id": "697a441ceaeb7ac4787c75ab",
+      "name": "Property 43",
+      "price": 6804,
+      "rating": 3.9,
+      "capacity": 6,
+      "amenities": [
+        "wifi",
+        "food",
+        "ac",
+        "security"
+      ],
+      "score": 2.91,
+      "city": "Chennai",
+      "location": "Chennai"
+    },
+    {
       "_id": "697a4069c375a6be13149f6e",
       "name": "Budget PG",
       "price": 2800,
@@ -402,6 +1422,134 @@
       "score": 2.8999999999999995,
       "city": "Hyderabad",
       "location": "Hyderabad"
+    },
+    {
+      "_id": "697a441ceaeb7ac4787c7587",
+      "name": "Property 31",
+      "price": 7221,
+      "rating": 3.8,
+      "capacity": 8,
+      "amenities": [
+        "wifi",
+        "food",
+        "ac",
+        "security"
+      ],
+      "score": 2.8999999999999995,
+      "city": "Chennai",
+      "location": "Chennai"
+    },
+    {
+      "_id": "697a441ceaeb7ac4787c755d",
+      "name": "Property 17",
+      "price": 2537,
+      "rating": 3.9,
+      "capacity": 4,
+      "amenities": [
+        "wifi",
+        "ac",
+        "parking",
+        "power_backup"
+      ],
+      "score": 2.85,
+      "city": "Mumbai",
+      "location": "Mumbai"
+    },
+    {
+      "_id": "697a441ceaeb7ac4787c754b",
+      "name": "Property 11",
+      "price": 5217,
+      "rating": 3.9,
+      "capacity": 4,
+      "amenities": [
+        "wifi",
+        "food",
+        "laundry",
+        "security"
+      ],
+      "score": 2.85,
+      "city": "Bangalore",
+      "location": "Bangalore"
+    },
+    {
+      "_id": "697a441ceaeb7ac4787c7575",
+      "name": "Property 25",
+      "price": 7817,
+      "rating": 3.9,
+      "capacity": 3,
+      "amenities": [
+        "wifi",
+        "ac",
+        "parking",
+        "power_backup"
+      ],
+      "score": 2.82,
+      "city": "Chennai",
+      "location": "Chennai"
+    },
+    {
+      "_id": "697a441ceaeb7ac4787c759c",
+      "name": "Property 38",
+      "price": 8332,
+      "rating": 3.6,
+      "capacity": 9,
+      "amenities": [
+        "ac",
+        "parking",
+        "power_backup",
+        "cctv"
+      ],
+      "score": 2.79,
+      "city": "Bangalore",
+      "location": "Bangalore"
+    },
+    {
+      "_id": "697a441ceaeb7ac4787c75ba",
+      "name": "Property 48",
+      "price": 7453,
+      "rating": 3.9,
+      "capacity": 2,
+      "amenities": [
+        "ac",
+        "parking",
+        "power_backup",
+        "cctv"
+      ],
+      "score": 2.79,
+      "city": "Mumbai",
+      "location": "Mumbai"
+    },
+    {
+      "_id": "697a441ceaeb7ac4787c753c",
+      "name": "Property 6",
+      "price": 7289,
+      "rating": 3.8,
+      "capacity": 4,
+      "amenities": [
+        "wifi",
+        "ac",
+        "parking",
+        "power_backup"
+      ],
+      "score": 2.78,
+      "city": "Chennai",
+      "location": "Chennai"
+    },
+    {
+      "_id": "697a441ceaeb7ac4787c7557",
+      "name": "Property 15",
+      "price": 3596,
+      "rating": 3.6,
+      "capacity": 8,
+      "amenities": [
+        "wifi",
+        "ac",
+        "parking",
+        "power_backup"
+      ],
+      "score": 2.76,
+      "city": "Chennai",
+      "location": "Chennai"
     },
     {
       "_id": "697a441ceaeb7ac4787c75ae",
@@ -420,6 +1568,150 @@
       "location": "Hyderabad"
     },
     {
+      "_id": "697a441ceaeb7ac4787c75b1",
+      "name": "Property 45",
+      "price": 9560,
+      "rating": 3.6,
+      "capacity": 5,
+      "amenities": [
+        "wifi",
+        "food",
+        "ac",
+        "parking"
+      ],
+      "score": 2.67,
+      "city": "Chennai",
+      "location": "Chennai"
+    },
+    {
+      "_id": "697a441ceaeb7ac4787c7554",
+      "name": "Property 14",
+      "price": 4374,
+      "rating": 3.4,
+      "capacity": 6,
+      "amenities": [
+        "wifi",
+        "food",
+        "laundry",
+        "security"
+      ],
+      "score": 2.56,
+      "city": "Bangalore",
+      "location": "Bangalore"
+    },
+    {
+      "_id": "697a441ceaeb7ac4787c755a",
+      "name": "Property 16",
+      "price": 6087,
+      "rating": 3.5,
+      "capacity": 3,
+      "amenities": [
+        "wifi",
+        "food",
+        "ac",
+        "security"
+      ],
+      "score": 2.5399999999999996,
+      "city": "Mumbai",
+      "location": "Mumbai"
+    },
+    {
+      "_id": "697a441ceaeb7ac4787c7542",
+      "name": "Property 8",
+      "price": 3167,
+      "rating": 3.2,
+      "capacity": 9,
+      "amenities": [
+        "wifi",
+        "ac",
+        "parking",
+        "power_backup"
+      ],
+      "score": 2.51,
+      "city": "Chennai",
+      "location": "Chennai"
+    },
+    {
+      "_id": "697a441ceaeb7ac4787c753f",
+      "name": "Property 7",
+      "price": 8019,
+      "rating": 3.2,
+      "capacity": 9,
+      "amenities": [
+        "wifi",
+        "food",
+        "ac",
+        "parking"
+      ],
+      "score": 2.51,
+      "city": "Mumbai",
+      "location": "Mumbai"
+    },
+    {
+      "_id": "697a441ceaeb7ac4787c7578",
+      "name": "Property 26",
+      "price": 6712,
+      "rating": 3.3,
+      "capacity": 5,
+      "amenities": [
+        "ac",
+        "parking",
+        "power_backup",
+        "cctv"
+      ],
+      "score": 2.4599999999999995,
+      "city": "Chennai",
+      "location": "Chennai"
+    },
+    {
+      "_id": "697a441ceaeb7ac4787c758a",
+      "name": "Property 32",
+      "price": 6454,
+      "rating": 3.3,
+      "capacity": 5,
+      "amenities": [
+        "wifi",
+        "ac",
+        "parking",
+        "power_backup"
+      ],
+      "score": 2.4599999999999995,
+      "city": "Chennai",
+      "location": "Chennai"
+    },
+    {
+      "_id": "697a441ceaeb7ac4787c758d",
+      "name": "Property 33",
+      "price": 3368,
+      "rating": 3.2,
+      "capacity": 7,
+      "amenities": [
+        "ac",
+        "parking",
+        "power_backup",
+        "cctv"
+      ],
+      "score": 2.4499999999999997,
+      "city": "Delhi",
+      "location": "Delhi"
+    },
+    {
+      "_id": "697a441ceaeb7ac4787c7569",
+      "name": "Property 21",
+      "price": 8651,
+      "rating": 3.3,
+      "capacity": 3,
+      "amenities": [
+        "ac",
+        "parking",
+        "power_backup",
+        "cctv"
+      ],
+      "score": 2.3999999999999995,
+      "city": "Chennai",
+      "location": "Chennai"
+    },
+    {
       "_id": "697a441ceaeb7ac4787c7545",
       "name": "Property 9",
       "price": 4190,
@@ -434,11 +1726,215 @@
       "score": 2.38,
       "city": "Hyderabad",
       "location": "Hyderabad"
+    },
+    {
+      "_id": "697a441ceaeb7ac4787c7560",
+      "name": "Property 18",
+      "price": 9089,
+      "rating": 3.0,
+      "capacity": 8,
+      "amenities": [
+        "ac",
+        "parking",
+        "power_backup",
+        "cctv"
+      ],
+      "score": 2.34,
+      "city": "Delhi",
+      "location": "Delhi"
+    },
+    {
+      "_id": "697a441ceaeb7ac4787c75b7",
+      "name": "Property 47",
+      "price": 7968,
+      "rating": 3.0,
+      "capacity": 7,
+      "amenities": [
+        "wifi",
+        "food",
+        "laundry",
+        "security"
+      ],
+      "score": 2.3099999999999996,
+      "city": "Chennai",
+      "location": "Chennai"
+    },
+    {
+      "_id": "697a441ceaeb7ac4787c75b4",
+      "name": "Property 46",
+      "price": 5588,
+      "rating": 3.0,
+      "capacity": 7,
+      "amenities": [
+        "wifi",
+        "food",
+        "laundry",
+        "security"
+      ],
+      "score": 2.3099999999999996,
+      "city": "Mumbai",
+      "location": "Mumbai"
+    },
+    {
+      "_id": "697a441ceaeb7ac4787c75bd",
+      "name": "Property 49",
+      "price": 4171,
+      "rating": 3.2,
+      "capacity": 2,
+      "amenities": [
+        "wifi",
+        "food",
+        "laundry",
+        "security"
+      ],
+      "score": 2.3,
+      "city": "Mumbai",
+      "location": "Mumbai"
+    },
+    {
+      "_id": "697a441ceaeb7ac4787c75a2",
+      "name": "Property 40",
+      "price": 5357,
+      "rating": 3.1,
+      "capacity": 3,
+      "amenities": [
+        "wifi",
+        "food",
+        "laundry",
+        "security"
+      ],
+      "score": 2.26,
+      "city": "Bangalore",
+      "location": "Bangalore"
+    },
+    {
+      "_id": "697a441ceaeb7ac4787c757e",
+      "name": "Property 28",
+      "price": 4274,
+      "rating": 3.0,
+      "capacity": 5,
+      "amenities": [
+        "wifi",
+        "food",
+        "ac",
+        "parking"
+      ],
+      "score": 2.2499999999999996,
+      "city": "Chennai",
+      "location": "Chennai"
+    },
+    {
+      "_id": "697a441ceaeb7ac4787c754e",
+      "name": "Property 12",
+      "price": 2933,
+      "rating": 3.1,
+      "capacity": 2,
+      "amenities": [
+        "ac",
+        "parking",
+        "power_backup",
+        "cctv"
+      ],
+      "score": 2.23,
+      "city": "Delhi",
+      "location": "Delhi"
+    },
+    {
+      "_id": "697a441ceaeb7ac4787c75c0",
+      "name": "Property 50",
+      "price": 9213,
+      "rating": 3.0,
+      "capacity": 4,
+      "amenities": [
+        "wifi",
+        "food",
+        "ac",
+        "parking"
+      ],
+      "score": 2.2199999999999998,
+      "city": "Chennai",
+      "location": "Chennai"
+    },
+    {
+      "_id": "697a441ceaeb7ac4787c75a5",
+      "name": "Property 41",
+      "price": 9577,
+      "rating": 3.0,
+      "capacity": 2,
+      "amenities": [
+        "wifi",
+        "food",
+        "laundry",
+        "security"
+      ],
+      "score": 2.1599999999999997,
+      "city": "Bangalore",
+      "location": "Bangalore"
+    },
+    {
+      "_id": "697cb8decb88d79214b06a69",
+      "name": "Sai Krishna Student Hostel \u2013 Comfortable & Secure Stay in Tirupati",
+      "price": 6500,
+      "rating": 0.0,
+      "capacity": 60,
+      "amenities": [
+        "Gym",
+        "Microwave",
+        "Pet Friendly",
+        "Pool",
+        "TV",
+        "Garden",
+        "Security",
+        "Elevator"
+      ],
+      "score": 1.7999999999999998,
+      "city": "Tirupati",
+      "location": "Door No. 7-3-118, Sri Venkateswara Colony, Renigunta Road"
+    },
+    {
+      "_id": "697a4899af9186b52417d39c",
+      "name": "Krishna Pg",
+      "price": 1200,
+      "rating": 0.0,
+      "capacity": 2,
+      "amenities": [
+        "Balcony",
+        "TV",
+        "Security"
+      ],
+      "score": 0.06,
+      "city": "punE",
+      "location": "Juvvalapalem , opp vinayaka temple"
+    },
+    {
+      "_id": "697c814dd92a9c1ca32cd05e",
+      "name": "Comeetz PG'S",
+      "price": 976,
+      "rating": 0.0,
+      "capacity": 1,
+      "amenities": [],
+      "score": 0.03,
+      "city": "Tirupati",
+      "location": "Street 3"
+    },
+    {
+      "_id": "697cb673dd46f08d64df92ce",
+      "name": "Sai krishna hostels ",
+      "price": 1200,
+      "rating": 0.0,
+      "capacity": 1,
+      "amenities": [
+        "Gym",
+        "Security"
+      ],
+      "score": 0.03,
+      "city": "Tirupati",
+      "location": "Door No. 7-3-118, Sri Venkateswara Colony, Renigunta Road, Tirupati \u2013 517501, Andhra Pradesh, India"
     }
   ],
   "stats": {
-    "total_properties_scored": 13,
-    "top_recommendations": 13,
-    "total_returned": 26
+    "total_properties_scored": 60,
+    "top_recommendations": 60,
+    "total_returned": 120
   }
 }
