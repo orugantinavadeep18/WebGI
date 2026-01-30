@@ -77,56 +77,94 @@ const Properties = () => {
     loadAllProperties();
   }, []);
 
-  // Fetch AI recommendations whenever filters or city changes
+  // Fetch AI recommendations from ML server and then from JSON file
   useEffect(() => {
     const fetchAiRecommendations = async () => {
       try {
         setLoadingRecommendations(true);
         
-        // Build recommendation params based on filters
-        const params = {
-          limit: 5,
-        };
+        const recommendationCity = city || "Bangalore";
+        const maxBudget = budget ? parseInt(budget) : (filters.priceRange[1] || 100000);
+        const topK = 5;
         
-        // Add city/location filter
-        if (city) {
-          params.location = city;
+        // Step 1: Call ML recommendation server to trigger generation and save to JSON
+        await fetch(
+          `http://localhost:8001/recommend?city=${encodeURIComponent(recommendationCity)}&max_budget=${maxBudget}&top_k=${topK}`,
+          {
+            method: "GET",
+            headers: {
+              "Content-Type": "application/json",
+            },
+          }
+        );
+        
+        // Step 2: Fetch the saved recommendations from ML server endpoint
+        const jsonResponse = await fetch('http://localhost:8001/get-recommendations-json');
+        
+        if (!jsonResponse.ok) {
+          throw new Error(`Failed to fetch recommendations JSON: ${jsonResponse.statusText}`);
         }
         
-        // Add budget/price filter
-        if (budget) {
-          params.max_budget = parseInt(budget);
-        } else if (filters.priceRange[1] < 500000) {
-          params.max_budget = filters.priceRange[1];
-        }
+        const data = await jsonResponse.json();
         
-        // Add amenities filter
-        if (filters.amenities.length > 0) {
-          params.required_amenities = filters.amenities;
-        }
-        
-        const data = await apiCall("/rentals/recommend", {
-          method: "POST",
-          body: JSON.stringify(params),
-        });
-        // Map rentals to match property format
-        const recommendations = (data.recommendations || []).map(r => ({
+        // Map recommendations to property format
+        let recommendations = (data.recommendations || []).map((r, index) => ({
           _id: r._id,
-          title: r.name,
-          city: r.location,
+          title: r.name || `Property ${index + 1}`,
+          name: r.name || `Property ${index + 1}`,
+          city: data.city || recommendationCity,
           price: r.price,
           rating: r.rating,
-          score: r.recommendation_score || r.score || 0,
+          score: (r.score * 20).toFixed(1), // Convert 0-4 scale to 0-100
           images: r.images || [],
-          propertyType: r.property_type,
-          amenities: Object.keys(r.amenities || {})
-            .filter(k => r.amenities[k] === true)
-            .map(k => k.replace(/_/g, ' ')),
+          propertyType: r.propertyType,
+          amenities: typeof r.amenities === 'string' 
+            ? r.amenities.split(',').map(a => a.trim())
+            : r.amenities || [],
+          location: data.city || recommendationCity,
           ...r
         }));
+
+        // Apply page filters to recommendations
+        // Filter by price range
+        if (filters.priceRange[0] > 0 || filters.priceRange[1] < 500000) {
+          recommendations = recommendations.filter(
+            (r) =>
+              r.price >= filters.priceRange[0] &&
+              r.price <= filters.priceRange[1]
+          );
+        }
+
+        // Filter by property type
+        if (filters.propertyTypes.length > 0) {
+          recommendations = recommendations.filter((r) =>
+            filters.propertyTypes.includes(r.propertyType)
+          );
+        }
+
+        // Filter by amenities
+        if (filters.amenities.length > 0) {
+          recommendations = recommendations.filter((r) => {
+            // Convert amenities to array if needed
+            const amenitiesArray = Array.isArray(r.amenities)
+              ? r.amenities
+              : r.amenities
+              ? Object.keys(r.amenities)
+                  .filter(k => r.amenities[k] === true)
+                  .map(k => k.replace(/_/g, ' '))
+              : [];
+            
+            return filters.amenities.some((a) =>
+              amenitiesArray.some((pa) => pa.toLowerCase().includes(a.toLowerCase()))
+            );
+          });
+        }
+        
         setAiRecommendations(recommendations);
       } catch (err) {
         console.error("Error fetching AI recommendations:", err);
+        // Fallback: show empty state instead of crashing
+        setAiRecommendations([]);
       } finally {
         setLoadingRecommendations(false);
       }
@@ -330,7 +368,7 @@ const Properties = () => {
                 <h3 className="font-heading font-bold text-lg text-blue-900">Top AI Recommendations</h3>
               </div>
               <p className="text-xs text-blue-700">
-                AI-powered suggestions using advanced matching algorithm
+                AI-powered suggestions.
               </p>
 
               {loadingRecommendations ? (
