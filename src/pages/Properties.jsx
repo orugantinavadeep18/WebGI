@@ -78,18 +78,18 @@ const Properties = () => {
     loadAllProperties();
   }, []);
 
+  // Fetch AI recommendations on mount and when filters change
   useEffect(() => {
     const fetchAiRecommendations = async () => {
       try {
         setLoadingRecommendations(true);
+        
+        // Use filters from state for recommendations
         const recommendationCity = city || "all";
         const maxBudget = budget ? parseInt(budget) : (filters.priceRange[1] || 500000);
         const topK = 100;  // Fetch top 100 recommendations to show all
         
         const cityDisplay = recommendationCity === "all" ? "All Cities" : recommendationCity;
-        console.log(`📌 Fetching recommendations for ${cityDisplay} with budget ₹${maxBudget}`);
-        console.log(`🔧 Current filters:`, filters);
-        console.log(`📌 Fetching ALL recommendations for ${cityDisplay} with max budget ₹${maxBudget}`);
         console.log(`📌 Fetching recommendations for ${cityDisplay} with budget ₹${maxBudget}`);
         console.log(`🔧 Current filters:`, filters);
         
@@ -197,6 +197,7 @@ const Properties = () => {
           }));
           console.log(`✅ Using ${recommendations.length} demo properties from ML server`);
         }
+
         // Apply client-side filters to recommendations
         let filteredRecommendations = recommendations;
         
@@ -208,11 +209,6 @@ const Properties = () => {
         }
 
         // Filter by price range from sidebar
-        // Apply page filters to recommendations
-        // Filter by price range
-        if (filters.priceRange[0] > 0 || filters.priceRange[1] < 500000) {
-          recommendations = recommendations.filter(
-=======
         if (filters.priceRange[0] > 0 || filters.priceRange[1] < 500000) {
           filteredRecommendations = filteredRecommendations.filter(
             (r) =>
@@ -223,30 +219,14 @@ const Properties = () => {
 
         // Filter by property type
         if (filters.propertyTypes.length > 0) {
-<<<<<<< HEAD
-<<<<<<< HEAD
           filteredRecommendations = filteredRecommendations.filter((r) =>
-=======
-          recommendations = recommendations.filter((r) =>
->>>>>>> 52ec31373959a2928f522c7ce2d018147615478b
-=======
-          filteredRecommendations = filteredRecommendations.filter((r) =>
->>>>>>> kittu
             filters.propertyTypes.includes(r.propertyType)
           );
         }
 
         // Filter by amenities
         if (filters.amenities.length > 0) {
-<<<<<<< HEAD
-<<<<<<< HEAD
           filteredRecommendations = filteredRecommendations.filter((r) => {
-=======
-          recommendations = recommendations.filter((r) => {
->>>>>>> 52ec31373959a2928f522c7ce2d018147615478b
-=======
-          filteredRecommendations = filteredRecommendations.filter((r) => {
->>>>>>> kittu
             const amenitiesArray = Array.isArray(r.amenities)
               ? r.amenities
               : r.amenities
@@ -261,18 +241,8 @@ const Properties = () => {
           });
         }
         
-<<<<<<< HEAD
-<<<<<<< HEAD
         console.log(`📌 Final recommendations after filtering: ${filteredRecommendations.length}`);
         setAiRecommendations(filteredRecommendations);
-=======
-        console.log(`📌 Final recommendations after filtering: ${recommendations.length}`);
-        setAiRecommendations(recommendations);
->>>>>>> 52ec31373959a2928f522c7ce2d018147615478b
-=======
-        console.log(`📌 Final recommendations after filtering: ${filteredRecommendations.length}`);
-        setAiRecommendations(filteredRecommendations);
->>>>>>> kittu
       } catch (err) {
         console.error("❌ Error fetching AI recommendations:", err);
         console.error("Error details:", err.message);
@@ -282,15 +252,7 @@ const Properties = () => {
       }
     };
 
-<<<<<<< HEAD
-<<<<<<< HEAD
     // Fetch recommendations when filters change
-=======
-    // Always fetch recommendations on mount and when city/budget change
->>>>>>> 52ec31373959a2928f522c7ce2d018147615478b
-=======
-    // Fetch recommendations when filters change
->>>>>>> kittu
     fetchAiRecommendations();
   }, [city, budget, filters]);
 
