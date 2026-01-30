@@ -1,7 +1,8 @@
 import { Link } from "react-router-dom";
-import { Building, Home, Users, Key, ArrowRight } from "lucide-react";
+import { ArrowRight } from "lucide-react";
 import { useState, useEffect } from "react";
 import { apiCall } from "@/lib/api";
+import { motion } from "framer-motion";
 
 const PropertyTypes = () => {
   const [stats, setStats] = useState({
@@ -45,64 +46,83 @@ const PropertyTypes = () => {
 
   const types = [
     {
-      icon: Building,
       title: "Hostels",
       description: "Affordable shared accommodations with community living",
       count: `${stats.hostel}+ listings`,
       href: "/properties?type=hostel",
-      color: "bg-blue-50 text-blue-600",
+      image: "https://iisots2015.wordpress.com/wp-content/uploads/2015/08/officer-hostel_int.jpg?w=600",
     },
     {
-      icon: Users,
       title: "Paying Guest (PG)",
       description: "Home-like stay with meals and housekeeping",
       count: `${stats.pg}+ listings`,
       href: "/properties?type=pg",
-      color: "bg-green-50 text-green-600",
+      image: "https://nestuppg.in/frontend/assets/images/locations/sagar-city/sc.jpg",
     },
     {
-      icon: Key,
       title: "Other Properties",
       description: "Rental rooms and various accommodation types",
       count: `${stats.others}+ listings`,
       href: "/properties?type=others",
-      color: "bg-amber-50 text-amber-600",
+      image: "https://cf.bstatic.com/xdata/images/hotel/max1024x768/719653493.jpg?k=c5e0bcff3a0a127a3d3665287cd1499f102eebc6f3a42456fd58c98db99910a4&o=",
     },
   ];
 
   return (
-    <section className="py-16">
+    <section className="py-20 bg-gradient-to-b from-white via-slate-50 to-white">
       <div className="container mx-auto px-4">
-        <div className="text-center mb-12">
-          <h2 className="font-heading text-3xl md:text-4xl font-bold text-foreground mb-4">
+        <div className="text-center mb-16">
+          <h2 className="font-heading text-4xl md:text-5xl font-bold text-slate-900 mb-4">
             Find Your Perfect Stay
           </h2>
-          <p className="text-muted-foreground max-w-xl mx-auto">
+          <p className="text-lg text-slate-600 max-w-2xl mx-auto leading-relaxed">
             Choose from verified hostels, PGs, and other properties across major cities
           </p>
         </div>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-          {types.map((type) => (
-            <Link
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
+          {types.map((type, index) => (
+            <motion.div
               key={type.title}
-              to={type.href}
-              className="group bg-card rounded-xl p-6 border hover:border-accent/50 hover:shadow-lg transition-all"
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true, margin: "-100px" }}
+              transition={{ duration: 0.4, delay: index * 0.1 }}
             >
-              <div className={`h-14 w-14 rounded-xl ${type.color} flex items-center justify-center mb-4`}>
-                <type.icon className="h-7 w-7" />
-              </div>
-              <h3 className="font-heading font-semibold text-lg mb-2 group-hover:text-accent transition-colors">
-                {type.title}
-              </h3>
-              <p className="text-sm text-muted-foreground mb-3">
-                {type.description}
-              </p>
-              <div className="flex items-center justify-between">
-                <span className="text-sm font-medium text-foreground">{loading ? "Loading..." : type.count}</span>
-                <ArrowRight className="h-4 w-4 text-muted-foreground group-hover:text-accent group-hover:translate-x-1 transition-all" />
-              </div>
-            </Link>
+              <Link
+                to={type.href}
+                className="group relative overflow-hidden rounded-2xl h-96 block hover:shadow-2xl transition-all duration-300"
+              >
+                {/* Background Image */}
+                <img
+                  src={type.image}
+                  alt={type.title}
+                  className="absolute inset-0 w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
+                />
+
+                {/* Overlay Gradient - Enhanced */}
+                <div className="absolute inset-0 bg-gradient-to-t from-slate-900/85 via-slate-800/40 to-slate-800/10 group-hover:from-slate-900/90 group-hover:via-slate-800/50 transition-all duration-300"></div>
+
+                {/* Content */}
+                <div className="absolute inset-0 flex flex-col justify-between p-8 text-white">
+                  <div className="space-y-3">
+                    <h3 className="font-heading font-bold text-3xl md:text-2xl leading-tight group-hover:translate-x-2 transition-transform duration-300">
+                      {type.title}
+                    </h3>
+                    <p className="text-white/85 text-base leading-relaxed max-w-xs">
+                      {type.description}
+                    </p>
+                  </div>
+
+                  <div className="flex items-center justify-between pt-4 border-t border-white/20">
+                    <span className="text-base font-semibold text-white/95">
+                      {loading ? "Loading..." : type.count}
+                    </span>
+                    <ArrowRight className="h-6 w-6 text-white group-hover:translate-x-2 transition-transform duration-300" />
+                  </div>
+                </div>
+              </Link>
+            </motion.div>
           ))}
         </div>
       </div>

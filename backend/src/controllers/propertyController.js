@@ -220,7 +220,13 @@ export const deleteProperty = async (req, res) => {
 
 export const uploadPropertyImages = async (req, res) => {
   try {
+    console.log("📸 Image Upload Request Received");
+    console.log("Files count:", req.files?.length || 0);
+    console.log("Property ID:", req.params.id);
+    console.log("User ID:", req.user?.id);
+
     if (!req.files || req.files.length === 0) {
+      console.log("❌ No files uploaded");
       return res
         .status(400)
         .json({ success: false, message: "No files uploaded" });
@@ -228,13 +234,19 @@ export const uploadPropertyImages = async (req, res) => {
 
     const property = await Property.findById(req.params.id);
     if (!property) {
+      console.log("❌ Property not found:", req.params.id);
       return res
         .status(404)
         .json({ success: false, message: "Property not found" });
     }
 
+    console.log("✅ Property found:", property.title);
+    console.log("Seller ID in DB:", property.seller, "Type:", typeof property.seller);
+    console.log("User ID:", req.user.id, "Type:", typeof req.user.id);
+
     // Check if user is the seller
-    if (property.seller !== req.user.id) {
+    if (property.seller.toString() !== req.user.id.toString()) {
+      console.log("❌ Unauthorized - Not the seller");
       return res.status(403).json({
         success: false,
         message: "You can only upload images to your own properties",
@@ -245,11 +257,19 @@ export const uploadPropertyImages = async (req, res) => {
 
     for (const file of req.files) {
       try {
+        console.log(`\n📤 Uploading file: ${file.originalname}`);
+        console.log("File size:", file.size, "bytes");
+        
         // Upload to ImageKit
         const response = await imagekit.upload({
           file: file.buffer,
           fileName: `${Date.now()}-${file.originalname}`,
           folder: `/properties/${req.params.id}/`,
+        });
+
+        console.log("✅ ImageKit response:", {
+          url: response.url,
+          fileId: response.fileId,
         });
 
         uploadedImages.push({
@@ -259,13 +279,17 @@ export const uploadPropertyImages = async (req, res) => {
           uploadedAt: new Date(),
         });
 
-        console.log(`Image uploaded successfully: ${response.url}`);
+        console.log(`✅ Image uploaded successfully: ${response.url}`);
       } catch (err) {
-        console.error("Error uploading file to ImageKit:", err);
+        console.error("❌ Error uploading file to ImageKit:", err.message);
+        console.error("Full error:", err);
       }
     }
 
+    console.log(`\n📊 Total images uploaded: ${uploadedImages.length}`);
+
     if (uploadedImages.length === 0) {
+      console.log("❌ No images were successfully uploaded");
       return res.status(500).json({
         success: false,
         message: "Failed to upload images to ImageKit",
@@ -273,7 +297,11 @@ export const uploadPropertyImages = async (req, res) => {
     }
 
     property.images.push(...uploadedImages);
+
     const updatedProperty = await property.save();
+
+    console.log("✅ Property saved successfully");
+    console.log("Updated images count:", updatedProperty.images.length);
 
     res.json({
       success: true,
@@ -281,6 +309,7 @@ export const uploadPropertyImages = async (req, res) => {
       property: updatedProperty,
     });
   } catch (error) {
+    console.error("❌ Image upload error:", error);
     res.status(500).json({ success: false, message: error.message });
   }
 };

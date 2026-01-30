@@ -97,13 +97,56 @@ const Header = () => {
         <nav className="container mx-auto px-4">
           <div className="flex h-16 items-center justify-between">
             {/* Logo */}
-            <Link to="/" className="flex items-center gap-2">
-              <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-primary">
-                <Home className="h-5 w-5 text-primary-foreground" />
+            <Link to="/" className="flex items-center hover:opacity-90 transition-opacity">
+              <div className="relative">
+                <svg className="w-36 h-16" viewBox="0 0 180 80" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <defs>
+                    <filter id="logoShadow">
+                      <feDropShadow dx="3" dy="3" stdDeviation="3" floodOpacity="0.25"/>
+                    </filter>
+                  </defs>
+                  
+                  {/* Main elegant script text with outline */}
+                  <text 
+                    x="15" 
+                    y="50" 
+                    fontSize="48" 
+                    fontWeight="bold" 
+                    fontFamily="cursive"
+                    stroke="#1e3a8a"
+                    strokeWidth="2.5"
+                    fill="none"
+                    style={{letterSpacing: "0px", fontStyle: "italic"}}
+                    filter="url(#logoShadow)"
+                  >
+                    WebGI
+                  </text>
+                  
+                  {/* Main filled text */}
+                  <text 
+                    x="15" 
+                    y="50" 
+                    fontSize="48" 
+                    fontWeight="bold" 
+                    fontFamily="cursive"
+                    fill="#1e3a8a"
+                    stroke="#1e1f36"
+                    strokeWidth="0.5"
+                    style={{letterSpacing: "0px", fontStyle: "italic"}}
+                  >
+                    WebGI
+                  </text>
+                  
+                  {/* Decorative flourish lines below */}
+                  <path d="M 15 58 Q 40 70 90 66 Q 140 62 165 68" stroke="#1e3a8a" strokeWidth="2.5" fill="none" strokeLinecap="round" opacity="0.8"/>
+                  <path d="M 25 62 Q 35 68 50 66 Q 65 65 80 68 Q 100 70 120 67 Q 140 65 155 70" stroke="#3b82f6" strokeWidth="1.5" fill="none" strokeLinecap="round" opacity="0.6"/>
+                  
+                  {/* Small decorative dots */}
+                  <circle cx="45" cy="72" r="1.5" fill="#1e3a8a" opacity="0.6"/>
+                  <circle cx="95" cy="73" r="1.5" fill="#1e3a8a" opacity="0.6"/>
+                  <circle cx="140" cy="72" r="1.5" fill="#1e3a8a" opacity="0.6"/>
+                </svg>
               </div>
-              <span className="font-heading text-xl font-bold text-primary">
-                WebGI
-              </span>
             </Link>
 
             {/* Desktop Actions */}

@@ -78,19 +78,32 @@ const Properties = () => {
     loadAllProperties();
   }, []);
 
+<<<<<<< HEAD
+  // Fetch AI recommendations on mount and when filters change
+=======
   // Fetch AI recommendations on mount and when URL params change
+>>>>>>> 52ec31373959a2928f522c7ce2d018147615478b
   useEffect(() => {
     const fetchAiRecommendations = async () => {
       try {
         setLoadingRecommendations(true);
         
+<<<<<<< HEAD
+        // Use filters from state for recommendations
+=======
         // If no city is selected, use "all" to get recommendations for all cities
+>>>>>>> 52ec31373959a2928f522c7ce2d018147615478b
         const recommendationCity = city || "all";
         const maxBudget = budget ? parseInt(budget) : (filters.priceRange[1] || 500000);
         const topK = 100;  // Fetch top 100 recommendations to show all
         
         const cityDisplay = recommendationCity === "all" ? "All Cities" : recommendationCity;
+<<<<<<< HEAD
+        console.log(`📌 Fetching recommendations for ${cityDisplay} with budget ₹${maxBudget}`);
+        console.log(`🔧 Current filters:`, filters);
+=======
         console.log(`📌 Fetching ALL recommendations for ${cityDisplay} with max budget ₹${maxBudget}`);
+>>>>>>> 52ec31373959a2928f522c7ce2d018147615478b
         
         // Call ML recommendation server to score ALL properties
         const mlUrl = `http://localhost:8001/recommend?city=${encodeURIComponent(recommendationCity)}&max_budget=${maxBudget}&top_k=${topK}`;
@@ -197,10 +210,26 @@ const Properties = () => {
           console.log(`✅ Using ${recommendations.length} demo properties from ML server`);
         }
 
+<<<<<<< HEAD
+        // Apply client-side filters to recommendations
+        let filteredRecommendations = recommendations;
+        
+        // Filter by city if URL param exists
+        if (city) {
+          filteredRecommendations = filteredRecommendations.filter((p) =>
+            p.city.toLowerCase().includes(city.toLowerCase())
+          );
+        }
+
+        // Filter by price range from sidebar
+        if (filters.priceRange[0] > 0 || filters.priceRange[1] < 500000) {
+          filteredRecommendations = filteredRecommendations.filter(
+=======
         // Apply page filters to recommendations
         // Filter by price range
         if (filters.priceRange[0] > 0 || filters.priceRange[1] < 500000) {
           recommendations = recommendations.filter(
+>>>>>>> 52ec31373959a2928f522c7ce2d018147615478b
             (r) =>
               r.price >= filters.priceRange[0] &&
               r.price <= filters.priceRange[1]
@@ -209,14 +238,22 @@ const Properties = () => {
 
         // Filter by property type
         if (filters.propertyTypes.length > 0) {
+<<<<<<< HEAD
+          filteredRecommendations = filteredRecommendations.filter((r) =>
+=======
           recommendations = recommendations.filter((r) =>
+>>>>>>> 52ec31373959a2928f522c7ce2d018147615478b
             filters.propertyTypes.includes(r.propertyType)
           );
         }
 
         // Filter by amenities
         if (filters.amenities.length > 0) {
+<<<<<<< HEAD
+          filteredRecommendations = filteredRecommendations.filter((r) => {
+=======
           recommendations = recommendations.filter((r) => {
+>>>>>>> 52ec31373959a2928f522c7ce2d018147615478b
             const amenitiesArray = Array.isArray(r.amenities)
               ? r.amenities
               : r.amenities
@@ -231,8 +268,13 @@ const Properties = () => {
           });
         }
         
+<<<<<<< HEAD
+        console.log(`📌 Final recommendations after filtering: ${filteredRecommendations.length}`);
+        setAiRecommendations(filteredRecommendations);
+=======
         console.log(`📌 Final recommendations after filtering: ${recommendations.length}`);
         setAiRecommendations(recommendations);
+>>>>>>> 52ec31373959a2928f522c7ce2d018147615478b
       } catch (err) {
         console.error("❌ Error fetching AI recommendations:", err);
         console.error("Error details:", err.message);
@@ -242,7 +284,11 @@ const Properties = () => {
       }
     };
 
+<<<<<<< HEAD
+    // Fetch recommendations when filters change
+=======
     // Always fetch recommendations on mount and when city/budget change
+>>>>>>> 52ec31373959a2928f522c7ce2d018147615478b
     fetchAiRecommendations();
   }, [city, budget]);
 
