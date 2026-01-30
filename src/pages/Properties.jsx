@@ -9,6 +9,7 @@ import { Button } from "@/components/ui/button";
 import { useProperties } from "@/hooks/useProperties";
 import { useSavedProperties } from "@/hooks/useSavedProperties";
 import { apiCall } from "@/lib/api";
+import { ML_RECOMMEND_ENDPOINT } from "@/config/apiConfig";
 import {
   Select,
   SelectContent,
@@ -94,7 +95,7 @@ const Properties = () => {
         console.log(`🔧 Current filters:`, filters);
         
         // Call ML recommendation server to score ALL properties
-        const mlUrl = `http://localhost:8001/recommend?city=${encodeURIComponent(recommendationCity)}&max_budget=${maxBudget}&top_k=${topK}`;
+        const mlUrl = ML_RECOMMEND_ENDPOINT(recommendationCity, maxBudget, topK);
         console.log(`🌐 ML Server URL: ${mlUrl}`);
         
         const mlResponse = await fetch(mlUrl, {

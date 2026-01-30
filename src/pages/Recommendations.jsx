@@ -10,7 +10,7 @@ import { toast } from "sonner";
 import { apiCall } from "../lib/api";
 import { getPropertyImageUrl, handleImageError } from "../lib/imageUtils";
 
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || "http://localhost:5000/api";
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || "https://webgi-2-vpru.onrender.com/api";
 
 export default function Recommendations() {
   const navigate = useNavigate();

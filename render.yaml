@@ -1,0 +1,11 @@
+services:
+  - type: web
+    name: webgi-ml-server
+    env: python
+    buildCommand: pip install -r "AI Recommendation System/requirements.txt"
+    startCommand: python "AI Recommendation System/ml_server.py"
+    envVars:
+      - key: MONGO_URI
+        scope: run
+      - key: PORT
+        value: 8001
