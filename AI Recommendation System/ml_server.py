@@ -201,7 +201,7 @@ def get_demo_data(city: str):
 def recommend(
     city: str = "all",
     max_budget: int = 500000,
-    top_k: int = 5
+    top_k: int = 100
 ):
     """Score ALL properties in MongoDB using best_model.pkl, save to recommendations.json"""
     try:

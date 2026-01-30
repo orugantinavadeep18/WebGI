@@ -86,10 +86,10 @@ const Properties = () => {
         // If no city is selected, use "all" to get recommendations for all cities
         const recommendationCity = city || "all";
         const maxBudget = budget ? parseInt(budget) : (filters.priceRange[1] || 500000);
-        const topK = 5;
+        const topK = 100;  // Fetch top 100 recommendations to show all
         
         const cityDisplay = recommendationCity === "all" ? "All Cities" : recommendationCity;
-        console.log(`📌 Fetching recommendations for ${cityDisplay} with max budget ₹${maxBudget}`);
+        console.log(`📌 Fetching ALL recommendations for ${cityDisplay} with max budget ₹${maxBudget}`);
         
         // Call ML recommendation server to score ALL properties
         const mlUrl = `http://localhost:8001/recommend?city=${encodeURIComponent(recommendationCity)}&max_budget=${maxBudget}&top_k=${topK}`;
@@ -441,8 +441,8 @@ const Properties = () => {
                   <Loader2 className="h-5 w-5 animate-spin text-blue-600" />
                 </div>
               ) : aiRecommendations.length > 0 ? (
-                <div className="space-y-3 max-h-[600px] overflow-y-auto">
-                  {aiRecommendations.slice(0, 5).map((rec, index) => (
+                <div className="space-y-3 max-h-[calc(100vh-200px)] overflow-y-auto">
+                  {aiRecommendations.map((rec, index) => (
                     <div
                       key={rec._id || index}
                       className="bg-white p-3 rounded-lg border border-blue-100 hover:border-blue-300 transition-colors cursor-pointer hover:shadow-md"
