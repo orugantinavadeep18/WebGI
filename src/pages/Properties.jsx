@@ -77,7 +77,7 @@ const Properties = () => {
     loadAllProperties();
   }, []);
 
-  // Fetch AI recommendations from ML server and then from JSON file
+  // Fetch AI recommendations on mount and when URL params change
   useEffect(() => {
     const fetchAiRecommendations = async () => {
       try {
@@ -129,52 +129,57 @@ const Properties = () => {
           const allRentals = allPropertiesResponse.rentals || [];
           console.log(`🏠 Got ${allRentals.length} properties from backend`);
 
-          // Map rentals to property format
-          const mappedRentals = allRentals.map(r => ({
-            _id: r._id.toString ? r._id.toString() : r._id,
-            title: r.name,
-            address: r.location,
-            city: r.location,
-            price: r.price,
-            rating: r.rating,
-            images: r.images || [],
-            propertyType: r.property_type,
-            amenities: Object.keys(r.amenities || {})
-              .filter(k => r.amenities[k] === true)
-              .map(k => k.replace(/_/g, ' ')),
-            ...r
-          }));
+          if (allRentals.length > 0) {
+            // Map rentals to property format
+            const mappedRentals = allRentals.map(r => ({
+              _id: r._id.toString ? r._id.toString() : r._id,
+              title: r.name,
+              address: r.location,
+              city: r.location,
+              price: r.price,
+              rating: r.rating,
+              images: r.images || [],
+              propertyType: r.property_type,
+              amenities: Object.keys(r.amenities || {})
+                .filter(k => r.amenities[k] === true)
+                .map(k => k.replace(/_/g, ' ')),
+              ...r
+            }));
 
-          console.log(`📊 Got ${mappedRentals.length} properties from database`);
+            console.log(`📊 Got ${mappedRentals.length} properties from database`);
 
-          // Match all scored properties with database properties
-          const allScoredIds = (mlData.all_scored_properties || []).map(p => p._id.toString?.() || p._id);
-          console.log(`🔍 Matching ${allScoredIds.length} scored property IDs with ${mappedRentals.length} database properties`);
-          
-          recommendations = mappedRentals
-            .filter(p => allScoredIds.includes(p._id.toString ? p._id.toString() : p._id))
-            .map(p => {
-              // Find the corresponding scored property to get the ML score
-              const scoredProp = (mlData.all_scored_properties || []).find(sp => 
-                (sp._id.toString?.() || sp._id) === (p._id.toString ? p._id.toString() : p._id)
-              );
-              
-              return {
-                ...p,
-                mlScore: scoredProp?.score || 0  // Add ML score to property
-              };
-            })
-            // Sort by ML score descending
-            .sort((a, b) => (b.mlScore || 0) - (a.mlScore || 0));
+            // Match all scored properties with database properties
+            const allScoredIds = (mlData.all_scored_properties || []).map(p => p._id.toString?.() || p._id);
+            console.log(`🔍 Matching ${allScoredIds.length} scored property IDs with ${mappedRentals.length} database properties`);
+            
+            recommendations = mappedRentals
+              .filter(p => allScoredIds.includes(p._id.toString ? p._id.toString() : p._id))
+              .map(p => {
+                // Find the corresponding scored property to get the ML score
+                const scoredProp = (mlData.all_scored_properties || []).find(sp => 
+                  (sp._id.toString?.() || sp._id) === (p._id.toString ? p._id.toString() : p._id)
+                );
+                
+                return {
+                  ...p,
+                  mlScore: scoredProp?.score || 0  // Add ML score to property
+                };
+              })
+              // Sort by ML score descending
+              .sort((a, b) => (b.mlScore || 0) - (a.mlScore || 0));
 
-          console.log(`✅ Matched ${recommendations.length} recommendations with database properties`);
-          console.log(`📋 Top recommendations:`, recommendations.slice(0, 5).map(r => ({ name: r.title, score: r.mlScore })));
+            console.log(`✅ Matched ${recommendations.length} recommendations with database properties`);
+            console.log(`📋 Top recommendations:`, recommendations.slice(0, 5).map(r => ({ name: r.title, score: r.mlScore })));
+          }
         } catch (fetchErr) {
           console.error("Error matching recommendations with database:", fetchErr);
-          // Fallback: use scored properties directly
-          console.log("⚠️ Using fallback - direct scored properties");
+        }
+
+        // If no matching recommendations found, use scored properties directly (demo mode)
+        if (recommendations.length === 0) {
+          console.log("⚠️ No database matches found, using demo data from ML server");
           recommendations = (mlData.all_scored_properties || []).map((r, index) => ({
-            _id: r._id,
+            _id: r._id || `demo-${index}`,
             title: r.name || `Property ${index + 1}`,
             city: r.city || cityDisplay,
             price: r.price || 0,
@@ -185,9 +190,10 @@ const Properties = () => {
             amenities: typeof r.amenities === 'string' 
               ? r.amenities.split(',').map(a => a.trim())
               : r.amenities || [],
-            location: r.location || cityDisplay,
+            location: r.location || r.city || cityDisplay,
             ...r
           }));
+          console.log(`✅ Using ${recommendations.length} demo properties from ML server`);
         }
 
         // Apply page filters to recommendations
@@ -235,8 +241,9 @@ const Properties = () => {
       }
     };
 
+    // Always fetch recommendations on mount and when city/budget change
     fetchAiRecommendations();
-  }, [city, budget, filters]);
+  }, [city, budget]);
 
   // Apply client-side filtering whenever filters or data changes
   useEffect(() => {

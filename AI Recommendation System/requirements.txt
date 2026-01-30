@@ -16,6 +16,7 @@ pymongo==4.16.0
 python-dateutil==2.9.0.post0
 python-dotenv==1.2.1
 python-multipart==0.0.22
+requests==2.31.0
 six==1.17.0
 starlette==0.50.0
 typing-inspection==0.4.2

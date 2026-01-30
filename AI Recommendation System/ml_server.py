@@ -36,36 +36,48 @@ app.add_middleware(
 )
 
 # Load model & features with fallback
+model = None
+feature_names = ["Rating", "Capacity", "wifi", "ac", "parking"]
+
 try:
     if os.path.exists("best_model.pkl"):
-        import joblib
-        model = joblib.load("best_model.pkl")
-        feature_names = joblib.load("feature_names.pkl")
+        try:
+            import joblib
+            model = joblib.load("best_model.pkl")
+            feature_names = joblib.load("feature_names.pkl")
+            logger.info("✅ Model loaded successfully")
+        except Exception as model_error:
+            logger.warning(f"⚠️ Error loading model files: {model_error}")
+            logger.warning("Using fallback scoring formula")
+            model = None
     else:
-        logger.warning("Model files not found - using mock model")
+        logger.warning("⚠️ Model files not found - using fallback scoring formula")
         model = None
-        feature_names = ["Rating", "Capacity", "wifi", "ac", "parking"]
 except Exception as e:
-    logger.error(f"Error loading model: {e}")
+    logger.error(f"❌ Unexpected error in model loading: {e}")
     model = None
-    feature_names = ["Rating", "Capacity", "wifi", "ac", "parking"]
 
 # MongoDB Atlas connection
-MONGO_URI = os.getenv("MONGO_URI", "mongodb+srv://localhost/WebGI")
-try:
-    client = MongoClient(MONGO_URI, serverSelectionTimeoutMS=2000, connectTimeoutMS=2000)
-    # Try to ping the server with timeout
-    try:
-        client.admin.command("ping", maxTimeMS=2000)
-        db = client["webgi"]
-        collection = db["properties"]
-        logger.info("MongoDB connection successful")
-    except Exception as ping_error:
-        logger.warning(f"MongoDB ping failed: {ping_error} - using demo mode")
-        collection = None
-except Exception as e:
-    logger.error(f"MongoDB connection failed: {e}")
+MONGO_URI = os.getenv("MONGO_URI")
+if not MONGO_URI:
+    logger.warning("⚠️ MONGO_URI not found in environment, will use demo data")
     collection = None
+else:
+    logger.info(f"🔌 Attempting MongoDB connection with URI: {MONGO_URI[:50]}...")
+    try:
+        client = MongoClient(MONGO_URI, serverSelectionTimeoutMS=5000, connectTimeoutMS=5000)
+        # Try to ping the server with timeout
+        try:
+            client.admin.command("ping", maxTimeMS=5000)
+            db = client["webgi"]
+            collection = db["properties"]
+            logger.info("✅ MongoDB connection successful")
+        except Exception as ping_error:
+            logger.warning(f"⚠️ MongoDB ping failed: {ping_error} - using demo mode")
+            collection = None
+    except Exception as e:
+        logger.error(f"❌ MongoDB connection failed: {e}")
+        collection = None
 
 @app.get("/health")
 def health():
@@ -233,8 +245,47 @@ def recommend(
                 logger.error(f"❌ Database error: {db_error}")
                 data = []
         else:
-            logger.warning("⚠️ MongoDB not connected, will use demo data")
+            logger.warning("⚠️ MongoDB not connected, trying Express backend API...")
             data = []
+            
+            # Try to fetch from Express backend as fallback
+            try:
+                import requests
+                backend_url = "http://localhost:5000/api/rentals"
+                logger.info(f"📡 Attempting to fetch from backend: {backend_url}")
+                response = requests.get(backend_url, timeout=5)
+                
+                if response.status_code == 200:
+                    backend_data = response.json()
+                    rentals = backend_data.get("rentals", [])
+                    
+                    # Filter by city if needed
+                    if city_filter:
+                        import re
+                        city_pattern = city_filter["city"]["$regex"]
+                        rentals = [r for r in rentals if re.search(city_pattern, r.get("city", "") or r.get("location", ""), re.IGNORECASE)]
+                    
+                    # Convert to the expected format
+                    data = []
+                    for r in rentals:
+                        data.append({
+                            "_id": str(r.get("_id", "")),
+                            "name": r.get("name", ""),
+                            "price": r.get("price", 0),
+                            "rating": r.get("rating", 0),
+                            "capacity": r.get("capacity", 1),
+                            "amenities": r.get("amenities", {}),
+                            "city": r.get("location", ""),
+                            "location": r.get("location", ""),
+                            "property_type": r.get("property_type", ""),
+                            "images": r.get("images", [])
+                        })
+                    
+                    logger.info(f"✅ Fetched {len(data)} properties from Express backend")
+                else:
+                    logger.warning(f"⚠️ Backend returned status {response.status_code}")
+            except Exception as backend_error:
+                logger.warning(f"⚠️ Could not fetch from backend: {backend_error}")
         
         # Fallback to demo data if no data found
         if len(data) == 0:
