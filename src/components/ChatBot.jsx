@@ -1502,7 +1502,7 @@ const ChatBot = () => {
     }
   };
 
-  const handleSendMessage = (e) => {
+  const handleSendMessage = async (e) => {
     e.preventDefault();
 
     if (inputValue.trim() === "") return;
@@ -1519,29 +1519,60 @@ const ChatBot = () => {
     setInputValue("");
     setIsLoading(true);
 
-    // Bot response with intelligent intent detection
-    setTimeout(() => {
+    try {
+      // Send to backend chatbot API for smart database queries
+      const response = await fetch(`${import.meta.env.VITE_API_BASE_URL || 'https://webgi-2-vpru.onrender.com/api'}/chatbot/query`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ message: inputValue }),
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        
+        const newBotMessage = {
+          id: messages.length + 3,
+          text: data.message,
+          sender: "bot",
+          timestamp: new Date(),
+        };
+
+        setMessages((prev) => [...prev, newBotMessage]);
+      } else {
+        // Fallback to local intent detection if API fails
+        const detectedIntent = detectIntent(inputValue);
+        let botResponse = generateResponse(detectedIntent);
+
+        // Enhance responses with real property stats if available
+        if (propertyStats) {
+          if (detectedIntent?.intent === "property_count") {
+            botResponse = `🏠 **We currently have ${propertyStats.total} properties available on WebGI!**\n\n**Breakdown by type:**\n${Object.entries(propertyStats.byType)
+              .map(([type, count]) => `• ${type}: ${count}`)
+              .join("\n")}\n\n**Statistics:**\n📊 Average price: **₹${propertyStats.avgPrice}**\n🌍 Available across multiple cities\n\nUse filters to narrow down your search!`;
+          } else if (detectedIntent?.intent === "property_types" && Object.keys(propertyStats.byType).length > 0) {
+            botResponse = `Here are the property types we offer:\n\n${Object.entries(propertyStats.byType)
+              .map(([type, count]) => `• **${type}**: ${count} available`)
+              .join("\n")}\n\nEach property type has unique features. Filter by type on the properties page to explore!`;
+          }
+        }
+
+        const newBotMessage = {
+          id: messages.length + 3,
+          text: botResponse,
+          sender: "bot",
+          timestamp: new Date(),
+        };
+
+        setMessages((prev) => [...prev, newBotMessage]);
+      }
+    } catch (error) {
+      console.error("Chatbot error:", error);
+
+      // Fallback response
       const detectedIntent = detectIntent(inputValue);
       let botResponse = generateResponse(detectedIntent);
-
-      // Enhance responses with real property stats if available
-      if (propertyStats) {
-        if (detectedIntent?.intent === "property_count") {
-          botResponse = `🏠 **We currently have ${propertyStats.total} properties available on WebGI!**\n\n**Breakdown by type:**\n${Object.entries(propertyStats.byType)
-            .map(([type, count]) => `• ${type}: ${count}`)
-            .join("\n")}\n\n**Statistics:**\n📊 Average price: **₹${propertyStats.avgPrice}**\n🌍 Available across multiple cities\n\nUse filters to narrow down your search!`;
-        } else if (detectedIntent?.intent === "property_types" && Object.keys(propertyStats.byType).length > 0) {
-          botResponse = `Here are the property types we offer:\n\n${Object.entries(propertyStats.byType)
-            .map(([type, count]) => `• **${type}**: ${count} available`)
-            .join("\n")}\n\nEach property type has unique features. Filter by type on the properties page to explore!`;
-        } else if (detectedIntent?.intent === "location" && propertyStats.byCity) {
-          botResponse = `We have properties in the following locations:\n\n${Object.entries(propertyStats.byCity)
-            .map(([city, count]) => `📍 **${city}**: ${count} properties`)
-            .join("\n")}\n\nClick on any city from the menu bar to see properties there, or use our AI recommendations for smart matches!`;
-        } else if (detectedIntent?.intent === "pricing") {
-          botResponse = `💰 **Pricing Information:**\n\n**Average property price on WebGI: ₹${propertyStats.avgPrice}**\n\nWe have properties at various price points:\n✅ Budget-friendly options (₹2,000 - ₹5,000)\n✅ Mid-range properties (₹5,000 - ₹12,000)\n✅ Premium listings (₹12,000 - ₹20,000)\n\n**How to find properties in your budget:**\n1. Go to Properties page\n2. Use the "Price Range" filter on the left\n3. Adjust the slider to your budget\n4. Properties will update automatically\n5. AI recommendations also respect your budget!`;
-        }
-      }
 
       const newBotMessage = {
         id: messages.length + 3,
@@ -1551,8 +1582,9 @@ const ChatBot = () => {
       };
 
       setMessages((prev) => [...prev, newBotMessage]);
+    } finally {
       setIsLoading(false);
-    }, 800);
+    }
   };
 
   return (
