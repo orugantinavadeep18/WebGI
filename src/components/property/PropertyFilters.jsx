@@ -108,6 +108,13 @@ const PropertyFilters = ({ filters, onFiltersChange, onClearFilters }) => {
     }
   };
 
+  // Handle Enter key in price inputs
+  const handlePriceKeyPress = (e) => {
+    if (e.key === "Enter") {
+      applyPriceFilter();
+    }
+  };
+
   const applyPriceFilter = () => {
     // Validate that both min and max are set
     if (minPrice === "" || minPrice === null || minPrice === undefined) {
@@ -209,6 +216,7 @@ const PropertyFilters = ({ filters, onFiltersChange, onClearFilters }) => {
                 placeholder="₹ Min"
                 value={minPrice}
                 onChange={handleMinPriceInput}
+                onKeyPress={handlePriceKeyPress}
                 className="h-9 text-sm"
                 min="0"
               />
@@ -223,6 +231,7 @@ const PropertyFilters = ({ filters, onFiltersChange, onClearFilters }) => {
                 placeholder="₹ Max"
                 value={maxPrice}
                 onChange={handleMaxPriceInput}
+                onKeyPress={handlePriceKeyPress}
                 className="h-9 text-sm"
                 min="0"
               />

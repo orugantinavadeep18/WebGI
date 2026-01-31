@@ -1530,9 +1530,9 @@ const ChatBot = () => {
           }}
         >
           <button
-            onClick={handleOpenChat}
+            onDoubleClick={handleOpenChat}
             className="absolute pointer-events-auto cursor-pointer hover:opacity-90 transition-all duration-300 group"
-            title="Open chat"
+            title="Double-click to open chat, drag to move"
             style={{ 
               background: "none", 
               border: "none", 
