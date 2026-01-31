@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { useNavigate, useParams } from "react-router-dom";
+import { useNavigate, useParams, useSearchParams } from "react-router-dom";
 import Layout from "@/components/layout/Layout";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -15,6 +15,8 @@ export default function Messages() {
   const { user, loading: authLoading } = useAuth();
   const navigate = useNavigate();
   const { sellerId } = useParams();
+  const [searchParams] = useSearchParams();
+  const propertyId = searchParams.get("propertyId");
   const {
     conversations,
     messages,
@@ -29,6 +31,7 @@ export default function Messages() {
   const [messageText, setMessageText] = useState("");
   const [isSending, setIsSending] = useState(false);
   const [loadingMessages, setLoadingMessages] = useState(false);
+  const [propertyInfo, setPropertyInfo] = useState(null);
 
   // Load conversations on mount
   useEffect(() => {
@@ -98,13 +101,14 @@ export default function Messages() {
     setIsSending(true);
     try {
       if (sellerId) {
-        // Send direct message
+        // Send direct message with propertyId
         try {
           const response = await apiCall("/messages/direct/send", {
             method: "POST",
             body: JSON.stringify({
               receiverId: sellerId,
               content: messageText,
+              propertyId: propertyId || null,
             }),
           });
           if (response && response.data) {
@@ -148,15 +152,24 @@ export default function Messages() {
       <Layout>
         <div className="container mx-auto px-4 py-8 max-w-2xl">
           {/* Header */}
-          <div className="mb-6 flex items-center gap-4">
-            <button
-              onClick={() => navigate(-1)}
-              className="flex items-center gap-2 text-primary hover:text-primary/80"
-            >
-              <ArrowLeft className="h-4 w-4" />
-              Back
-            </button>
-            <h1 className="text-2xl font-bold">Message Seller</h1>
+          <div className="mb-6 flex items-center justify-between">
+            <div className="flex items-center gap-4">
+              <button
+                onClick={() => navigate(-1)}
+                className="flex items-center gap-2 text-primary hover:text-primary/80"
+              >
+                <ArrowLeft className="h-4 w-4" />
+                Back
+              </button>
+              <div>
+                <h1 className="text-2xl font-bold">Message Seller</h1>
+                {directMessages.length > 0 && directMessages[0]?.propertyId && (
+                  <p className="text-sm text-muted-foreground">
+                    📍 {directMessages[0].propertyId.title}
+                  </p>
+                )}
+              </div>
+            </div>
           </div>
 
           {/* Messages Card */}
@@ -175,10 +188,15 @@ export default function Messages() {
                 directMessages.map((message) => (
                   <div
                     key={message._id}
-                    className={`flex ${
-                      message.sender === user.id ? "justify-end" : "justify-start"
-                    }`}
+                    className={`flex flex-col ${
+                      message.sender === user.id ? "items-end" : "items-start"
+                    } mb-2`}
                   >
+                    {message.propertyId && (
+                      <p className="text-xs text-muted-foreground mb-1 px-2">
+                        📍 {message.propertyId.title || "Property"} - ${message.propertyId.price}/night
+                      </p>
+                    )}
                     <div
                       className={`max-w-xs px-4 py-2 rounded-lg ${
                         message.sender === user.id

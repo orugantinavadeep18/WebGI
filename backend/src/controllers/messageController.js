@@ -172,16 +172,19 @@ export const sendDirectMessage = async (req, res) => {
       return res.status(400).json({ message: "Cannot message yourself" });
     }
 
-    // Create direct message
+    // Create direct message with propertyId if provided
     const message = new DirectMessage({
       sender: senderId,
       receiver: receiverId,
       content,
-      propertyId,
+      propertyId: propertyId || null,
       isRead: false,
     });
 
     await message.save();
+    
+    // Populate propertyId info before returning
+    await message.populate("propertyId", "title price address city");
 
     res.status(201).json({
       message: "Message sent",
@@ -198,13 +201,14 @@ export const getDirectMessages = async (req, res) => {
     const { userId } = req.params;
     const currentUserId = req.user.id;
 
-    // Get all direct messages between these two users
+    // Get all direct messages between these two users, populate property info
     const messages = await DirectMessage.find({
       $or: [
         { sender: currentUserId, receiver: userId },
         { sender: userId, receiver: currentUserId },
       ],
     })
+      .populate("propertyId", "title price address city")
       .sort({ createdAt: 1 });
 
     // Mark received messages as read

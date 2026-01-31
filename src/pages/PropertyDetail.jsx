@@ -218,13 +218,13 @@ const PropertyDetail = () => {
       return;
     }
     if (property?.seller && property.seller !== user.id) {
-      // Navigate to messages with the seller's ID
-      navigate(`/messages/${property.seller}`);
+      // Navigate to messages with the seller's ID and property ID
+      navigate(`/messages/${property.seller}?propertyId=${id}`);
     } else if (property?.seller === user.id) {
       toast.error("You cannot message your own property");
     } else if (seller?.id && seller.id !== user.id) {
       // Fallback to seller object if available
-      navigate(`/messages/${seller.id}`);
+      navigate(`/messages/${seller.id}?propertyId=${id}`);
     } else {
       toast.error("Seller information not available");
     }
