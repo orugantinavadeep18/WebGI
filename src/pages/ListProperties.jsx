@@ -108,12 +108,12 @@ export default function ListProperties() {
       <div className="max-w-7xl mx-auto">
         {/* Back Button */}
         <button
-          onClick={() => navigate(-1)}
+          onClick={() => navigate("/")}
           className="mb-4 p-2 hover:bg-gray-200 rounded-lg transition inline-flex items-center gap-2 text-gray-700"
-          title="Go back"
+          title="Go to home"
         >
           <ArrowLeft className="h-5 w-5" />
-          <span className="text-sm font-medium">Back</span>
+          <span className="text-sm font-medium">Home</span>
         </button>
 
         {/* Header */}
