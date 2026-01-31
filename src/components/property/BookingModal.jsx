@@ -5,6 +5,7 @@ import { Input } from "../ui/input";
 import { Label } from "../ui/label";
 import { useBooking } from "../../hooks/useBooking";
 import { useAuth } from "../../hooks/useAuth";
+import { toast } from "sonner";
 
 export default function BookingModal({ property, isOpen, onClose, onSuccess }) {
   const [checkInDate, setCheckInDate] = useState("");
@@ -14,6 +15,34 @@ export default function BookingModal({ property, isOpen, onClose, onSuccess }) {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const { createBooking } = useBooking();
   const { user } = useAuth();
+
+  // Get today's date in YYYY-MM-DD format for date input min attribute
+  const getTodayDate = () => {
+    const today = new Date();
+    return today.toISOString().split("T")[0];
+  };
+
+  const todayDate = getTodayDate();
+
+  const handleCheckInDateChange = (e) => {
+    const date = e.target.value;
+    if (date && new Date(date) < new Date(todayDate)) {
+      toast.error("Check-in date cannot be in the past");
+      setCheckInDate(todayDate);
+      return;
+    }
+    setCheckInDate(date);
+  };
+
+  const handleCheckOutDateChange = (e) => {
+    const date = e.target.value;
+    if (date && new Date(date) < new Date(todayDate)) {
+      toast.error("Check-out date cannot be in the past");
+      setCheckOutDate(todayDate);
+      return;
+    }
+    setCheckOutDate(date);
+  };
 
   const calculateNights = () => {
     if (checkInDate && checkOutDate) {
@@ -83,7 +112,8 @@ export default function BookingModal({ property, isOpen, onClose, onSuccess }) {
               id="checkIn"
               type="date"
               value={checkInDate}
-              onChange={(e) => setCheckInDate(e.target.value)}
+              onChange={handleCheckInDateChange}
+              min={todayDate}
               required
             />
           </div>
@@ -94,7 +124,8 @@ export default function BookingModal({ property, isOpen, onClose, onSuccess }) {
               id="checkOut"
               type="date"
               value={checkOutDate}
-              onChange={(e) => setCheckOutDate(e.target.value)}
+              onChange={handleCheckOutDateChange}
+              min={todayDate}
               required
             />
           </div>
