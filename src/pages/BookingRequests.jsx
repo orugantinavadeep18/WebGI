@@ -6,7 +6,7 @@ import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { useAuth } from "@/hooks/useAuth";
 import { useBooking } from "@/hooks/useBooking";
-import { Calendar, Users, DollarSign, MessageSquare, Check, X, ArrowLeft } from "lucide-react";
+import { Calendar, Users, IndianRupee, MessageSquare, Check, X, ArrowLeft } from "lucide-react";
 
 export default function BookingRequests() {
   const { user, loading: authLoading } = useAuth();
@@ -155,8 +155,8 @@ export default function BookingRequests() {
                     <div>
                       <p className="text-xs text-gray-600 mb-1">Total Price</p>
                       <div className="flex items-center gap-2 text-sm font-semibold">
-                        <DollarSign className="h-4 w-4" />
-                        ₹{((booking.totalPrice || 0) / 30).toLocaleString()}
+                        <IndianRupee className="h-4 w-4" />
+                        {((booking.totalPrice || 0) / 30).toLocaleString()}
                       </div>
                     </div>
                   </div>
