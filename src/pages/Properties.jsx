@@ -29,7 +29,7 @@ const Properties = () => {
   const [loadingRecommendations, setLoadingRecommendations] = useState(false);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const [sortBy, setSortBy] = useState("popularity");
+  const [sortBy, setSortBy] = useState("price_low");
   const [showSidebar, setShowSidebar] = useState(true);
 
   const [filters, setFilters] = useState({
@@ -381,8 +381,6 @@ const Properties = () => {
                 <SelectValue placeholder="Sort by" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="popularity">Popularity</SelectItem>
-                <SelectItem value="trust">Trust Score</SelectItem>
                 <SelectItem value="price_low">Price: Low to High</SelectItem>
                 <SelectItem value="price_high">Price: High to Low</SelectItem>
               </SelectContent>
