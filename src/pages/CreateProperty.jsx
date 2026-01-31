@@ -23,7 +23,6 @@ const AVAILABLE_AMENITIES = [
   "Balcony",
   "Microwave",
   "TV",
-  "Security",
   "Elevator",
   "Pet Friendly",
 ];
