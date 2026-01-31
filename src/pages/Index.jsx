@@ -28,7 +28,7 @@ const Index = () => {
             {/* Badge */}
             <div className="inline-flex items-center gap-2 px-3 sm:px-4 py-1.5 sm:py-2 rounded-full bg-accent/20 text-accent-foreground mb-4 sm:mb-6 animate-fade-in text-xs sm:text-sm">
               <Shield className="h-3 w-3 sm:h-4 sm:w-4" />
-              <span className="font-medium">Verification-Based Trust System</span>
+              <span className="font-medium">AI-Based Recommendation System</span>
             </div>
 
             {/* Headline */}
