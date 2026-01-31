@@ -485,7 +485,7 @@ const Properties = () => {
                             <div className="flex-1 min-w-0">
                               <div className="flex items-center gap-1 mb-0.5 sm:mb-1">
                                 <span className="text-xs font-bold bg-blue-100 text-blue-700 px-1.5 py-0.5 rounded">
-                                  ML: {rec.mlScore?.toFixed(2) || 0}
+                                  ML: {rec.mlScore?.toFixed(2) || 0} {"/ 5.0"}
                                 </span>
                               </div>
                               <h4 className="font-semibold text-xs sm:text-sm line-clamp-1 text-gray-900">
