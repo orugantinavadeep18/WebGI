@@ -50,21 +50,21 @@ const PropertyTypes = () => {
       description: "Affordable shared accommodations with community living",
       count: `${stats.hostel}+ listings`,
       href: "/properties?type=hostel",
-      image: "https://iisots2015.wordpress.com/wp-content/uploads/2015/08/officer-hostel_int.jpg?w=600",
+      image: "/hostel.webp",
     },
     {
       title: "Paying Guest (PG)",
       description: "Home-like stay with meals and housekeeping",
       count: `${stats.pg}+ listings`,
       href: "/properties?type=pg",
-      image: "https://nestuppg.in/frontend/assets/images/locations/sagar-city/sc.jpg",
+      image: "/PG.jpg",
     },
     {
       title: "Other Properties",
       description: "Rental rooms and various accommodation types",
       count: `${stats.others}+ listings`,
       href: "/properties?type=others",
-      image: "https://cf.bstatic.com/xdata/images/hotel/max1024x768/719653493.jpg?k=c5e0bcff3a0a127a3d3665287cd1499f102eebc6f3a42456fd58c98db99910a4&o=",
+      image: "/Rental.jpg",
     },
   ];
 
