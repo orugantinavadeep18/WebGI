@@ -1,6 +1,7 @@
 import { useState, useRef } from "react";
 import { Button } from "../ui/button";
 import { Upload, X, Loader } from "lucide-react";
+import { toast } from "sonner";
 import { propertyAPI } from "../../lib/api";
 
 export default function PropertyImageUpload({
@@ -49,6 +50,7 @@ export default function PropertyImageUpload({
       setUploading(true);
       setError(null);
 
+      // Pass FormData directly to uploadImages
       const formData = new FormData();
       selectedFiles.forEach((file) => {
         formData.append("images", file);
@@ -56,16 +58,20 @@ export default function PropertyImageUpload({
 
       const response = await propertyAPI.uploadImages(property._id, formData);
 
-      if (response.success) {
+      if (response.success || response.property) {
         setSelectedFiles([]);
         setPreviews([]);
-        onSuccess(response.property);
+        onSuccess(response.property || response.data);
+        toast.success("Images uploaded successfully!");
       } else {
         setError(response.message || "Upload failed");
+        toast.error(response.message || "Failed to upload images");
       }
     } catch (err) {
-      setError(err.message || "Failed to upload images");
-      console.error(err);
+      const errorMsg = err.message || "Failed to upload images";
+      setError(errorMsg);
+      toast.error(errorMsg);
+      console.error("Upload error:", err);
     } finally {
       setUploading(false);
     }

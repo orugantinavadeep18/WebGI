@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { Button } from "../ui/button";
 import { X, Loader } from "lucide-react";
+import { toast } from "sonner";
 import { propertyAPI } from "../../lib/api";
 
 export default function PropertyEditForm({ property, onClose, onSuccess }) {
@@ -49,6 +50,7 @@ export default function PropertyEditForm({ property, onClose, onSuccess }) {
       !formData.zipCode
     ) {
       setError("All required fields must be filled");
+      toast.error("All required fields must be filled");
       return;
     }
 
@@ -70,14 +72,19 @@ export default function PropertyEditForm({ property, onClose, onSuccess }) {
 
       const response = await propertyAPI.updateProperty(property._id, updateData);
 
-      if (response.success) {
-        onSuccess(response.property);
+      if (response.success || response.property) {
+        toast.success("Property updated successfully!");
+        onSuccess(response.property || response.data);
       } else {
-        setError(response.message || "Failed to update property");
+        const errorMsg = response.message || "Failed to update property";
+        setError(errorMsg);
+        toast.error(errorMsg);
       }
     } catch (err) {
-      setError(err.message || "Failed to update property");
-      console.error(err);
+      const errorMsg = err.message || "Failed to update property";
+      setError(errorMsg);
+      toast.error(errorMsg);
+      console.error("Update error:", err);
     } finally {
       setLoading(false);
     }
