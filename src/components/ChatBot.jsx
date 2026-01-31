@@ -1293,8 +1293,8 @@ const ChatBot = () => {
 
   // Calculate chatbox position based on bot position
   const getChatboxPosition = () => {
-    const chatboxX = Math.max(10, position.x - 30); // 30px to the left
-    const chatboxY = Math.max(10, position.y - 620); // 620px above
+    const chatboxX = Math.max(10, position.x - 420); // 420px to the left (chatbox is 384px wide + gap)
+    const chatboxY = Math.max(10, position.y - 630); // 630px above (chat height ~600px + gap)
     return { x: chatboxX, y: chatboxY };
   };
 
