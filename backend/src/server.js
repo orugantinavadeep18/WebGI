@@ -22,29 +22,37 @@ app.use(cors()); // Allow requests from any server
 app.use(express.json());
 app.use(express.urlencoded({ limit: "10mb", extended: true }));
 
-// Connect to MongoDB and print users with property counts
-connectDB().then(async () => {
+// Connect to MongoDB
+connectDB().catch((err) => {
+  console.error("Failed to connect to MongoDB:", err);
+  process.exit(1);
+});
+
+// Print user info asynchronously (non-blocking)
+(async () => {
   try {
-    console.log("\n" + "=".repeat(60));
-    console.log("📋 REGISTERED USERS (For Development)");
-    console.log("=".repeat(60));
-    const users = await User.find({}, "email name _id").sort({ createdAt: -1 });
-    if (users.length === 0) {
-      console.log("⚠️  No users registered yet");
-    } else {
-      for (let i = 0; i < users.length; i++) {
-        const user = users[i];
-        const propertyCount = await Property.countDocuments({ seller: user._id });
-        console.log(`${i + 1}. Email: ${user.email} | Name: ${user.name} | My Properties: ${propertyCount}`);
+    setTimeout(async () => {
+      const users = await User.find({}, "email name _id").sort({ createdAt: -1 });
+      console.log("\n" + "=".repeat(60));
+      console.log("📋 REGISTERED USERS (For Development)");
+      console.log("=".repeat(60));
+      if (users.length === 0) {
+        console.log("⚠️  No users registered yet");
+      } else {
+        for (let i = 0; i < users.length; i++) {
+          const user = users[i];
+          const propertyCount = await Property.countDocuments({ seller: user._id });
+          console.log(`${i + 1}. Email: ${user.email} | Name: ${user.name} | My Properties: ${propertyCount}`);
+        }
       }
-    }
-    console.log("=".repeat(60));
-    console.log("💡 Tip: Use email and password '123456' for admin account");
-    console.log("=".repeat(60) + "\n");
+      console.log("=".repeat(60));
+      console.log("💡 Tip: Use email and password '123456' for admin account");
+      console.log("=".repeat(60) + "\n");
+    }, 1000);
   } catch (error) {
     console.error("Error fetching users:", error);
   }
-});
+})();
 
 // Routes
 app.use("/api/auth", authRoutes);
@@ -81,6 +89,27 @@ app.use((req, res) => {
 const PORT = process.env.PORT || 5000;
 const NODE_ENV = process.env.NODE_ENV || "development";
 
-app.listen(PORT, () => {
+const server = app.listen(PORT, () => {
   console.log(`Server running on http://localhost:${PORT} in ${NODE_ENV} mode`);
 });
+
+// Graceful shutdown handlers
+process.on("uncaughtException", (err) => {
+  console.error("❌ Uncaught Exception:", err);
+});
+
+process.on("unhandledRejection", (reason, promise) => {
+  console.error("❌ Unhandled Rejection at:", promise, "reason:", reason);
+});
+
+// Keep server alive
+process.on("SIGTERM", () => {
+  console.log("SIGTERM received, shutting down gracefully");
+  server.close(() => {
+    console.log("Server closed");
+    process.exit(0);
+  });
+});
+
+// Export for testing
+export default app;

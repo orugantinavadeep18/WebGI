@@ -1580,34 +1580,8 @@ const ChatBot = () => {
       };
 
       setMessages((prev) => [...prev, newBotMessage]);
-    } finally {
-      setIsLoading(false);
-    }
-
-        // Enhance responses with real property stats if available
-        if (propertyStats) {
-          if (detectedIntent?.intent === "property_count") {
-            botResponse = `🏠 **We currently have ${propertyStats.total} properties available on WebGI!**\n\n**Breakdown by type:**\n${Object.entries(propertyStats.byType)
-              .map(([type, count]) => `• ${type}: ${count}`)
-              .join("\n")}\n\n**Statistics:**\n📊 Average price: **₹${propertyStats.avgPrice}**\n🌍 Available across multiple cities\n\nUse filters to narrow down your search!`;
-          } else if (detectedIntent?.intent === "property_types" && Object.keys(propertyStats.byType).length > 0) {
-            botResponse = `Here are the property types we offer:\n\n${Object.entries(propertyStats.byType)
-              .map(([type, count]) => `• **${type}**: ${count} available`)
-              .join("\n")}\n\nEach property type has unique features. Filter by type on the properties page to explore!`;
-          }
-        }
-
-        const newBotMessage = {
-          id: messages.length + 3,
-          text: botResponse,
-          sender: "bot",
-          timestamp: new Date(),
-        };
-
-        setMessages((prev) => [...prev, newBotMessage]);
-      }
     } catch (error) {
-      console.error("Chatbot error:", error);
+      console.error("❌ Chatbot fetch error:", error);
 
       // Fallback response
       const detectedIntent = detectIntent(inputValue);
