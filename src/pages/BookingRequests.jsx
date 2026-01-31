@@ -156,7 +156,7 @@ export default function BookingRequests() {
                       <p className="text-xs text-gray-600 mb-1">Total Price</p>
                       <div className="flex items-center gap-2 text-sm font-semibold">
                         <DollarSign className="h-4 w-4" />
-                        ₹{booking.totalPrice}
+                        ₹{((booking.totalPrice || 0) / 30).toLocaleString()}
                       </div>
                     </div>
                   </div>

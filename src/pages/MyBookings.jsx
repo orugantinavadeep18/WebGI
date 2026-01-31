@@ -237,7 +237,7 @@ export default function MyBookings() {
                       <div className="mb-4">
                         <p className="text-xs text-gray-600 mb-1">Total Amount</p>
                         <p className="text-2xl font-bold text-primary">
-                          ₹{(booking.totalPrice || 0).toLocaleString()}
+                          ₹{((booking.totalPrice || 0) / 30).toLocaleString()}
                         </p>
                       </div>
                     </div>

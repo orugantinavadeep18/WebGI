@@ -55,7 +55,7 @@ export default function BookingModal({ property, isOpen, onClose, onSuccess }) {
   };
 
   const nights = calculateNights();
-  const totalPrice = nights * (property?.price || 0);
+  const totalPrice = nights * ((property?.price || 0) / 30);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -162,7 +162,7 @@ export default function BookingModal({ property, isOpen, onClose, onSuccess }) {
                 </span>
 
                 <span className="font-semibold">
-                  ₹{(Number(totalPrice) / 30).toFixed(2)}
+                  ₹{(Number(totalPrice)).toFixed(2)}
               </span>
 
               </div>
