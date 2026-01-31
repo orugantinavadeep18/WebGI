@@ -3,8 +3,8 @@ import { Filter, ChevronDown, ChevronUp, X, Search } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Label } from "@/components/ui/label";
-import { Slider } from "@/components/ui/slider";
 import { Input } from "@/components/ui/input";
+import { toast } from "sonner";
 import {
   Collapsible,
   CollapsibleContent,
@@ -18,10 +18,10 @@ const PropertyFilters = ({ filters, onFiltersChange, onClearFilters }) => {
     amenities: false,
   });
   const [minPrice, setMinPrice] = useState(
-    filters.priceRange ? filters.priceRange[0] : 0
+    filters.priceRange ? filters.priceRange[0] : ""
   );
   const [maxPrice, setMaxPrice] = useState(
-    filters.priceRange ? filters.priceRange[1] : 20000
+    filters.priceRange ? filters.priceRange[1] : ""
   );
 
   const toggleSection = (section) => {
@@ -72,42 +72,58 @@ const PropertyFilters = ({ filters, onFiltersChange, onClearFilters }) => {
   const handlePriceChange = (value) => {
     setMinPrice(value[0]);
     setMaxPrice(value[1]);
-    onFiltersChange({ ...filters, priceRange: value });
   };
 
   const handleMinPriceInput = (e) => {
-    const value = Number(e.target.value) || 0;
-    const validValue = Math.min(Math.max(value, 0), maxPrice);
-    setMinPrice(validValue);
-    onFiltersChange({ ...filters, priceRange: [validValue, maxPrice] });
+    const value = e.target.value;
+    // Allow empty input while typing
+    if (value === "") {
+      setMinPrice("");
+      return;
+    }
+    const numValue = Number(value);
+    if (!Number.isNaN(numValue)) {
+      const validValue = Math.max(numValue, 0);
+      // Only update if valid and doesn't exceed max (if max is set)
+      if (typeof maxPrice === "number" ? validValue <= maxPrice : true) {
+        setMinPrice(validValue);
+      }
+    }
   };
 
   const handleMaxPriceInput = (e) => {
-    const value = Number(e.target.value) || 0;
-    const validValue = Math.min(Math.max(value, minPrice), 20000);
-    setMaxPrice(validValue);
-    onFiltersChange({ ...filters, priceRange: [minPrice, validValue] });
-  };
-
-  const handlePriceInputChange = (index, rawValue) => {
-    const numericValue = Number(rawValue);
-    if (Number.isNaN(numericValue)) {
+    const value = e.target.value;
+    // Allow empty input while typing
+    if (value === "") {
+      setMaxPrice("");
       return;
     }
-
-    const currentRange = filters.priceRange || [0, 20000];
-    const nextRange = [...currentRange];
-    nextRange[index] = Math.max(0, Math.min(20000, numericValue));
-
-    if (nextRange[0] > nextRange[1]) {
-      if (index === 0) {
-        nextRange[1] = nextRange[0];
-      } else {
-        nextRange[0] = nextRange[1];
+    const numValue = Number(value);
+    if (!Number.isNaN(numValue)) {
+      const validValue = Math.max(numValue, 0);
+      // Only update if valid and doesn't exceed min (if min is set)
+      if (typeof minPrice === "number" ? validValue >= minPrice : true) {
+        setMaxPrice(validValue);
       }
     }
+  };
 
-    onFiltersChange({ ...filters, priceRange: nextRange });
+  const applyPriceFilter = () => {
+    // Validate that both min and max are set
+    if (minPrice === "" || minPrice === null || minPrice === undefined) {
+      toast.error("Please enter minimum price");
+      return;
+    }
+    if (maxPrice === "" || maxPrice === null || maxPrice === undefined) {
+      toast.error("Please enter maximum price");
+      return;
+    }
+    if (minPrice > maxPrice) {
+      toast.error("Minimum price cannot be greater than maximum price");
+      return;
+    }
+    onFiltersChange({ ...filters, priceRange: [minPrice, maxPrice] });
+    toast.success(`Filter applied: ₹${minPrice.toLocaleString()} - ₹${maxPrice.toLocaleString()}`);
   };
 
   const hasActiveFilters =
@@ -176,46 +192,15 @@ const PropertyFilters = ({ filters, onFiltersChange, onClearFilters }) => {
         </CollapsibleTrigger>
         <CollapsibleContent className="pt-3 space-y-4">
           <div className="text-sm text-muted-foreground font-semibold">
-            ₹{minPrice.toLocaleString()} - ₹{maxPrice.toLocaleString()}
+            {minPrice !== "" && maxPrice !== "" 
+              ? `₹${Number(minPrice).toLocaleString()} - ₹${Number(maxPrice).toLocaleString()}`
+              : "Set price range"}
           </div>
+          
+          {/* Min and Max Price Input Fields */}
           <div className="grid grid-cols-2 gap-3">
             <div className="space-y-1">
-              <Label className="text-xs text-muted-foreground">Min</Label>
-              <input
-                type="number"
-                min={0}
-                max={20000}
-                step={1000}
-                value={filters.priceRange ? filters.priceRange[0] : 0}
-                onChange={(event) => handlePriceInputChange(0, event.target.value)}
-                className="h-9 w-full rounded-md border border-input bg-background px-3 text-sm shadow-sm focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
-              />
-            </div>
-            <div className="space-y-1">
-              <Label className="text-xs text-muted-foreground">Max</Label>
-              <input
-                type="number"
-                min={0}
-                max={20000}
-                step={1000}
-                value={filters.priceRange ? filters.priceRange[1] : 20000}
-                onChange={(event) => handlePriceInputChange(1, event.target.value)}
-                className="h-9 w-full rounded-md border border-input bg-background px-3 text-sm shadow-sm focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
-              />
-            </div>
-          </div>
-          <Slider
-            value={[minPrice, maxPrice]}
-            onValueChange={handlePriceChange}
-            min={0}
-            max={20000}
-            step={100}
-            className="w-full"
-          />
-          {/* Min and Max Price Search Bars */}
-          <div className="space-y-3">
-            <div>
-              <Label htmlFor="minPrice" className="text-xs text-muted-foreground mb-1 block">
+              <Label htmlFor="minPrice" className="text-xs text-muted-foreground">
                 Minimum Price
               </Label>
               <Input
@@ -226,11 +211,10 @@ const PropertyFilters = ({ filters, onFiltersChange, onClearFilters }) => {
                 onChange={handleMinPriceInput}
                 className="h-9 text-sm"
                 min="0"
-                max={maxPrice}
               />
             </div>
-            <div>
-              <Label htmlFor="maxPrice" className="text-xs text-muted-foreground mb-1 block">
+            <div className="space-y-1">
+              <Label htmlFor="maxPrice" className="text-xs text-muted-foreground">
                 Maximum Price
               </Label>
               <Input
@@ -240,11 +224,20 @@ const PropertyFilters = ({ filters, onFiltersChange, onClearFilters }) => {
                 value={maxPrice}
                 onChange={handleMaxPriceInput}
                 className="h-9 text-sm"
-                min={minPrice}
-                max="20000"
+                min="0"
               />
             </div>
           </div>
+
+          {/* Search Button */}
+          <Button 
+            onClick={applyPriceFilter}
+            className="w-full h-9 gap-2"
+            size="sm"
+          >
+            <Search className="h-4 w-4" />
+            Apply Filter
+          </Button>
         </CollapsibleContent>
       </Collapsible>
 

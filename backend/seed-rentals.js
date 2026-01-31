@@ -93,7 +93,18 @@ async function seedRentals() {
           name: row.name || "Rental Property",
           location: row.location || "Unknown",
           description: row.about || "Cozy rental property",
-          amenities: {
+          // Store amenities as both array of strings AND object for backward compatibility
+          amenities: [
+            Boolean(parseInt(row.wifi) || 0) && "WiFi",
+            Boolean(parseInt(row.food) || 0) && "Food Available",
+            Boolean(parseInt(row.ac) || 0) && "Air Conditioning",
+            Boolean(parseInt(row.parking) || 0) && "Parking",
+            Boolean(parseInt(row.laundry) || 0) && "Laundry",
+            Boolean(parseInt(row.power_backup) || 0) && "Power Backup",
+            Boolean(parseInt(row.security) || 0) && "Security",
+            Boolean(parseInt(row.cctv) || 0) && "CCTV",
+          ].filter(Boolean), // Remove false values
+          amenities_object: {
             wifi: Boolean(parseInt(row.wifi) || 0),
             food: Boolean(parseInt(row.food) || 0),
             ac: Boolean(parseInt(row.ac) || 0),

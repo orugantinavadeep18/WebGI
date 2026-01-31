@@ -68,14 +68,44 @@ const PropertyDetail = () => {
         zipCode: data.zipCode || "",
         // Keep the actual seller ID from the database, NOT the property's own ID
         seller: data.seller,
-        // Ensure amenities is an array
-        amenities: Array.isArray(data.amenities) 
-          ? data.amenities 
-          : Object.entries(data.amenities_object || data.amenities || {})
+        // Ensure amenities is an array of strings
+        amenities: (() => {
+          // First priority: amenities array (direct strings)
+          if (Array.isArray(data.amenities) && data.amenities.length > 0) {
+            const stringAmenities = data.amenities.filter(a => {
+              if (typeof a === 'string') return a && a.trim();
+              return false;
+            });
+            if (stringAmenities.length > 0) {
+              return stringAmenities;
+            }
+          }
+          
+          // Second priority: amenities_object (object with true/false values)
+          if (data.amenities_object && typeof data.amenities_object === 'object' && !Array.isArray(data.amenities_object)) {
+            const fromObject = Object.entries(data.amenities_object)
               .filter(([, value]) => value === true)
-              .map(([key]) => key.replace(/_/g, ' ')),
+              .map(([key]) => key.replace(/_/g, ' ').trim());
+            if (fromObject.length > 0) {
+              return fromObject;
+            }
+          }
+          
+          // Third priority: amenities as object (fallback)
+          if (data.amenities && typeof data.amenities === 'object' && !Array.isArray(data.amenities)) {
+            const fromObject = Object.entries(data.amenities)
+              .filter(([, value]) => value === true)
+              .map(([key]) => key.replace(/_/g, ' ').trim());
+            if (fromObject.length > 0) {
+              return fromObject;
+            }
+          }
+          
+          return [];
+        })(),
       };
       
+      console.log("✓ Normalized property amenities:", normalizedProperty.amenities);
       setProperty(normalizedProperty);
       
       // Set seller info - get the actual seller from the data
@@ -358,7 +388,7 @@ const PropertyDetail = () => {
             <Tabs defaultValue="overview" className="space-y-6">
               <TabsList className="grid w-full grid-cols-5">
                 <TabsTrigger value="overview">Overview</TabsTrigger>
-                <TabsTrigger value="amenities">Amenities</TabsTrigger>
+                
                 <TabsTrigger value="details">Details</TabsTrigger>
                 {/* <TabsTrigger value="ai-score">AI Score</TabsTrigger> */}
                 <TabsTrigger value="reviews">Reviews</TabsTrigger>
@@ -377,11 +407,17 @@ const PropertyDetail = () => {
                   <div>
                     <h3 className="font-heading font-semibold text-lg mb-3">✨ Amenities</h3>
                     <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
-                      {property.amenities.map((amenity, idx) => (
-                        <div key={idx} className="flex items-center gap-2 p-3 bg-secondary rounded-lg">
-                          <span className="text-sm capitalize">{amenity}</span>
-                        </div>
-                      ))}
+                      {property.amenities.map((amenity, idx) => {
+                        // Handle both string and object amenities
+                        const amenityText = typeof amenity === 'string' 
+                          ? amenity 
+                          : (amenity?.name || amenity?.title || JSON.stringify(amenity));
+                        return (
+                          <div key={idx} className="flex items-center gap-2 p-3 bg-secondary rounded-lg">
+                            <span className="text-sm capitalize">{amenityText}</span>
+                          </div>
+                        );
+                      })}
                     </div>
                   </div>
                 )}
