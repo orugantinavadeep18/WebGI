@@ -23,7 +23,6 @@ const AVAILABLE_AMENITIES = [
   "Balcony",
   "Microwave",
   "TV",
-  "Security",
   "Elevator",
   "Pet Friendly",
 ];
@@ -277,7 +276,7 @@ export default function CreateProperty() {
             </div>
 
             <div>
-              <Label htmlFor="description">Description *</Label>
+              <Label htmlFor="description">Description</Label>
               <textarea
                 id="description"
                 name="description"
@@ -316,11 +315,9 @@ export default function CreateProperty() {
                   <SelectValue placeholder="Select type" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="apartment">Apartment</SelectItem>
-                  <SelectItem value="house">House</SelectItem>
-                  <SelectItem value="villa">Villa</SelectItem>
-                  <SelectItem value="land">Land</SelectItem>
-                  <SelectItem value="commercial">Commercial</SelectItem>
+                  <SelectItem value="hostel">Hostel</SelectItem>
+                  <SelectItem value="pg">PG</SelectItem>
+                  <SelectItem value="rental_room">Rental_Room</SelectItem>
                 </SelectContent>
               </Select>
             </div>
