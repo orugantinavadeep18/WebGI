@@ -1521,7 +1521,11 @@ const ChatBot = () => {
 
     try {
       // Send to backend chatbot API for smart database queries
-      const response = await fetch(`${import.meta.env.VITE_API_BASE_URL || 'https://webgi-2-vpru.onrender.com/api'}/chatbot/query`, {
+      const apiUrl = `${import.meta.env.VITE_API_BASE_URL || 'http://localhost:5000/api'}/chatbot/query`;
+      console.log("🤖 Sending to:", apiUrl);
+      console.log("📝 Message:", inputValue);
+      
+      const response = await fetch(apiUrl, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -1529,21 +1533,56 @@ const ChatBot = () => {
         body: JSON.stringify({ message: inputValue }),
       });
 
+      console.log("✅ Response status:", response.status);
+
       if (response.ok) {
         const data = await response.json();
+        console.log("📦 Response data:", data);
         
         const newBotMessage = {
           id: messages.length + 3,
-          text: data.message,
+          text: data.message || data.response || "No response received",
           sender: "bot",
           timestamp: new Date(),
         };
 
         setMessages((prev) => [...prev, newBotMessage]);
       } else {
+        console.warn("⚠️ API returned status:", response.status);
+        const errorData = await response.json().catch(() => ({}));
+        console.error("Error response:", errorData);
+        
         // Fallback to local intent detection if API fails
         const detectedIntent = detectIntent(inputValue);
         let botResponse = generateResponse(detectedIntent);
+        
+        const newBotMessage = {
+          id: messages.length + 3,
+          text: botResponse,
+          sender: "bot",
+          timestamp: new Date(),
+        };
+
+        setMessages((prev) => [...prev, newBotMessage]);
+      }
+    } catch (error) {
+      console.error("❌ Chatbot fetch error:", error);
+
+      // Fallback response
+      const detectedIntent = detectIntent(inputValue);
+      let botResponse = generateResponse(detectedIntent);
+
+      const newBotMessage = {
+        id: messages.length + 3,
+        text: botResponse,
+        sender: "bot",
+        timestamp: new Date(),
+      };
+
+      setMessages((prev) => [...prev, newBotMessage]);
+    } finally {
+      setIsLoading(false);
+    }
 
         // Enhance responses with real property stats if available
         if (propertyStats) {

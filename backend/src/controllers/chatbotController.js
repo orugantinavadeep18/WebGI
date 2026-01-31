@@ -144,112 +144,112 @@ export const getPropertyStats = async () => {
 export const processChatMessage = async (message) => {
   try {
     const lowerMessage = message.toLowerCase();
+    console.log("📝 Processing message:", message);
 
-    // Extract stats queries
-    if (
-      lowerMessage.includes("total") &&
-      lowerMessage.includes("properties")
-    ) {
+    // 1. TOTAL PROPERTIES QUERY
+    if (lowerMessage.includes("how many") && lowerMessage.includes("properties")) {
+      console.log("🔍 Detected: Total properties query");
       const stats = await getDatabaseStats();
       if (stats) {
-        return `We currently have ${stats.totalProperties} properties listed on WebGI! We also have ${stats.totalUsers} registered users. Would you like to search for properties in a specific city or with particular filters?`;
+        console.log("✅ Stats found:", stats);
+        return `🏠 **We currently have ${stats.totalProperties} properties available on WebGI!**\n\nWith ${stats.totalUsers} registered users and ${stats.totalBookings} bookings made so far.\n\nWould you like to search by city or price range?`;
       }
     }
 
-    // City-based queries
-    if (
-      lowerMessage.includes("properties in") ||
-      lowerMessage.includes("how many properties")
-    ) {
-      const cityMatch = message.match(/(?:in|from)\s+(\w+)/i);
+    // 2. PROPERTIES IN CITY
+    if (lowerMessage.includes("properties in") || lowerMessage.includes("in ")) {
+      const cityMatch = message.match(/(?:in|from)\s+([A-Za-z]+)/i);
       if (cityMatch) {
         const city = cityMatch[1];
+        console.log("🔍 Detected: City query for", city);
         const properties = await searchPropertiesByCity(city);
         if (properties.length > 0) {
-          return `I found ${properties.length} properties in ${city}! Here are some highlights:\n${properties
+          console.log("✅ Found", properties.length, "properties in", city);
+          return `📍 **Found ${properties.length} properties in ${city}!**\n\n${properties
             .slice(0, 3)
-            .map((p) => `- ${p.title} (₹${p.price}/month)`)
-            .join(
-              "\n"
-            )}\n\nWould you like more details about any of these properties?`;
+            .map((p) => `• **${p.title}** - ₹${p.price}/month`)
+            .join("\n")}\n\nVisit the Properties page to see all listings!`;
         } else {
-          return `I didn't find any properties in ${city} at the moment. Try searching other popular cities or use our advanced filters on the Properties page!`;
+          return `❌ No properties found in ${city} yet. Try other cities or check back soon!`;
         }
       }
     }
 
-    // Property type queries
-    if (
-      lowerMessage.includes("hostel") ||
-      lowerMessage.includes("pg") ||
-      lowerMessage.includes("apartment")
-    ) {
-      let type = "";
-      if (lowerMessage.includes("hostel")) type = "hostel";
-      else if (lowerMessage.includes("pg")) type = "pg";
-      else if (lowerMessage.includes("apartment")) type = "apartment";
-
-      const properties = await getPropertiesByType(type);
+    // 3. HOSTEL QUERY
+    if (lowerMessage.includes("hostel")) {
+      console.log("🔍 Detected: Hostel query");
+      const properties = await getPropertiesByType("hostel");
       if (properties.length > 0) {
-        return `Great! I found ${properties.length} ${type}s available. Here are some popular ones:\n${properties
+        console.log("✅ Found", properties.length, "hostels");
+        return `🛏️ **Found ${properties.length} Hostels available!**\n\n${properties
           .slice(0, 3)
-          .map((p) => `- ${p.title} in ${p.city} (₹${p.price}/month)`)
-          .join(
-            "\n"
-          )}\n\nVisit the Properties page to filter by price, amenities, and more!`;
+          .map((p) => `• **${p.title}** in ${p.city} - ₹${p.price}/month`)
+          .join("\n")}\n\nGreat for students and travelers!`;
       }
     }
 
-    // Price range queries
-    if (lowerMessage.includes("under") || lowerMessage.includes("budget")) {
+    // 4. PG QUERY
+    if (lowerMessage.includes("pg") || lowerMessage.includes("paying guest")) {
+      console.log("🔍 Detected: PG query");
+      const properties = await getPropertiesByType("pg");
+      if (properties.length > 0) {
+        console.log("✅ Found", properties.length, "PGs");
+        return `🏢 **Found ${properties.length} PGs (Paying Guest) available!**\n\n${properties
+          .slice(0, 3)
+          .map((p) => `• **${p.title}** in ${p.city} - ₹${p.price}/month`)
+          .join("\n")}\n\nPerfect for working professionals!`;
+      }
+    }
+
+    // 5. APARTMENT QUERY
+    if (lowerMessage.includes("apartment")) {
+      console.log("🔍 Detected: Apartment query");
+      const properties = await getPropertiesByType("apartment");
+      if (properties.length > 0) {
+        console.log("✅ Found", properties.length, "apartments");
+        return `🏠 **Found ${properties.length} Apartments available!**\n\n${properties
+          .slice(0, 3)
+          .map((p) => `• **${p.title}** in ${p.city} - ₹${p.price}/month`)
+          .join("\n")}\n\nComfortable and modern living spaces!`;
+      }
+    }
+
+    // 6. POPULAR CITIES
+    if (lowerMessage.includes("popular cities") || lowerMessage.includes("trending") || lowerMessage.includes("top cities")) {
+      console.log("🔍 Detected: Popular cities query");
+      const cities = await getPopularCities();
+      if (cities.length > 0) {
+        console.log("✅ Found popular cities:", cities);
+        return `🌍 **Most Popular Cities on WebGI:**\n\n${cities
+          .slice(0, 5)
+          .map((c, i) => `${i + 1}. **${c.city}** - ${c.count} properties`)
+          .join("\n")}\n\nExplore properties in these trending locations!`;
+      }
+    }
+
+    // 7. BUDGET/PRICE QUERY
+    if (lowerMessage.includes("under") || lowerMessage.includes("budget") || lowerMessage.includes("affordable")) {
       const priceMatch = message.match(/(\d+)\s*(rupees|rs|₹)?/i);
       if (priceMatch) {
         const maxPrice = parseInt(priceMatch[1]);
+        console.log("🔍 Detected: Price query for max", maxPrice);
         const properties = await searchPropertiesByFilters({ maxPrice });
         if (properties.length > 0) {
-          return `Found ${properties.length} properties under ₹${maxPrice}! Here are some affordable options:\n${properties
+          console.log("✅ Found", properties.length, "properties under ₹" + maxPrice);
+          return `💰 **Found ${properties.length} properties under ₹${maxPrice}!**\n\n${properties
             .slice(0, 3)
-            .map((p) => `- ${p.title} (₹${p.price}/month) in ${p.city}`)
-            .join(
-              "\n"
-            )}\n\nUse our price filter on the Properties page to explore more!`;
+            .map((p) => `• **${p.title}** in ${p.city} - ₹${p.price}/month`)
+            .join("\n")}\n\nCheck the Properties page for all budget options!`;
         }
       }
     }
 
-    // Popular cities query
-    if (lowerMessage.includes("popular cities") || lowerMessage.includes("trending cities")) {
-      const cities = await getPopularCities();
-      if (cities.length > 0) {
-        return `Here are the most popular cities on WebGI:\n${cities
-          .slice(0, 5)
-          .map((c) => `- ${c.city} (${c.count} properties)`)
-          .join(
-            "\n"
-          )}\n\nClick on any city to see available properties in that location!`;
-      }
-    }
-
-    // Property type statistics
-    if (
-      lowerMessage.includes("property types") ||
-      lowerMessage.includes("how many")
-    ) {
-      const stats = await getPropertyStats();
-      if (stats.length > 0) {
-        return `Here's the breakdown of property types on WebGI:\n${stats
-          .map((s) => `- ${s._id}: ${s.count} listings (avg ₹${Math.round(s.avgPrice)}/month)`)
-          .join(
-            "\n"
-          )}\n\nWhich type interests you?`;
-      }
-    }
-
-    // Default helpful response
-    return `I'm here to help! I can assist you with:\n- Finding properties in specific cities\n- Searching by price range or property type\n- Checking how many properties are available\n- Answering questions about how WebGI works\n\nWhat would you like to know?`;
+    // DEFAULT RESPONSE
+    console.log("📝 Using default response");
+    return `👋 **Hello! I'm your WebGI Assistant.**\n\nI can help you with:\n• **How many properties?** - Get total count\n• **Properties in [city]** - Search by location\n• **Show me hostels/PGs/apartments** - Browse by type\n• **Popular cities** - See trending locations\n• **Properties under ₹[amount]** - Budget search\n\nWhat would you like to know?`;
   } catch (error) {
-    console.error("Error processing chat message:", error);
-    return "I encountered an error while processing your request. Please try rephrasing your question or visit the Properties page for advanced filtering options.";
+    console.error("❌ Error processing chat:", error.message);
+    return `Sorry, I encountered an error. Please try again or visit the Properties page directly!`;
   }
 };
 
