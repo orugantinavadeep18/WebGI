@@ -24,6 +24,11 @@ const Footer = () => {
             <h3 className="font-heading font-semibold mb-4">Quick Links</h3>
             <ul className="space-y-2 text-sm">
               <li>
+                <Link to="/" className="text-primary-foreground/80 hover:text-primary-foreground transition-colors">
+                  Home
+                </Link>
+              </li>
+              <li>
                 <Link to="/properties?type=hostel" className="text-primary-foreground/80 hover:text-primary-foreground transition-colors">
                   Hostels
                 </Link>
@@ -34,13 +39,8 @@ const Footer = () => {
                 </Link>
               </li>
               <li>
-                <Link to="/properties?type=rental_room" className="text-primary-foreground/80 hover:text-primary-foreground transition-colors">
+                <Link to="/properties?type=others" className="text-primary-foreground/80 hover:text-primary-foreground transition-colors">
                   Rental Rooms
-                </Link>
-              </li>
-              <li>
-                <Link to="/properties?type=flat" className="text-primary-foreground/80 hover:text-primary-foreground transition-colors">
-                  Flats
                 </Link>
               </li>
             </ul>
@@ -48,21 +48,26 @@ const Footer = () => {
 
           {/* Trust & Safety */}
           <div>
-            <h3 className="font-heading font-semibold mb-4">Trust & Safety</h3>
+            <h3 className="font-heading font-semibold mb-4">Account</h3>
             <ul className="space-y-2 text-sm">
               <li>
-                <Link to="/how-it-works" className="text-primary-foreground/80 hover:text-primary-foreground transition-colors">
-                  How Verification Works
+                <Link to="/auth" className="text-primary-foreground/80 hover:text-primary-foreground transition-colors">
+                  Login / Register
                 </Link>
               </li>
               <li>
-                <Link to="/safety-guidelines" className="text-primary-foreground/80 hover:text-primary-foreground transition-colors">
-                  Safety Guidelines
+                <Link to="/my-bookings" className="text-primary-foreground/80 hover:text-primary-foreground transition-colors">
+                  My Bookings
                 </Link>
               </li>
               <li>
-                <Link to="/trust-score" className="text-primary-foreground/80 hover:text-primary-foreground transition-colors">
-                  Trust Score Explained
+                <Link to="/list-properties" className="text-primary-foreground/80 hover:text-primary-foreground transition-colors">
+                  My Properties
+                </Link>
+              </li>
+              <li>
+                <Link to="/messages" className="text-primary-foreground/80 hover:text-primary-foreground transition-colors">
+                  Messages
                 </Link>
               </li>
             </ul>
@@ -74,15 +79,19 @@ const Footer = () => {
             <ul className="space-y-3 text-sm">
               <li className="flex items-center gap-2 text-primary-foreground/80">
                 <Mail className="h-4 w-4" />
-                support@webgi.com
+                <a href="mailto:support@webgi.com" className="hover:text-primary-foreground transition-colors">
+                  support@webgi.com
+                </a>
               </li>
               <li className="flex items-center gap-2 text-primary-foreground/80">
                 <Phone className="h-4 w-4" />
-                +91 98765 43210
+                <a href="tel:+919876543210" className="hover:text-primary-foreground transition-colors">
+                  +91 98765 43210
+                </a>
               </li>
               <li className="flex items-start gap-2 text-primary-foreground/80">
                 <MapPin className="h-4 w-4 mt-0.5" />
-                Bangalore, India
+                <span>Bangalore, India</span>
               </li>
             </ul>
           </div>
