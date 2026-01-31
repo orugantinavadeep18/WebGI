@@ -1517,22 +1517,23 @@ const ChatBot = () => {
 
   return (
     <>
-      {/* Floating Button - Draggable bot that carries chatbox along */}
+      {/* Floating Button - Click to open, double-click to drag */}
       {!isOpen && (
         <div
-          className="hidden md:flex fixed z-40 items-center justify-center pointer-events-auto cursor-move"
-          onMouseDown={handleDragStart}
+          className="hidden md:flex fixed z-40 items-center justify-center pointer-events-auto"
+          onDoubleClick={handleDragStart}
           style={{ 
             width: "180px",
             height: "180px",
             left: `${position.x}px`,
             top: `${position.y}px`,
+            cursor: isDragging ? "grabbing" : "pointer",
           }}
         >
           <button
-            onDoubleClick={handleOpenChat}
+            onClick={handleOpenChat}
             className="absolute pointer-events-auto cursor-pointer hover:opacity-90 transition-all duration-300 group"
-            title="Double-click to open chat, drag to move"
+            title="Single-click to open chat, double-click and drag to move"
             style={{ 
               background: "none", 
               border: "none", 
