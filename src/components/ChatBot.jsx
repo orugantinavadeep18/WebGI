@@ -1508,10 +1508,12 @@ const ChatBot = () => {
       {/* Floating Button - Only the animation is clickable, not the whole square */}
       {!isOpen && (
         <div
-          className="hidden md:flex fixed z-40 items-center justify-center pointer-events-none bottom-6 right-6"
+          className="hidden md:flex fixed z-40 items-center justify-center pointer-events-none"
           style={{ 
             width: "180px",
-            height: "180px"
+            height: "180px",
+            left: `${position.x}px`,
+            top: `${position.y}px`,
           }}
         >
           <button
