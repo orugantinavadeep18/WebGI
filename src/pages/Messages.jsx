@@ -45,6 +45,11 @@ export default function Messages() {
   useEffect(() => {
     if (sellerId && user) {
       loadDirectMessages();
+      // Set up auto-refresh every 3 seconds
+      const interval = setInterval(() => {
+        loadDirectMessages();
+      }, 3000);
+      return () => clearInterval(interval);
     }
   }, [sellerId, user]);
 
@@ -62,8 +67,12 @@ export default function Messages() {
       const response = await apiCall(`/messages/direct/${sellerId}`, {
         method: "GET",
       });
-      if (response.ok) {
-        setDirectMessages(response.data?.messages || []);
+      if (response && response.messages) {
+        setDirectMessages(response.messages);
+      } else if (Array.isArray(response)) {
+        setDirectMessages(response);
+      } else {
+        setDirectMessages([]);
       }
     } catch (error) {
       console.error("Failed to load direct messages:", error);
@@ -90,19 +99,23 @@ export default function Messages() {
     try {
       if (sellerId) {
         // Send direct message
-        const response = await apiCall("/messages/direct/send", {
-          method: "POST",
-          body: JSON.stringify({
-            receiverId: sellerId,
-            content: messageText,
-          }),
-        });
-        if (response.ok) {
-          setMessageText("");
-          // Reload direct messages
-          await loadDirectMessages();
-        } else {
-          toast.error(response.message || "Failed to send message");
+        try {
+          const response = await apiCall("/messages/direct/send", {
+            method: "POST",
+            body: JSON.stringify({
+              receiverId: sellerId,
+              content: messageText,
+            }),
+          });
+          if (response && response.data) {
+            setMessageText("");
+            // Reload direct messages
+            await loadDirectMessages();
+            toast.success("Message sent!");
+          }
+        } catch (error) {
+          console.error("Error sending direct message:", error);
+          toast.error(error.message || "Failed to send message");
         }
       } else if (selectedConversation) {
         // Send booking-based message
