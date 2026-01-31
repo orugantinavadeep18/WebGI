@@ -528,10 +528,6 @@ const Properties = () => {
                   No recommendations available yet
                 </p>
               )}
-
-              <p className="text-xs text-blue-600 italic text-center pt-2 border-t border-blue-200">
-                🎯 AI learns from your preferences
-              </p>
             </div>
           </aside>
         </div>
