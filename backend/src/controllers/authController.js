@@ -1,4 +1,8 @@
 import User from "../models/User.js";
+import Property from "../models/Property.js";
+import Booking from "../models/Booking.js";
+import Message from "../models/Message.js";
+import DirectMessage from "../models/DirectMessage.js";
 import jwt from "jsonwebtoken";
 
 const generateToken = (user) => {
@@ -195,6 +199,11 @@ export const deleteUser = async (req, res) => {
   try {
     const { userId } = req.params;
     
+    // Validate user ID format
+    if (!userId || userId.length !== 24) {
+      return res.status(400).json({ message: "Invalid user ID format" });
+    }
+
     // Admin-only access check
     const adminEmail = "kittu8441@gmail.com";
     const currentUser = await User.findById(req.user.id);
@@ -208,20 +217,22 @@ export const deleteUser = async (req, res) => {
       return res.status(400).json({ message: "Cannot delete your own account" });
     }
 
+    // Verify user exists before deleting
+    const userToDelete = await User.findById(userId);
+    if (!userToDelete) {
+      return res.status(404).json({ message: "User not found" });
+    }
+
     // Delete user's properties
-    const Property = require("../models/Property").default || require("../models/Property");
     await Property.deleteMany({ ownerId: userId });
 
     // Delete user's bookings
-    const Booking = require("../models/Booking").default || require("../models/Booking");
     await Booking.deleteMany({ $or: [{ renterId: userId }, { ownerId: userId }] });
 
     // Delete user's messages
-    const Message = require("../models/Message").default || require("../models/Message");
     await Message.deleteMany({ $or: [{ senderId: userId }, { receiverId: userId }] });
 
     // Delete user's direct messages
-    const DirectMessage = require("../models/DirectMessage").default || require("../models/DirectMessage");
     await DirectMessage.deleteMany({ $or: [{ senderId: userId }, { receiverId: userId }] });
 
     // Delete user
@@ -231,7 +242,8 @@ export const deleteUser = async (req, res) => {
       message: "User and associated data deleted successfully",
     });
   } catch (error) {
-    res.status(500).json({ message: error.message });
+    console.error("Error deleting user:", error);
+    res.status(500).json({ message: error.message || "Failed to delete user" });
   }
 };
 

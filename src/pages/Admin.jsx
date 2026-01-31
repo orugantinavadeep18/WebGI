@@ -80,11 +80,13 @@ export default function Admin() {
     if (!confirm("Are you sure you want to delete this user?")) return;
 
     try {
-      await apiCall(`/auth/users/${userId}`, { method: "DELETE" });
-      toast.success("User deleted");
-      fetchAdminData();
+      const response = await apiCall(`/auth/users/${userId}`, { method: "DELETE" });
+      toast.success("User deleted successfully");
+      setAllUsers(allUsers.filter((u) => u._id !== userId));
+      setStats({ ...stats, totalUsers: stats.totalUsers - 1 });
     } catch (error) {
-      toast.error("Failed to delete user");
+      console.error("Delete user error:", error);
+      toast.error(error.message || "Failed to delete user");
     }
   };
 
