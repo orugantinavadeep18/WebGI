@@ -1283,6 +1283,7 @@ const ChatBot = () => {
   const [position, setPosition] = useState({ x: window.innerWidth - 400, y: window.innerHeight - 650 });
   const [isDragging, setIsDragging] = useState(false);
   const [dragOffset, setDragOffset] = useState({ x: 0, y: 0 });
+  const [contextMenu, setContextMenu] = useState({ visible: false, x: 0, y: 0 });
   const chatContainerRef = useRef(null);
 
   // Handle opening chat - position chatbox above and to the left of the bot
@@ -1303,6 +1304,45 @@ const ChatBot = () => {
       chatMessagesRef.current.scrollTop = chatMessagesRef.current.scrollHeight;
     }
   }, [messages]);
+
+  // Handle right-click context menu
+  const handleContextMenu = (e) => {
+    e.preventDefault();
+    setContextMenu({
+      visible: true,
+      x: e.clientX,
+      y: e.clientY,
+    });
+  };
+
+  // Handle moving bot from context menu
+  const handleMoveBot = () => {
+    setContextMenu({ visible: false, x: 0, y: 0 });
+    // Start dragging
+    const mouseDownEvent = new MouseEvent("mousedown", {
+      bubbles: true,
+      cancelable: true,
+      clientX: contextMenu.x,
+      clientY: contextMenu.y,
+    });
+    setIsDragging(true);
+    setDragOffset({
+      x: contextMenu.x - position.x,
+      y: contextMenu.y - position.y,
+    });
+  };
+
+  // Close context menu when clicking elsewhere
+  useEffect(() => {
+    const handleClickOutside = () => {
+      setContextMenu({ visible: false, x: 0, y: 0 });
+    };
+
+    if (contextMenu.visible) {
+      document.addEventListener("click", handleClickOutside);
+      return () => document.removeEventListener("click", handleClickOutside);
+    }
+  }, [contextMenu.visible]);
 
   // Handle drag start on header
   const handleDragStart = (e) => {
@@ -1517,11 +1557,11 @@ const ChatBot = () => {
 
   return (
     <>
-      {/* Floating Button - Click to open, double-click to drag */}
+      {/* Floating Button - Click to open, right-click to move */}
       {!isOpen && (
         <div
           className="hidden md:flex fixed z-40 items-center justify-center pointer-events-auto"
-          onDoubleClick={handleDragStart}
+          onContextMenu={handleContextMenu}
           style={{ 
             width: "180px",
             height: "180px",
@@ -1533,7 +1573,7 @@ const ChatBot = () => {
           <button
             onClick={handleOpenChat}
             className="absolute pointer-events-auto cursor-pointer hover:opacity-90 transition-all duration-300 group"
-            title="Single-click to open chat, double-click and drag to move"
+            title="Single-click to open chat, right-click for move option"
             style={{ 
               background: "none", 
               border: "none", 
@@ -1678,6 +1718,32 @@ const ChatBot = () => {
             </div>
           </div>
         )}
+
+      {/* Context Menu */}
+      {contextMenu.visible && (
+        <div
+          style={{
+            position: "fixed",
+            left: `${contextMenu.x}px`,
+            top: `${contextMenu.y}px`,
+            zIndex: 1000,
+          }}
+          className="bg-white rounded-lg shadow-lg border border-border animate-in fade-in zoom-in-95"
+        >
+          <button
+            onClick={handleMoveBot}
+            className="w-full px-4 py-2 text-sm text-foreground hover:bg-gray-100 rounded-lg flex items-center gap-2 transition-colors"
+            style={{
+              textAlign: "left",
+              background: "none",
+              border: "none",
+              cursor: "pointer",
+            }}
+          >
+            ✋ Move Bot
+          </button>
+        </div>
+      )}
       </>
     );
   };
