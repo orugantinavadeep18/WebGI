@@ -1,6 +1,7 @@
 import mongoose from "mongoose";
 import Property from "../models/Property.js";
 import imagekit from "../config/imagekit.js";
+import User from "../models/User.js";
 
 export const getAllProperties = async (req, res) => {
   try {
@@ -174,21 +175,29 @@ export const updateProperty = async (req, res) => {
 
 export const deleteProperty = async (req, res) => {
   try {
+    console.log(`\n🗑️  Deleting property: ${req.params.id}`);
+    console.log(`👤 User ID: ${req.user.id}`);
+
     const property = await Property.findById(req.params.id);
 
     if (!property) {
+      console.log("❌ Property not found");
       return res
         .status(404)
         .json({ success: false, message: "Property not found" });
     }
 
+    console.log(`📝 Property seller ID: ${property.seller}`);
+
     // Check if user is the seller or admin
-    const User = require("../models/User").default || require("../models/User");
     const currentUser = await User.findById(req.user.id);
     const isAdmin = currentUser && currentUser.email === "kittu8441@gmail.com";
-    const isSeller = property.seller === req.user.id;
+    const isSeller = property.seller.equals(new mongoose.Types.ObjectId(req.user.id));
+
+    console.log(`👤 Is Admin: ${isAdmin}, Is Seller: ${isSeller}`);
 
     if (!isSeller && !isAdmin) {
+      console.log("❌ Unauthorized - Not seller or admin");
       return res.status(403).json({
         success: false,
         message: "Unauthorized: Only property owner or admin can delete",
@@ -201,20 +210,28 @@ export const deleteProperty = async (req, res) => {
         // Extract file ID from URL or use the stored fileId
         if (image.fileId) {
           await imagekit.deleteFile(image.fileId);
+          console.log(`🖼️  Deleted image from ImageKit: ${image.fileId}`);
         }
       } catch (err) {
-        console.log("Error deleting image from ImageKit:", err);
+        console.log("⚠️  Error deleting image from ImageKit:", err.message);
       }
     }
 
     await Property.findByIdAndDelete(req.params.id);
+    console.log("✅ Property deleted successfully");
 
     res.json({
       success: true,
       message: "Property deleted successfully",
     });
   } catch (error) {
-    res.status(500).json({ success: false, message: error.message });
+    console.error("❌ Delete error:", error);
+    console.error("Error stack:", error.stack);
+    res.status(500).json({ 
+      success: false, 
+      message: error.message || "Failed to delete property",
+      error: error.toString()
+    });
   }
 };
 

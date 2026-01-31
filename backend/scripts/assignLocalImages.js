@@ -43,7 +43,7 @@ const shuffleArray = (array) => {
 const assignImagesToProperties = async () => {
   try {
     // Connect to MongoDB
-    await mongoose.connect(process.env.MONGO_URI || "mongodb://localhost:27017/webgi");
+    await mongoose.connect(process.env.MONGODB_URI || process.env.MONGO_URI || "mongodb://localhost:27017/webgi");
     console.log("✅ Connected to MongoDB");
 
     // Get all existing properties

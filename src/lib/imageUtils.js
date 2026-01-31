@@ -75,9 +75,13 @@ export const isValidUrl = (url) => {
   if (!url || typeof url !== 'string') return false;
   
   try {
-    // Check if it's a data URL or valid http/https URL
+    // Check if it's a data URL
     if (url.startsWith('data:')) return true;
     
+    // Check if it's a relative path (starts with / or ./)
+    if (url.startsWith('/') || url.startsWith('./') || url.startsWith('../')) return true;
+    
+    // Check if it's an absolute URL
     const urlObj = new URL(url);
     return urlObj.protocol === 'http:' || urlObj.protocol === 'https:';
   } catch {

@@ -58,26 +58,29 @@ const PropertyDetail = () => {
       // Normalize rental data to property structure
       const normalizedProperty = {
         ...data,
-        // Map rental fields to property fields
+        // Map rental fields to property fields (but keep the correct seller field)
         title: data.name || data.title,
         description: data.about || data.description,
         propertyType: data.property_type || data.propertyType,
-        address: data.location || data.address || "",
-        city: data.location || data.city || "",
-        seller: data._id || data.id,
+        address: data.address || data.location || "",
+        city: data.city || "",
+        state: data.state || "",
+        zipCode: data.zipCode || "",
+        // Keep the actual seller ID from the database, NOT the property's own ID
+        seller: data.seller,
         // Ensure amenities is an array
         amenities: Array.isArray(data.amenities) 
           ? data.amenities 
-          : Object.entries(data.amenities || {})
+          : Object.entries(data.amenities_object || data.amenities || {})
               .filter(([, value]) => value === true)
               .map(([key]) => key.replace(/_/g, ' ')),
       };
       
       setProperty(normalizedProperty);
       
-      // Set seller info
+      // Set seller info - get the actual seller from the data
       setSeller({
-        id: data?._id || data?.id,
+        id: data?.seller, // Use the actual seller ID
         name: data?.owner_details || "Property Owner",
         email: "owner@example.com",
         phone: "+91 XXXXX XXXXX",

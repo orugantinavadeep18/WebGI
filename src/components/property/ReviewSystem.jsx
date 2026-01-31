@@ -25,9 +25,19 @@ export default function ReviewSystem({ propertyId, onReviewsUpdated }) {
       setLoading(true);
       console.log(`📖 Fetching reviews for property: ${propertyId}`);
       
-      const data = await apiCall(`/rentals/${propertyId}/reviews`, {
-        method: "GET",
-      });
+      let data;
+      try {
+        // Try properties endpoint first
+        data = await apiCall(`/properties/${propertyId}/reviews`, {
+          method: "GET",
+        });
+      } catch (err) {
+        // Fallback to rentals endpoint
+        console.log("Trying rentals endpoint...");
+        data = await apiCall(`/rentals/${propertyId}/reviews`, {
+          method: "GET",
+        });
+      }
 
       console.log(`✓ Reviews fetched:`, data);
       setReviews(data.reviews || []);
@@ -68,13 +78,25 @@ export default function ReviewSystem({ propertyId, onReviewsUpdated }) {
       console.log(`📝 Submitting review for property: ${propertyId}`);
       console.log(`User: ${user?.email}, Rating: ${rating}, Comment: ${comment}`);
       
-      const reviewResponse = await apiCall(`/rentals/${propertyId}/reviews`, {
-        method: "POST",
-        body: JSON.stringify({
-          rating,
-          comment,
-        }),
-      });
+      let reviewResponse;
+      try {
+        reviewResponse = await apiCall(`/properties/${propertyId}/reviews`, {
+          method: "POST",
+          body: JSON.stringify({
+            rating,
+            comment,
+          }),
+        });
+      } catch (err) {
+        console.log("Trying rentals endpoint...");
+        reviewResponse = await apiCall(`/rentals/${propertyId}/reviews`, {
+          method: "POST",
+          body: JSON.stringify({
+            rating,
+            comment,
+          }),
+        });
+      }
 
       console.log(`✓ Review submitted successfully!`);
       toast.success("Review submitted successfully!");
@@ -110,9 +132,16 @@ export default function ReviewSystem({ propertyId, onReviewsUpdated }) {
     try {
       console.log(`🗑️ Deleting review: ${reviewId} from property: ${propertyId}`);
       
-      await apiCall(`/rentals/${propertyId}/reviews/${reviewId}`, {
-        method: "DELETE",
-      });
+      try {
+        await apiCall(`/properties/${propertyId}/reviews/${reviewId}`, {
+          method: "DELETE",
+        });
+      } catch (err) {
+        console.log("Trying rentals endpoint...");
+        await apiCall(`/rentals/${propertyId}/reviews/${reviewId}`, {
+          method: "DELETE",
+        });
+      }
 
       console.log(`✓ Review deleted successfully!`);
       toast.success("Review deleted");

@@ -39,7 +39,7 @@ const Index = () => {
 
             {/* Subtitle */}
             <p className="text-base sm:text-lg md:text-xl text-primary-foreground/80 mb-6 sm:mb-8 max-w-2xl animate-slide-up leading-relaxed" style={{ animationDelay: "100ms" }}>
-              No fake reviews. No false promises. Our unique verification system ensures every property is thoroughly checked before you book.
+             Helping you find the right place to stay — intelligently, effortlessly, and with confidence.
             </p>
 
             {/* Search Bar */}
