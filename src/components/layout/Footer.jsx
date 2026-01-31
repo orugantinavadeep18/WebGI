@@ -34,12 +34,12 @@ const Footer = () => {
                 </Link>
               </li>
               <li>
-                <Link to="/properties?type=pg" className="text-primary-foreground/80 hover:text-primary-foreground transition-colors">
+                <Link to="/properties?type=PGs" className="text-primary-foreground/80 hover:text-primary-foreground transition-colors">
                   PGs
                 </Link>
               </li>
               <li>
-                <Link to="/properties?type=others" className="text-primary-foreground/80 hover:text-primary-foreground transition-colors">
+                <Link to="/properties?type=Rental_Room" className="text-primary-foreground/80 hover:text-primary-foreground transition-colors">
                   Rental Rooms
                 </Link>
               </li>
@@ -56,12 +56,12 @@ const Footer = () => {
                 </Link>
               </li>
               <li>
-                <Link to="/my-bookings" className="text-primary-foreground/80 hover:text-primary-foreground transition-colors">
+                <Link to="/bookings" className="text-primary-foreground/80 hover:text-primary-foreground transition-colors">
                   My Bookings
                 </Link>
               </li>
               <li>
-                <Link to="/list-properties" className="text-primary-foreground/80 hover:text-primary-foreground transition-colors">
+                <Link to="/my-properties" className="text-primary-foreground/80 hover:text-primary-foreground transition-colors">
                   My Properties
                 </Link>
               </li>
@@ -85,13 +85,13 @@ const Footer = () => {
               </li>
               <li className="flex items-center gap-2 text-primary-foreground/80">
                 <Phone className="h-4 w-4" />
-                <a href="tel:+919876543210" className="hover:text-primary-foreground transition-colors">
-                  +91 98765 43210
+                <a href="tel:+91 9834679XXX" className="hover:text-primary-foreground transition-colors">
+                  +91 9834679XXX
                 </a>
               </li>
               <li className="flex items-start gap-2 text-primary-foreground/80">
                 <MapPin className="h-4 w-4 mt-0.5" />
-                <span>Bangalore, India</span>
+                <span>Kurnool, India</span>
               </li>
             </ul>
           </div>
