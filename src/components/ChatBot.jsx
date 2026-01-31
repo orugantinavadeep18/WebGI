@@ -1280,7 +1280,7 @@ const ChatBot = () => {
   const lottieRef = useRef(null);
   const animationRef = useRef(null);
   const [propertyStats, setPropertyStats] = useState(null);
-  const [position, setPosition] = useState({ x: window.innerWidth - 400, y: window.innerHeight - 650 });
+  const [position, setPosition] = useState({ x: window.innerWidth - 200, y: window.innerHeight - 200 });
   const [isDragging, setIsDragging] = useState(false);
   const [dragOffset, setDragOffset] = useState({ x: 0, y: 0 });
   const [contextMenu, setContextMenu] = useState({ visible: false, x: 0, y: 0 });
