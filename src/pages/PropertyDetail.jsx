@@ -568,21 +568,35 @@ const PropertyDetail = () => {
 
                   {/* Contact Buttons */}
                   <div className="space-y-3">
-                    <Button 
-                      className="w-full gap-2"
-                      onClick={handleBookNow}
-                    >
-                      <BookOpen className="h-4 w-4" />
-                      Book This Property
-                    </Button>
-                    <Button 
-                      variant="outline"
-                      className="w-full gap-2"
-                      onClick={handleContactSeller}
-                    >
-                      <MessageCircle className="h-4 w-4" />
-                      Message Seller
-                    </Button>
+                    {property?.seller && property.seller === user?.id ? (
+                      <div className="w-full p-4 bg-blue-50 border border-blue-200 rounded-lg">
+                        <p className="text-sm font-semibold text-blue-900 flex items-center gap-2">
+                          <AlertCircle className="h-4 w-4" />
+                          This is your property
+                        </p>
+                        <p className="text-xs text-blue-700 mt-1">
+                          You cannot book your own property. Go to "Your Properties" to manage this listing.
+                        </p>
+                      </div>
+                    ) : (
+                      <>
+                        <Button 
+                          className="w-full gap-2"
+                          onClick={handleBookNow}
+                        >
+                          <BookOpen className="h-4 w-4" />
+                          Book This Property
+                        </Button>
+                        <Button 
+                          variant="outline"
+                          className="w-full gap-2"
+                          onClick={handleContactSeller}
+                        >
+                          <MessageCircle className="h-4 w-4" />
+                          Message Seller
+                        </Button>
+                      </>
+                    )}
                   </div>
                 </div>
               </Card>
