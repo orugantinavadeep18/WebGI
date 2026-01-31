@@ -217,7 +217,13 @@ const PropertyDetail = () => {
       toast.error("Please sign in to message seller");
       return;
     }
-    if (seller?.id) {
+    if (property?.seller && property.seller !== user.id) {
+      // Navigate to messages with the seller's ID
+      navigate(`/messages/${property.seller}`);
+    } else if (property?.seller === user.id) {
+      toast.error("You cannot message your own property");
+    } else if (seller?.id && seller.id !== user.id) {
+      // Fallback to seller object if available
       navigate(`/messages/${seller.id}`);
     } else {
       toast.error("Seller information not available");
@@ -227,6 +233,10 @@ const PropertyDetail = () => {
   const handleBookNow = () => {
     if (!user) {
       toast.error("Please sign in to book property");
+      return;
+    }
+    if (property?.seller && property.seller === user.id) {
+      toast.error("You cannot book your own property");
       return;
     }
     setShowBookingModal(true);
