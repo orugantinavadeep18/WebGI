@@ -1580,21 +1580,6 @@ const ChatBot = () => {
       };
 
       setMessages((prev) => [...prev, newBotMessage]);
-    } catch (error) {
-      console.error("❌ Chatbot fetch error:", error);
-
-      // Fallback response
-      const detectedIntent = detectIntent(inputValue);
-      let botResponse = generateResponse(detectedIntent);
-
-      const newBotMessage = {
-        id: messages.length + 3,
-        text: botResponse,
-        sender: "bot",
-        timestamp: new Date(),
-      };
-
-      setMessages((prev) => [...prev, newBotMessage]);
     } finally {
       setIsLoading(false);
     }
@@ -1791,6 +1776,6 @@ const ChatBot = () => {
       )}
       </>
     );
-  };
+}
 
-  export default ChatBot;
+export default ChatBot;
