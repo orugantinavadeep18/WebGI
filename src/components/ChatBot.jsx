@@ -1287,13 +1287,14 @@ const ChatBot = () => {
 
   // Handle opening chat - position chatbox above and to the left of the bot
   const handleOpenChat = () => {
-    // Position chatbox above and to the left of the bot
-    // Bot is 180x180, chatbox is 384px wide (w-96)
-    // Position it 20px above and 30px to the left of the bot
-    const chatboxX = Math.max(10, position.x - 30); // 30px to the left, but keep it on screen
-    const chatboxY = Math.max(10, position.y - 620); // 620px above (chat height ~600px + gap)
-    setPosition({ x: chatboxX, y: chatboxY });
     setIsOpen(true);
+  };
+
+  // Calculate chatbox position based on bot position
+  const getChatboxPosition = () => {
+    const chatboxX = Math.max(10, position.x - 30); // 30px to the left
+    const chatboxY = Math.max(10, position.y - 620); // 620px above
+    return { x: chatboxX, y: chatboxY };
   };
 
   // Auto-scroll to latest message
@@ -1516,10 +1517,11 @@ const ChatBot = () => {
 
   return (
     <>
-      {/* Floating Button - Only the animation is clickable, not the whole square */}
+      {/* Floating Button - Draggable bot that carries chatbox along */}
       {!isOpen && (
         <div
-          className="hidden md:flex fixed z-40 items-center justify-center pointer-events-none"
+          className="hidden md:flex fixed z-40 items-center justify-center pointer-events-auto cursor-move"
+          onMouseDown={handleDragStart}
           style={{ 
             width: "180px",
             height: "180px",
@@ -1562,21 +1564,20 @@ const ChatBot = () => {
         </div>
       )}
 
-      {/* Chatbot Container - Draggable with updated header and close button in input area */}
+      {/* Chatbot Container - Positioned based on bot position */}
       {isOpen && (
         <div 
           ref={chatContainerRef}
           className="hidden md:flex fixed z-50 w-96 h-[600px] bg-white rounded-xl shadow-2xl flex-col border border-border animate-slide-up overflow-hidden"
           style={{
-            left: `${position.x}px`,
-            top: `${position.y}px`,
+            left: `${getChatboxPosition().x}px`,
+            top: `${getChatboxPosition().y}px`,
           }}
         >
             
-            {/* Header - Draggable */}
+            {/* Header - Not draggable, follows bot */}
             <div 
-              className="bg-gradient-to-r from-primary via-primary/95 to-primary/90 text-white p-5 rounded-t-xl flex-shrink-0 cursor-move select-none hover:from-primary/95 hover:to-primary/85 transition-colors"
-              onMouseDown={handleDragStart}
+              className="bg-gradient-to-r from-primary via-primary/95 to-primary/90 text-white p-5 rounded-t-xl flex-shrink-0 select-none hover:from-primary/95 hover:to-primary/85 transition-colors"
             >
               <div className="flex items-center justify-between">
                 <div>
