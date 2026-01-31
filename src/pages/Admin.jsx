@@ -49,20 +49,28 @@ export default function Admin() {
       // Fetch all users
       const usersRes = await apiCall("/auth/all-users", {
         method: "GET",
-      }).catch(() => ({ users: [] }));
+      }).catch((err) => {
+        console.error("Error fetching users:", err);
+        return { users: [] };
+      });
       setAllUsers(usersRes.users || []);
 
-      // Fetch all properties
-      const propsRes = await apiCall("/properties", {
+      // Fetch all properties - using /rentals endpoint
+      const propsRes = await apiCall("/rentals", {
         method: "GET",
+      }).catch((err) => {
+        console.error("Error fetching properties:", err);
+        return { rentals: [] };
       });
-      setAllProperties(propsRes.properties || []);
+      
+      const properties = propsRes.rentals || propsRes.properties || [];
+      setAllProperties(properties);
 
       // Update stats
       setStats({
         totalUsers: usersRes.users?.length || 0,
-        totalProperties: propsRes.properties?.length || 0,
-        totalBookings: propsRes.properties?.reduce(
+        totalProperties: properties.length || 0,
+        totalBookings: properties.reduce(
           (sum, p) => sum + (p.totalBookings || 0),
           0
         ) || 0,

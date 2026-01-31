@@ -101,20 +101,38 @@ export const propertyAPI = {
       method: "GET",
     }),
 
-  uploadImages: (propertyId, files) => {
-    const formData = new FormData();
-    files.forEach((file) => {
-      formData.append("images", file);
-    });
-
+  uploadImages: (propertyId, formDataOrFiles) => {
     const token = localStorage.getItem("token");
+    
+    // If it's already FormData, use it directly
+    // Otherwise convert array of files to FormData
+    let formData = formDataOrFiles;
+    if (!(formDataOrFiles instanceof FormData)) {
+      formData = new FormData();
+      if (Array.isArray(formDataOrFiles)) {
+        formDataOrFiles.forEach((file) => {
+          formData.append("images", file);
+        });
+      }
+    }
+
     return fetch(`${API_BASE_URL}/properties/${propertyId}/upload-images`, {
       method: "POST",
       headers: {
         Authorization: `Bearer ${token}`,
       },
       body: formData,
-    }).then((res) => res.json());
+    })
+      .then((res) => {
+        if (!res.ok) {
+          throw new Error(`HTTP error! status: ${res.status}`);
+        }
+        return res.json();
+      })
+      .catch((err) => {
+        console.error("Upload error:", err);
+        throw err;
+      });
   },
 
   searchProperties: (query) =>
