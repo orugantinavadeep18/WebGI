@@ -1280,7 +1280,7 @@ const ChatBot = () => {
   const lottieRef = useRef(null);
   const animationRef = useRef(null);
   const [propertyStats, setPropertyStats] = useState(null);
-  const [position, setPosition] = useState({ x: 0, y: 0 });
+  const [position, setPosition] = useState({ x: window.innerWidth - 400, y: window.innerHeight - 650 });
   const [isDragging, setIsDragging] = useState(false);
   const [dragOffset, setDragOffset] = useState({ x: 0, y: 0 });
   const chatContainerRef = useRef(null);
@@ -1555,12 +1555,8 @@ const ChatBot = () => {
           ref={chatContainerRef}
           className="hidden md:flex fixed z-50 w-96 h-[600px] bg-white rounded-xl shadow-2xl flex-col border border-border animate-slide-up overflow-hidden"
           style={{
-            bottom: `${position.y}px`,
-            right: `${position.x}px`,
-            transform: "none",
-            bottom: "auto",
+            left: `${position.x}px`,
             top: `${position.y}px`,
-            right: `${position.x}px`,
           }}
         >
             
