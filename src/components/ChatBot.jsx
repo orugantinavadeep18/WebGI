@@ -1280,6 +1280,10 @@ const ChatBot = () => {
   const lottieRef = useRef(null);
   const animationRef = useRef(null);
   const [propertyStats, setPropertyStats] = useState(null);
+  const [position, setPosition] = useState({ x: 0, y: 0 });
+  const [isDragging, setIsDragging] = useState(false);
+  const [dragOffset, setDragOffset] = useState({ x: 0, y: 0 });
+  const chatContainerRef = useRef(null);
 
   // Auto-scroll to latest message
   useEffect(() => {
@@ -1287,6 +1291,40 @@ const ChatBot = () => {
       chatMessagesRef.current.scrollTop = chatMessagesRef.current.scrollHeight;
     }
   }, [messages]);
+
+  // Handle drag start on header
+  const handleDragStart = (e) => {
+    if (e.button !== 0) return; // Only left mouse button
+    setIsDragging(true);
+    setDragOffset({
+      x: e.clientX - position.x,
+      y: e.clientY - position.y,
+    });
+  };
+
+  // Handle dragging
+  useEffect(() => {
+    if (!isDragging) return;
+
+    const handleMouseMove = (e) => {
+      setPosition({
+        x: e.clientX - dragOffset.x,
+        y: e.clientY - dragOffset.y,
+      });
+    };
+
+    const handleMouseUp = () => {
+      setIsDragging(false);
+    };
+
+    document.addEventListener("mousemove", handleMouseMove);
+    document.addEventListener("mouseup", handleMouseUp);
+
+    return () => {
+      document.removeEventListener("mousemove", handleMouseMove);
+      document.removeEventListener("mouseup", handleMouseUp);
+    };
+  }, [isDragging, dragOffset]);
 
   // Fetch property stats on mount
   useEffect(() => {
@@ -1458,23 +1496,30 @@ const ChatBot = () => {
 
   return (
     <>
-      {/* Floating Button - Hidden on mobile, visible on md+ */}
-      <button
-        onClick={() => setIsOpen(!isOpen)}
-        className="hidden md:flex fixed z-40 items-center justify-center cursor-pointer hover:opacity-90 transition-all duration-300 group bottom-6 right-6"
-        title={isOpen ? "Close chat" : "Open chat"}
-        style={{ 
-          background: "none", 
-          border: "none", 
-          padding: 0
-        }}
-      >
-        {isOpen ? (
-          <div className="w-14 h-14 rounded-full shadow-lg bg-white border-2 border-primary flex items-center justify-center text-primary hover:scale-110 transition-transform">
-            <X className="w-5 h-5" />
-          </div>
-        ) : (
-          <>
+      {/* Floating Button - Only the animation is clickable, not the whole square */}
+      {!isOpen && (
+        <div
+          className="hidden md:flex fixed z-40 items-center justify-center pointer-events-none bottom-6 right-6"
+          style={{ 
+            width: "180px",
+            height: "180px"
+          }}
+        >
+          <button
+            onClick={() => setIsOpen(!isOpen)}
+            className="absolute pointer-events-auto cursor-pointer hover:opacity-90 transition-all duration-300 group"
+            title="Open chat"
+            style={{ 
+              background: "none", 
+              border: "none", 
+              padding: 0,
+              width: "100%",
+              height: "100%",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center"
+            }}
+          >
             <div 
               ref={lottieRef} 
               style={{ 
@@ -1483,23 +1528,38 @@ const ChatBot = () => {
                 display: "flex", 
                 alignItems: "center", 
                 justifyContent: "center",
-                cursor: "pointer"
+                cursor: "pointer",
+                pointerEvents: "auto"
               }}
             />
             {/* Idle Message Tooltip */}
             <div className="absolute bottom-24 right-0 bg-white text-gray-900 px-4 py-2 rounded-lg shadow-lg text-sm font-semibold whitespace-nowrap pointer-events-none opacity-0 group-hover:opacity-100 transition-opacity duration-300 border border-primary">
               👋 Hi! I'm WebGI Assistant
             </div>
-          </>
-        )}
-      </button>
+          </button>
+        </div>
+      )}
 
-      {/* Chatbot Container - Hidden on mobile, visible on md+ */}
+      {/* Chatbot Container - Draggable with updated header and close button in input area */}
       {isOpen && (
-        <div className="hidden md:flex fixed bottom-20 right-6 z-50 w-96 h-[600px] bg-white rounded-xl shadow-2xl flex-col border border-border animate-slide-up overflow-hidden">
+        <div 
+          ref={chatContainerRef}
+          className="hidden md:flex fixed z-50 w-96 h-[600px] bg-white rounded-xl shadow-2xl flex-col border border-border animate-slide-up overflow-hidden"
+          style={{
+            bottom: `${position.y}px`,
+            right: `${position.x}px`,
+            transform: "none",
+            bottom: "auto",
+            top: `${position.y}px`,
+            right: `${position.x}px`,
+          }}
+        >
             
-            {/* Header */}
-            <div className="bg-gradient-to-r from-primary via-primary/95 to-primary/90 text-white p-5 rounded-t-xl flex-shrink-0">
+            {/* Header - Draggable */}
+            <div 
+              className="bg-gradient-to-r from-primary via-primary/95 to-primary/90 text-white p-5 rounded-t-xl flex-shrink-0 cursor-move select-none hover:from-primary/95 hover:to-primary/85 transition-colors"
+              onMouseDown={handleDragStart}
+            >
               <div className="flex items-center justify-between">
                 <div>
                   <h3 className="text-xl font-bold">WebGI Assistant</h3>
@@ -1557,12 +1617,12 @@ const ChatBot = () => {
               )}
             </div>
 
-            {/* Input Area */}
+            {/* Input Area with Close Button */}
             <form
               onSubmit={handleSendMessage}
               className="p-4 border-t border-border bg-white flex-shrink-0"
             >
-              <div className="flex gap-2">
+              <div className="flex gap-2 mb-2">
                 <input
                   type="text"
                   value={inputValue}
@@ -1580,6 +1640,16 @@ const ChatBot = () => {
                   <Send className="w-5 h-5" />
                 </button>
               </div>
+              {/* Close Button in Input Area */}
+              <button
+                type="button"
+                onClick={() => setIsOpen(false)}
+                className="w-full px-4 py-2 text-sm text-gray-600 hover:text-gray-800 hover:bg-gray-100 rounded-lg transition-colors flex items-center justify-center gap-2 border border-gray-200"
+                title="Close chat"
+              >
+                <X className="w-4 h-4" />
+                Close Chat
+              </button>
             </form>
 
             {/* Footer Note */}
