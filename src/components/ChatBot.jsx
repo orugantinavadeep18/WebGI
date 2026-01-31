@@ -1356,24 +1356,33 @@ const ChatBot = () => {
     fetchPropertyStats();
   }, []);
 
-  // Load Lottie animation
+  // Load Lottie animation - reload when floating button becomes visible
   useEffect(() => {
     const loadLottie = async () => {
       try {
         const lottie = (await import("lottie-web")).default;
 
-        if (lottieRef.current && !animationRef.current) {
-          animationRef.current = lottie.loadAnimation({
-            container: lottieRef.current,
-            renderer: "svg",
-            loop: true,
-            autoplay: true,
-            animationData: robotAnimation,
-            rendererSettings: {
-              preserveAspectRatio: "xMidYMid meet",
-              clearCanvas: false,
-            },
-          });
+        if (lottieRef.current) {
+          // Clear existing animation if any
+          if (animationRef.current) {
+            animationRef.current.destroy();
+            animationRef.current = null;
+          }
+          
+          // Only load animation when floating button is visible (chat is closed)
+          if (!isOpen) {
+            animationRef.current = lottie.loadAnimation({
+              container: lottieRef.current,
+              renderer: "svg",
+              loop: true,
+              autoplay: true,
+              animationData: robotAnimation,
+              rendererSettings: {
+                preserveAspectRatio: "xMidYMid meet",
+                clearCanvas: false,
+              },
+            });
+          }
         }
       } catch (error) {
         console.log("Lottie animation failed to load:", error);
@@ -1388,7 +1397,7 @@ const ChatBot = () => {
         animationRef.current = null;
       }
     };
-  }, []);
+  }, [isOpen]);
 
   // Detect user intent using fuzzy matching
   const detectIntent = (userInput) => {
