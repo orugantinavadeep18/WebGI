@@ -276,7 +276,7 @@ export default function CreateProperty() {
             </div>
 
             <div>
-              <Label htmlFor="description">Description *</Label>
+              <Label htmlFor="description">Description</Label>
               <textarea
                 id="description"
                 name="description"
