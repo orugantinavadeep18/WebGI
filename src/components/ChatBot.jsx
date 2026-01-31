@@ -1285,6 +1285,17 @@ const ChatBot = () => {
   const [dragOffset, setDragOffset] = useState({ x: 0, y: 0 });
   const chatContainerRef = useRef(null);
 
+  // Handle opening chat - position chatbox above and to the left of the bot
+  const handleOpenChat = () => {
+    // Position chatbox above and to the left of the bot
+    // Bot is 180x180, chatbox is 384px wide (w-96)
+    // Position it 20px above and 30px to the left of the bot
+    const chatboxX = Math.max(10, position.x - 30); // 30px to the left, but keep it on screen
+    const chatboxY = Math.max(10, position.y - 620); // 620px above (chat height ~600px + gap)
+    setPosition({ x: chatboxX, y: chatboxY });
+    setIsOpen(true);
+  };
+
   // Auto-scroll to latest message
   useEffect(() => {
     if (chatMessagesRef.current) {
@@ -1517,7 +1528,7 @@ const ChatBot = () => {
           }}
         >
           <button
-            onClick={() => setIsOpen(!isOpen)}
+            onClick={handleOpenChat}
             className="absolute pointer-events-auto cursor-pointer hover:opacity-90 transition-all duration-300 group"
             title="Open chat"
             style={{ 
