@@ -10,6 +10,7 @@ import propertyRoutes from "./routes/properties.js";
 import bookingRoutes from "./routes/bookings.js";
 import messageRoutes from "./routes/messages.js";
 import rentalRoutes from "./routes/rentals.js";
+import chatbotRoutes from "./routes/chatbot.js";
 
 dotenv.config();
 
@@ -51,6 +52,7 @@ app.use("/api/properties", propertyRoutes);
 app.use("/api/bookings", bookingRoutes);
 app.use("/api/messages", messageRoutes);
 app.use("/api/rentals", rentalRoutes);
+app.use("/api/chatbot", chatbotRoutes);
 
 // Health check endpoint
 app.get("/api/health", (req, res) => {
