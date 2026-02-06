@@ -3,6 +3,7 @@
 ![WebGI Banner](https://img.shields.io/badge/Status-Active-brightgreen) ![License](https://img.shields.io/badge/License-ISC-blue) ![Version](https://img.shields.io/badge/Version-1.0.0-orange)
 
 A modern, full-stack property rental platform built with cutting-edge technologies, featuring AI-powered recommendations, real-time booking management, and comprehensive property analytics.
+
 For testing, Admin credentials: 
 Username: kittu8441@gmail.com
 Password: 123456
