@@ -3,6 +3,9 @@
 ![WebGI Banner](https://img.shields.io/badge/Status-Active-brightgreen) ![License](https://img.shields.io/badge/License-ISC-blue) ![Version](https://img.shields.io/badge/Version-1.0.0-orange)
 
 A modern, full-stack property rental platform built with cutting-edge technologies, featuring AI-powered recommendations, real-time booking management, and comprehensive property analytics.
+For testing, Admin credentials: 
+Username: kittu8441@gmail.com
+Password: 123456
 
 🌐 **[Live Demo](https://web-gi-qgij.vercel.app/)** | 📦 **[GitHub Repository](https://github.com/orugantinavadeep18/WebGI.git)** | **[Colab Notebook](https://colab.research.google.com/drive/1S60HWwm4QX-kJ6CusclkwrR1LfJfGXtd?ts=697d929f)**
 ---
